@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NC Clinic · Follow-up de Leads</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --preto:#0a0a0a;
+  --preto-suave:#1c1c1c;
+  --dourado:#BCA366;
+  --dourado-claro:#D9C79A;
+  --creme:#FAF8F4;
+  --creme-forte:#F1ECE2;
+  --linha:#E4DDCB;
+  --texto:#211F1B;
+  --texto-suave:#6b6558;
+  --verde:#4C7A5E;
+  --alerta:#B4552F;
+  --urgente:#A13D3D;
+  --branco:#FFFFFF;
+  --sombra: 0 2px 10px rgba(10,10,10,0.06);
+  --sombra-forte: 0 12px 40px rgba(10,10,10,0.22);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--creme);
+  color:var(--texto);
+  font-family:'Archivo',sans-serif;
+  font-weight:400;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+
+::selection{background:var(--dourado-claro);}
+
+/* ---------- HEADER ---------- */
+.topo{
+  background:var(--preto);
+  color:var(--creme);
+  padding:22px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  flex-wrap:wrap;
+  position:sticky;
+  top:0;
+  z-index:40;
+  border-bottom:1px solid #000;
+}
+.marca{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.monograma{
+  width:44px;height:44px;
+  border:1px solid var(--dourado);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:17px;
+  letter-spacing:1px;
+  color:var(--dourado);
+  flex-shrink:0;
+}
+.marca-texto h1{
+  font-family:'Archivo',sans-serif;
+  font-weight:100;
+  font-size:22px;
+  letter-spacing:0.5px;
+  margin:0;
+  color:var(--branco);
+}
+.marca-texto p{
+  margin:2px 0 0;
+  font-size:11.5px;
+  letter-spacing:2.2px;
+  text-transform:uppercase;
+  color:var(--dourado);
+  font-weight:500;
+}
+.topo-acoes{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+/* ---------- BOTOES ---------- */
+.btn{
+  font-family:'Archivo',sans-serif;
+  border:1px solid transparent;
+  border-radius:7px;
+  padding:10px 16px;
+  font-size:13.5px;
+  font-weight:600;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  transition:transform .12s ease, background .15s ease, border-color .15s ease;
+  white-space:nowrap;
+}
+.btn:active{transform:scale(0.97);}
+.btn-dourado{background:var(--dourado);color:var(--preto);}
+.btn-dourado:hover{background:var(--dourado-claro);}
+.btn-fantasma{background:transparent;color:var(--creme);border-color:rgba(250,248,244,0.28);}
+.btn-fantasma:hover{border-color:var(--dourado);color:var(--dourado);}
+.btn-linha{background:transparent;color:var(--texto);border-color:var(--linha);}
+.btn-linha:hover{border-color:var(--dourado);color:var(--preto);background:var(--creme-forte);}
+.btn-zap{background:#25D366;color:#fff;}
+.btn-zap:hover{background:#1fb956;}
+.btn-sm{padding:6px 11px;font-size:12px;border-radius:6px;}
+.btn-icone{width:34px;height:34px;padding:0;justify-content:center;border-radius:50%;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+
+/* ---------- TOOLBAR ---------- */
+.barra{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  padding:16px 28px;
+  flex-wrap:wrap;
+  border-bottom:1px solid var(--linha);
+  background:var(--branco);
+}
+.busca{
+  flex:1;
+  min-width:220px;
+  position:relative;
+}
+.busca input{
+  width:100%;
+  padding:10px 14px 10px 36px;
+  border:1px solid var(--linha);
+  border-radius:8px;
+  font-family:'Archivo',sans-serif;
+  font-size:14px;
+  background:var(--creme);
+  color:var(--texto);
+}
+.busca input:focus{outline:2px solid var(--dourado);outline-offset:1px;}
+.busca svg{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  width:15px;height:15px;color:var(--texto-suave);
+}
+select.filtro{
+  padding:10px 12px;
+  border:1px solid var(--linha);
+  border-radius:8px;
+  font-family:'Archivo',sans-serif;
+  font-size:13.5px;
+  background:var(--branco);
+  color:var(--texto);
+  cursor:pointer;
+}
+.chip-toggle{
+  padding:9px 14px;
+  border-radius:20px;
+  border:1px solid var(--linha);
+  background:var(--branco);
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  color:var(--texto-suave);
+  display:flex;align-items:center;gap:6px;
+}
+.chip-toggle.ativo{
+  background:var(--urgente);
+  border-color:var(--urgente);
+  color:#fff;
+}
+.chip-toggle .bolinha{
+  width:7px;height:7px;border-radius:50%;background:var(--urgente);
+}
+.chip-toggle.ativo .bolinha{background:#fff;}
+
+/* ---------- STATS ---------- */
+.stats{
+  display:flex;
+  gap:10px;
+  padding:16px 28px;
+  flex-wrap:wrap;
+  background:var(--creme-forte);
+  border-bottom:1px solid var(--linha);
+}
+.stat{
+  background:var(--branco);
+  border:1px solid var(--linha);
+  border-radius:10px;
+  padding:10px 16px;
+  min-width:108px;
+  box-shadow:var(--sombra);
+}
+.stat .num{font-size:22px;font-weight:700;color:var(--preto);line-height:1.1;}
+.stat .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--texto-suave);margin-top:3px;}
+.stat.destaque{border-color:var(--urgente);}
+.stat.destaque .num{color:var(--urgente);}
+.stat.quieto{background:transparent;box-shadow:none;border-style:dashed;}
+.stat.quieto .num{color:var(--texto-suave);font-size:18px;}
+
+/* ---------- BOARD ---------- */
+.board-wrap{
+  padding:20px 28px 60px;
+  overflow-x:auto;
+}
+.board{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:minmax(272px,1fr);
+  gap:16px;
+  align-items:start;
+}
+.coluna{
+  background:var(--creme-forte);
+  border:1px solid var(--linha);
+  border-radius:12px;
+  padding:14px;
+  min-height:120px;
+}
+.coluna.recuperacao{background:#F7EDE6;border-color:#E4C7B2;}
+.coluna-titulo{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+  padding:0 2px;
+}
+.coluna-titulo h3{
+  font-size:13.5px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  font-weight:700;
+  margin:0;
+  color:var(--texto);
+}
+.coluna-titulo .contagem{
+  background:var(--preto);
+  color:var(--dourado);
+  font-size:12px;
+  font-weight:700;
+  border-radius:20px;
+  padding:2px 9px;
+}
+.coluna.recuperacao .coluna-titulo .contagem{background:var(--urgente);color:#fff;}
+.cartoes{display:flex;flex-direction:column;gap:10px;}
+.vazio-coluna{
+  font-size:12.5px;color:var(--texto-suave);text-align:center;padding:18px 6px;
+}
+
+/* ---------- CARD ---------- */
+.card{
+  background:var(--branco);
+  border:1px solid var(--linha);
+  border-left:3px solid var(--linha);
+  border-radius:9px;
+  padding:12px 13px;
+  cursor:pointer;
+  box-shadow:var(--sombra);
+  transition:box-shadow .15s ease, transform .1s ease;
+}
+.card:hover{box-shadow:var(--sombra-forte);transform:translateY(-1px);}
+.card:focus-visible{outline:2px solid var(--dourado);outline-offset:2px;}
+.card.ok{border-left-color:var(--verde);}
+.card.atencao{border-left-color:var(--dourado);}
+.card.urgente{border-left-color:var(--urgente);}
+.card.atrasado{border-left-color:var(--urgente);}
+.card.hoje{border-left-color:var(--dourado);}
+.card.futuro{border-left-color:var(--verde);}
+.card.quieto{border-left-color:var(--linha);}
+.card-topo{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.card-nome{font-weight:700;font-size:14.5px;line-height:1.25;}
+.card-badge{
+  font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;
+  flex-shrink:0;
+}
+.card-badge.ok{background:#E6EFE9;color:var(--verde);}
+.card-badge.atencao{background:#F5EEDD;color:#8a7233;}
+.card-badge.urgente{background:#F5E1DD;color:var(--urgente);}
+.card-badge.atrasado{background:var(--urgente);color:#fff;}
+.card-badge.hoje{background:var(--dourado);color:var(--preto);}
+.card-badge.futuro{background:#E6EFE9;color:var(--verde);}
+.card-meta{font-size:12px;color:var(--texto-suave);margin-top:5px;}
+.card-obs{
+  font-size:12px;color:var(--texto-suave);margin-top:7px;
+  font-style:italic;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.card-rodape{
+  display:flex;justify-content:space-between;align-items:center;margin-top:10px;
+}
+.card-historico-count{font-size:11px;color:var(--texto-suave);display:flex;align-items:center;gap:4px;}
+
+/* ---------- MODAL ---------- */
+.modal-fundo{
+  position:fixed;inset:0;background:rgba(10,10,10,0.55);
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:40px 16px;overflow-y:auto;z-index:100;
+  opacity:0;pointer-events:none;transition:opacity .15s ease;
+}
+.modal-fundo.aberto{opacity:1;pointer-events:auto;}
+.modal{
+  background:var(--branco);
+  border-radius:14px;
+  max-width:560px;width:100%;
+  box-shadow:var(--sombra-forte);
+  overflow:hidden;
+  transform:translateY(6px);
+  transition:transform .15s ease;
+}
+.modal-fundo.aberto .modal{transform:translateY(0);}
+.modal-larga .modal{max-width:760px;}
+.modal-topo{
+  background:var(--preto);color:var(--creme);
+  padding:20px 22px;
+  display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+}
+.modal-topo h2{margin:0;font-size:19px;font-weight:600;}
+.modal-topo .sub{color:var(--dourado);font-size:12.5px;margin-top:4px;letter-spacing:.4px;}
+.fechar{
+  background:transparent;border:none;color:var(--creme);cursor:pointer;
+  font-size:20px;line-height:1;padding:4px;
+}
+.fechar:hover{color:var(--dourado);}
+.modal-corpo{padding:20px 22px;max-height:70vh;overflow-y:auto;}
+.linha-info{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px dashed var(--linha);}
+.linha-info span:first-child{color:var(--texto-suave);}
+.linha-info span:last-child{font-weight:600;text-align:right;}
+.acoes-contato{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap;}
+.secao-titulo{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:var(--texto-suave);font-weight:700;margin:20px 0 10px;}
+.form-registro{background:var(--creme-forte);border:1px solid var(--linha);border-radius:10px;padding:14px;}
+.form-linha{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.form-registro select, .form-registro textarea, .form-registro input{
+  font-family:'Archivo',sans-serif;
+  border:1px solid var(--linha);
+  border-radius:7px;
+  padding:8px 10px;
+  font-size:13.5px;
+  background:var(--branco);
+  color:var(--texto);
+  width:100%;
+}
+.form-registro textarea{resize:vertical;min-height:56px;}
+.campo{flex:1;min-width:130px;}
+.campo label{display:block;font-size:11px;color:var(--texto-suave);margin-bottom:4px;font-weight:600;}
+
+.historico-item{
+  border-left:2px solid var(--dourado);
+  padding:8px 0 8px 14px;
+  margin-bottom:10px;
+  position:relative;
+}
+.historico-item::before{
+  content:'';position:absolute;left:-4.5px;top:12px;width:7px;height:7px;border-radius:50%;background:var(--dourado);
+}
+.historico-item .tipo{font-weight:700;font-size:13px;}
+.historico-item .quando{font-size:11px;color:var(--texto-suave);margin-left:6px;font-weight:400;}
+.historico-item .nota{font-size:13px;margin-top:3px;color:var(--texto);}
+.historico-item.sistema{border-left-color:var(--linha);}
+.historico-item.sistema::before{background:var(--linha);}
+.historico-item.sistema .tipo{color:var(--texto-suave);font-weight:600;}
+.sem-historico{font-size:13px;color:var(--texto-suave);text-align:center;padding:16px 0;}
+
+/* ---------- CONTEUDO DO GUIA ---------- */
+.guia-corpo p{font-size:13.5px;line-height:1.55;margin:0 0 12px;}
+.guia-corpo h3{font-size:12px;text-transform:uppercase;letter-spacing:1.1px;color:var(--texto-suave);font-weight:700;margin:20px 0 10px;}
+.guia-corpo h3:first-child{margin-top:0;}
+.guia-etapas{list-style:none;margin:0 0 14px;padding:0;counter-reset:passo;}
+.guia-etapas li{
+  counter-increment:passo;
+  padding:10px 12px 10px 40px;
+  position:relative;
+  border:1px solid var(--linha);
+  border-radius:8px;
+  margin-bottom:8px;
+  font-size:13.5px;
+  line-height:1.5;
+  background:var(--creme-forte);
+}
+.guia-etapas li::before{
+  content:counter(passo);
+  position:absolute;left:11px;top:10px;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--dourado);color:var(--preto);
+  font-size:11.5px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.guia-regra{
+  background:var(--preto);color:var(--creme);
+  border-radius:9px;padding:12px 14px;
+  font-size:13px;line-height:1.5;margin-bottom:14px;
+}
+.guia-regra strong{color:var(--dourado);}
+.guia-dica{font-size:12px;color:var(--texto-suave);}
+
+/* ---------- SEGMENTAÇÃO POR GRUPO ---------- */
+.grupo-seg{
+  border:1px solid var(--linha);
+  border-radius:10px;
+  padding:14px;
+  margin-bottom:16px;
+  background:var(--creme-forte);
+}
+.grupo-seg-topo{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;gap:10px;}
+.grupo-seg-titulo{font-weight:700;font-size:14px;}
+.grupo-seg-legenda{font-size:12px;color:var(--texto-suave);margin-bottom:10px;}
+.grupo-seg textarea{
+  width:100%;min-height:64px;
+  font-family:'Archivo',sans-serif;font-size:13px;
+  border:1px solid var(--linha);border-radius:7px;
+  padding:8px 10px;background:var(--branco);color:var(--texto);
+  margin-bottom:10px;resize:vertical;
+}
+.lead-seg-item{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:7px 0;border-bottom:1px dashed var(--linha);font-size:13px;
+}
+.lead-seg-item:last-child{border-bottom:none;}
+.lead-seg-nome{font-weight:600;}
+.lead-seg-tel{color:var(--texto-suave);font-size:11.5px;}
+.lead-seg-acoes{display:flex;gap:6px;flex-shrink:0;}
+.grupo-vazio{font-size:12.5px;color:var(--texto-suave);padding:6px 0;}
+
+/* ---------- TOAST ---------- */
+.toast-wrap{position:fixed;bottom:22px;right:22px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+.toast{
+  background:var(--preto);color:var(--creme);padding:13px 18px;border-radius:9px;
+  font-size:13.5px;box-shadow:var(--sombra-forte);
+  border-left:3px solid var(--dourado);
+  max-width:320px;
+  animation:entrar .2s ease;
+}
+@keyframes entrar{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* ---------- IMPORT OVERLAY / EMPTY ---------- */
+.rodape-nota{
+  padding:14px 28px 40px;
+  font-size:12px;
+  color:var(--texto-suave);
+  max-width:720px;
+}
+.rodape-nota strong{color:var(--texto);}
+
+input[type=file]{display:none;}
+
+/* ---------- TELA DE LOGIN ---------- */
+.tela-login{
+  position:fixed;inset:0;
+  background:var(--preto);
+  display:flex;align-items:center;justify-content:center;
+  z-index:500;
+  padding:20px;
+}
+.login-caixa{
+  background:var(--branco);
+  border-radius:14px;
+  padding:36px 32px;
+  max-width:340px;width:100%;
+  text-align:center;
+  box-shadow:var(--sombra-forte);
+}
+.login-titulo{
+  font-family:'Archivo',sans-serif;font-weight:300;font-size:21px;
+  margin:0 0 4px;color:var(--texto);
+}
+.login-sub{
+  font-size:11.5px;letter-spacing:1.6px;text-transform:uppercase;
+  color:var(--dourado-claro);background:var(--preto);
+  display:inline-block;padding:3px 10px;border-radius:20px;
+  margin:0 0 22px;
+}
+#campoPin{
+  width:100%;padding:12px 14px;
+  border:1px solid var(--linha);border-radius:8px;
+  font-family:'Archivo',sans-serif;font-size:16px;text-align:center;
+  letter-spacing:3px;
+  background:var(--creme);color:var(--texto);
+}
+#campoPin:focus{outline:2px solid var(--dourado);outline-offset:1px;}
+.login-erro{
+  color:var(--urgente);font-size:12.5px;margin:14px 0 0;min-height:14px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important;transition:none !important;}
+}
+
+@media (max-width:720px){
+  .topo{padding:16px 16px;}
+  .barra{padding:12px 16px;}
+  .stats{padding:12px 16px;}
+  .board-wrap{padding:14px 16px 40px;}
+  .board{grid-auto-flow:row;grid-auto-columns:unset;grid-template-columns:1fr;}
+  .marca-texto h1{font-size:18px;}
+}
+
+</style>
+</head>
+<body>
+
+<!-- TELA DE LOGIN (PIN único compartilhado) -->
+<div id="telaLogin" class="tela-login">
+  <div class="login-caixa">
+    <div class="monograma" style="margin:0 auto 14px;">NC</div>
+    <h1 class="login-titulo">Follow-up de Leads</h1>
+    <p class="login-sub">NC Clinic · Estética Integrativa</p>
+    <form id="formLogin">
+      <input type="password" inputmode="numeric" id="campoPin" placeholder="Digite o PIN" autocomplete="off">
+      <button type="submit" class="btn btn-dourado" id="botaoEntrar" style="width:100%;justify-content:center;margin-top:10px;">Entrar</button>
+    </form>
+    <p id="erroLogin" class="login-erro"></p>
+  </div>
+</div>
+
+<div id="appConteudo" style="display:none;">
+
+<header class="topo">
+  <div class="marca">
+    <div class="monograma">NC</div>
+    <div class="marca-texto">
+      <h1>Follow-up de Leads</h1>
+      <p>NC Clinic · Estética Integrativa</p>
+    </div>
+  </div>
+  <div class="topo-acoes">
+    <button class="btn btn-fantasma" id="botaoGuia" title="Ver o modelo de cadência de follow-up">Guia de follow-up</button>
+    <button class="btn btn-fantasma" id="botaoSegmentacao" title="Agrupar leads por etapa da cadência e copiar mensagens">Mensagens por grupo</button>
+    <button class="btn btn-fantasma" id="botaoImportarBackup" title="Mesclar um backup local (ex: da versão anterior) sem apagar nada">Restaurar backup</button>
+    <button class="btn btn-fantasma" id="botaoExportarBackup" title="Baixar uma cópia de segurança com todo o histórico">Exportar backup</button>
+    <button class="btn btn-dourado" id="botaoImportarPlanilha">Importar planilha (.xlsx)</button>
+    <button class="btn btn-fantasma" id="botaoSair" title="Sair">Sair</button>
+    <input type="file" id="inputPlanilha" accept=".xlsx,.xls">
+    <input type="file" id="inputBackup" accept=".json">
+  </div>
+</header>
+
+<div class="barra">
+  <div class="busca">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="campoBusca" placeholder="Buscar por nome ou telefone...">
+  </div>
+  <select class="filtro" id="filtroEtapa">
+    <option value="todas">Todas as etapas</option>
+    <option value="Lead">Lead</option>
+    <option value="Agendados">Agendados</option>
+    <option value="Atendido">Atendido</option>
+    <option value="Orçamento Aprovado">Orçamento Aprovado</option>
+    <option value="Desmarcou/Faltou">Desmarcou/Faltou</option>
+  </select>
+  <button class="chip-toggle" id="toggleAtencao"><span class="bolinha"></span> Precisa de atenção</button>
+</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="board-wrap">
+  <div class="board" id="board"></div>
+</div>
+
+<p class="rodape-nota">
+  <strong>Como funciona:</strong> os dados ficam num Google Sheets compartilhado — você, Nayara e a Carla acessam os mesmos leads e históricos, atualizados na hora. Toda vez que a Carla cadastrar leads novos no Clinicorp, exporte a planilha e use <strong>“Importar planilha”</strong> — os leads existentes são atualizados e o histórico de contatos é preservado, pode importar quantas vezes quiser. Os alertas de retorno e o selo de urgência só aparecem para <strong>Lead</strong> e <strong>Desmarcou/Faltou</strong> — depois que o cliente é agendado, o Clinicorp assume o acompanhamento.
+</p>
+
+<!-- MODAL: GUIA DE FOLLOW-UP -->
+<div class="modal-fundo" id="guiaFundo">
+  <div class="modal">
+    <div class="modal-topo">
+      <div>
+        <h2>Guia de Follow-up de Leads</h2>
+        <div class="sub">Modelo de cadência · NC Clinic</div>
+      </div>
+      <button class="fechar" id="guiaFecharBtn" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-corpo guia-corpo">
+      <p>Cadência recomendada a partir da entrada de um <strong>Lead novo</strong>. Cada etapa vira o gatilho para o selo de urgência do painel se for ultrapassada sem contato.</p>
+
+      <ol class="guia-etapas">
+        <li><strong>Mesmo dia (ideal: até 1h).</strong> Primeiro contato por WhatsApp — mensagem de boas-vindas + uma pergunta que qualifica o interesse (qual procedimento, o que buscam).</li>
+        <li><strong>1 dia depois</strong>, se não responder. Segunda tentativa, mesmo canal, mensagem curta e direta perguntando se recebeu.</li>
+        <li><strong>2 a 3 dias depois</strong>, ainda sem resposta. Terceira tentativa por um canal diferente — ligação, se antes foi só mensagem. A voz recupera parte de quem "some" no texto.</li>
+        <li><strong>5 a 7 dias depois.</strong> Quarta tentativa: mensagem de reengajamento com um gatilho real (condição especial, horário disponível, tirar dúvida) em vez de só cobrar retorno.</li>
+        <li><strong>14 dias depois.</strong> Quinta e última tentativa direta — um último recado educado, sem pressão, antes de considerar o lead frio.</li>
+      </ol>
+
+      <div class="guia-regra">
+        <strong>Regra geral:</strong> nenhum lead ativo deve ficar mais de 3 dias sem alguma ação. É exatamente esse o gatilho que o painel usa para os alertas dourado (atenção) e vermelho (urgente).
+      </div>
+
+      <p>Sem resposta após a 5ª tentativa: o lead vira <strong>frio</strong> — não cobrar mais diariamente, e sim reengajar em ciclo mensal (datas comemorativas, campanhas sazonais).</p>
+
+      <h3>Leads que desmarcaram ou faltaram</h3>
+      <p>Contato no mesmo dia, se possível — o objetivo é entender o motivo e já oferecer o reagendamento. Se não responder, segue a partir do dia seguinte a mesma cadência acima (2ª, 3ª, 4ª, 5ª tentativa).</p>
+
+      <h3>Como o painel ajuda</h3>
+      <p class="guia-dica">Ao registrar um contato como <em>"Não atendeu / sem resposta"</em>, o sistema já sugere automaticamente a data do próximo retorno seguindo essa cadência (1, 2, 7 e 14 dias — você pode ajustar manualmente antes de salvar). Assim que o retorno vence, o lead sobe para o topo da coluna com o alerta <strong>"Retorno hoje"</strong> ou <strong>"Retorno atrasado"</strong>. Ao marcar <em>"Avaliação agendada / conseguiu contato"</em> ou <em>"Confirmação de agendamento"</em>, o lembrete é removido automaticamente — não precisa preencher nada, o ciclo de cobrança se encerra ali.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SEGMENTAÇÃO POR GRUPO DE CADÊNCIA -->
+<div class="modal-fundo modal-larga" id="segmentacaoFundo">
+  <div class="modal">
+    <div class="modal-topo">
+      <div>
+        <h2>Mensagens por grupo</h2>
+        <div class="sub">Leads agrupados pela etapa da cadência de follow-up</div>
+      </div>
+      <button class="fechar" id="segmentacaoFecharBtn" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-corpo">
+      <p style="font-size:12.5px;color:var(--texto-suave);margin:0 0 16px;">Edite o modelo de mensagem de cada grupo (fica salvo). Use <strong>{nome}</strong> para personalizar. "Copiar" já substitui pelo primeiro nome de cada lead — cole direto na conversa do WhatsApp.</p>
+      <div id="segmentacaoConteudo"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-fundo" id="modalFundo">
+  <div class="modal">
+    <div class="modal-topo">
+      <div>
+        <h2 id="modalNome">—</h2>
+        <div class="sub" id="modalSub">—</div>
+      </div>
+      <button class="fechar" id="fecharModalBtn" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-corpo">
+      <div id="modalInfo"></div>
+      <div id="retornoAtualWrap"></div>
+
+      <div class="acoes-contato">
+        <a class="btn btn-zap btn-sm" id="botaoZapModal" target="_blank" rel="noopener">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.55-3.7 8.24-8.24 8.24zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.24-.64.81-.78.97-.14.17-.29.19-.53.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.24-1.47-1.38-1.72-.15-.24-.02-.37.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.42.08-.16.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43-.14-.01-.31-.01-.48-.01a.92.92 0 0 0-.67.31c-.23.24-.87.85-.87 2.08 0 1.22.89 2.4 1.01 2.57.12.16 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
+          WhatsApp
+        </a>
+        <a class="btn btn-linha btn-sm" id="botaoLigarModal">Ligar</a>
+      </div>
+
+      <div class="secao-titulo">Registrar novo contato</div>
+      <form class="form-registro" id="formRegistro">
+        <div class="form-linha">
+          <div class="campo">
+            <label>Tipo de contato</label>
+            <select id="tipoContato">
+              <option>WhatsApp enviado</option>
+              <option>Ligação realizada</option>
+              <option>Avaliação agendada / conseguiu contato</option>
+              <option>Confirmação de agendamento</option>
+              <option>Retorno agendado</option>
+              <option>Não atendeu / sem resposta</option>
+              <option>Outro</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Próximo retorno (opcional)</label>
+            <input type="date" id="proximoRetorno">
+          </div>
+        </div>
+        <div class="form-linha">
+          <div class="campo">
+            <label>Anotação</label>
+            <textarea id="notaContato" placeholder="Ex: falei com a paciente, ela quer remarcar para semana que vem..."></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-dourado btn-sm">Salvar registro</button>
+      </form>
+
+      <div class="secao-titulo">Histórico de contatos</div>
+      <div id="historicoLista"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+</div><!-- fim de #appConteudo -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+/* =========================================================
+   NC Clinic — Follow-up de Leads (versão ONLINE)
+   Dados ficam num Google Sheets, acessados via Google Apps Script.
+   ========================================================= */
+
+// ---- CONFIGURAÇÃO: cole aqui a URL do seu Apps Script (termina em /exec) ----
+const API_URL = 'https://script.google.com/macros/s/AKfycbzAeltuEqpgjV1DblhxiIG7jkeiQeRa76ytNWBJbsnoGw6Ktu9-iVVictKuA1aM_CSyrQ/exec';
+
+const PIN_STORAGE_KEY = 'ncclinic_followup_pin';
+const ETAPAS = ['Lead','Agendados','Atendido','Orçamento Aprovado','Desmarcou/Faltou'];
+// Só cobramos follow-up ativo em Lead e Desmarcou/Faltou.
+// Depois de agendado (Agendados, Atendido, Orçamento Aprovado) o Clinicorp já assume o acompanhamento.
+const ETAPAS_ATIVAS_ATENCAO = ['Lead','Desmarcou/Faltou'];
+
+let estado = null;      // { leads:{...}, templates:{...} } — sempre vindo do servidor
+let pinAtual = null;
+let modalKeyAtual = null;
+let filtro = { busca:'', etapa:'todas', apenasAtencao:false };
+
+/* ---------- utilidades de data ---------- */
+
+// espera "DD/MM/AAAA" -> Date
+function parseDataBR(str){
+  if(!str) return null;
+  const partes = String(str).trim().split(/[\/\-]/);
+  if(partes.length !== 3) return null;
+  const [d,m,a] = partes.map(Number);
+  if(!d || !m || !a) return null;
+  return new Date(a, m-1, d);
+}
+
+function formatarDataBR(date){
+  if(!date) return '—';
+  const d = String(date.getDate()).padStart(2,'0');
+  const m = String(date.getMonth()+1).padStart(2,'0');
+  const a = date.getFullYear();
+  return `${d}/${m}/${a}`;
+}
+
+function agora(){ return new Date(); }
+
+function diasEntre(a,b){
+  const ms = b.setHours(0,0,0,0) - a.setHours(0,0,0,0);
+  return Math.round(ms / 86400000);
+}
+
+function diasDesde(date){
+  if(!date) return null;
+  return diasEntre(new Date(date), new Date());
+}
+
+/* ---------- normalização / chaves ---------- */
+
+function normalizarTelefone(raw){
+  if(!raw) return '';
+  return String(raw).replace(/\D/g,'');
+}
+
+function normalizarNome(raw){
+  return String(raw||'').trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+function gerarChave(row){
+  const tel = normalizarTelefone(row.telefone);
+  const criacao = (row.dataCriacao||'').trim();
+  if(tel) return tel + '|' + criacao;
+  return normalizarNome(row.nome) + '|' + criacao;
+}
+
+function primeiroNome(nomeCompleto){
+  return String(nomeCompleto||'').trim().split(/\s+/)[0] || 'tudo bem';
+}
+
+/* ---------- WhatsApp ---------- */
+
+function linkWhatsApp(telefone, nome){
+  let digitos = normalizarTelefone(telefone);
+  if(!digitos) return null;
+  // remove um possível 0 inicial de discagem
+  digitos = digitos.replace(/^0+/, '');
+  if(digitos.length <= 11) digitos = '55' + digitos;
+  const msg = encodeURIComponent(`Olá ${primeiroNome(nome)}, tudo bem? Aqui é da NC Clinic 💛 Vim dar continuidade ao seu atendimento.`);
+  return `https://wa.me/${digitos}?text=${msg}`;
+}
+
+function linkWhatsAppTexto(telefone, texto){
+  let digitos = normalizarTelefone(telefone);
+  if(!digitos) return null;
+  digitos = digitos.replace(/^0+/, '');
+  if(digitos.length <= 11) digitos = '55' + digitos;
+  return `https://wa.me/${digitos}?text=${encodeURIComponent(texto)}`;
+}
+
+function telefoneFormatado(telefone){
+  return telefone ? telefone : 'sem telefone';
+}
+
+/* ---------- estado / comunicação com o servidor ---------- */
+
+async function chamarAPI(acao, dadosExtras){
+  const resp = await fetch(API_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain;charset=utf-8'}, // evita pre-flight de CORS
+    body: JSON.stringify(Object.assign({pin: pinAtual, acao: acao}, dadosExtras || {}))
+  });
+  if(!resp.ok) throw new Error('Falha de rede (' + resp.status + ')');
+  const json = await resp.json();
+  if(json.erro) throw new Error(json.erro);
+  return json;
+}
+
+async function buscarEstado(pin){
+  const resp = await fetch(API_URL + '?pin=' + encodeURIComponent(pin) + '&t=' + Date.now(), {cache:'no-store'});
+  if(!resp.ok) throw new Error('Falha de rede (' + resp.status + ')');
+  const json = await resp.json();
+  if(json.erro) throw new Error(json.erro);
+  return json; // { leads, templates }
+}
+
+async function recarregar(){
+  estado = await buscarEstado(pinAtual);
+  renderTudo();
+}
+
+/* ---------- cálculo de urgência ---------- */
+
+function ultimaAtividade(lead){
+  let datas = [];
+  const dEtapa = parseDataBR(lead.dataEtapa) || parseDataBR(lead.dataCriacao);
+  if(dEtapa) datas.push(dEtapa);
+  (lead.history||[]).forEach(h=>{
+    if(h.ts) datas.push(new Date(h.ts));
+  });
+  if(datas.length === 0) return null;
+  return new Date(Math.max(...datas.map(d=>d.getTime())));
+}
+
+// Retorna { classe, prioridade, texto } — prioridade menor = mais urgente.
+// 0 atrasado · 1 hoje · 2 urgente (sem retorno, muitos dias parado) · 3 atenção
+// 4 ok · 5 futuro (retorno já agendado, sob controle) · 9 quieto (fora do escopo de follow-up)
+function statusLead(lead){
+  if(!ETAPAS_ATIVAS_ATENCAO.includes(lead.etapa)){
+    return { classe:'quieto', prioridade:9, texto:null };
+  }
+
+  if(lead.proximoRetorno){
+    const dataRet = parseDataBR(lead.proximoRetorno);
+    if(dataRet){
+      const diff = diasEntre(new Date(), new Date(dataRet)); // dataRet - hoje
+      if(diff < 0) return { classe:'atrasado', prioridade:0, texto:`⏰ Retorno atrasado ${Math.abs(diff)}d` };
+      if(diff === 0) return { classe:'hoje', prioridade:1, texto:'🔔 Retorno hoje' };
+      return { classe:'futuro', prioridade:5, texto:`Retorno em ${diff}d` };
+    }
+  }
+
+  // sem retorno agendado -> cai no cálculo por dias sem contato
+  const ult = ultimaAtividade(lead);
+  const dias = ult ? diasDesde(ult) : null;
+  if(dias === null) return { classe:'urgente', prioridade:2, texto:'Nunca contatado' };
+  if(dias <= 1) return { classe:'ok', prioridade:4, texto:'Em dia' };
+  if(dias <= 3) return { classe:'atencao', prioridade:3, texto:`${dias}d sem contato` };
+  return { classe:'urgente', prioridade:2, texto:`${dias}d sem contato` };
+}
+
+function precisaAtencao(lead){
+  return statusLead(lead).prioridade <= 3;
+}
+
+/* ---------- cadência sugerida de retorno ---------- */
+// Modelo: 1ª tentativa sem resposta -> +1 dia · 2ª -> +2 dias · 3ª -> +7 dias (trocar canal)
+// 4ª -> +14 dias (última tentativa direta) · 5ª+ -> +30 dias (lead frio, reengajamento mensal)
+function sugerirDiasRetorno(tentativa){
+  if(tentativa <= 1) return 1;
+  if(tentativa === 2) return 2;
+  if(tentativa === 3) return 7;
+  if(tentativa === 4) return 14;
+  return 30;
+}
+
+function dataMaisDias(n){
+  const d = new Date();
+  d.setDate(d.getDate()+n);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+/* ---------- importação de planilha (.xlsx) ---------- */
+
+const MAPA_CABECALHOS = {
+  'nome':'nome',
+  'telefone':'telefone',
+  'data de criação':'dataCriacao',
+  'data de criacao':'dataCriacao',
+  'etapa':'etapa',
+  'data/etapa':'dataEtapa',
+  'data etapa':'dataEtapa',
+  'adicionado por':'adicionadoPor',
+  'observações':'observacoes',
+  'observacoes':'observacoes'
+};
+
+function processarPlanilha(arrayBuffer){
+  const wb = XLSX.read(arrayBuffer, {type:'array', cellDates:false});
+  const primeiraAba = wb.SheetNames[0];
+  const planilha = wb.Sheets[primeiraAba];
+  const linhasBrutas = XLSX.utils.sheet_to_json(planilha, {defval:null, raw:false});
+
+  const linhas = [];
+  linhasBrutas.forEach(linhaBruta=>{
+    const row = {};
+    Object.keys(linhaBruta).forEach(cabecalho=>{
+      const norm = cabecalho.trim().toLowerCase();
+      const campo = MAPA_CABECALHOS[norm];
+      if(campo) row[campo] = linhaBruta[cabecalho];
+    });
+    if(row.nome) linhas.push(row);
+  });
+
+  // o servidor casa cada linha pela chave (telefone+data de criação), atualiza
+  // quem já existe preservando o histórico, e cria quem é novo.
+  return chamarAPI('importarPlanilha', {linhas});
+}
+
+/* ---------- registro de contato ---------- */
+
+// tipos que encerram o ciclo de cobrança ativa: ao selecionar, o lembrete de
+// retorno é apagado automaticamente (não precisa preencher nada) e a contagem
+// de tentativas sem resposta zera.
+const TIPOS_SUCESSO = ['Avaliação agendada / conseguiu contato', 'Confirmação de agendamento'];
+
+async function registrarContato(key, tipo, nota, proximoRetorno){
+  await chamarAPI('registrarContato', {chave:key, tipo, nota, proximoRetorno});
+}
+
+async function limparRetorno(key){
+  await chamarAPI('limparRetorno', {chave:key});
+  await recarregar();
+  abrirModal(key);
+  mostrarToast('Lembrete de retorno removido.');
+}
+
+/* ---------- render: stats ---------- */
+
+function contarPorEtapa(){
+  const contagem = {}; ETAPAS.forEach(e=>contagem[e]=0);
+  Object.values(estado.leads).forEach(l=>{ contagem[l.etapa] = (contagem[l.etapa]||0)+1; });
+  return contagem;
+}
+
+function renderStats(){
+  const contagem = contarPorEtapa();
+  const leadsArr = Object.values(estado.leads);
+  const atrasados = leadsArr.filter(l => statusLead(l).classe === 'atrasado').length;
+  const retornosHoje = leadsArr.filter(l => statusLead(l).classe === 'hoje').length;
+  const emFollowUp = (contagem['Lead']||0) + (contagem['Desmarcou/Faltou']||0);
+
+  const wrap = document.getElementById('stats');
+  wrap.innerHTML = '';
+  const itens = [
+    {lbl:'Retornos atrasados', num: atrasados, destaque:true},
+    {lbl:'Retornos para hoje', num: retornosHoje, destaque:true},
+    {lbl:'Em follow-up agora', num: emFollowUp, destaque:false},
+    {lbl:'Lead', num: contagem['Lead']||0, destaque:false},
+    {lbl:'Desmarcou/Faltou', num: contagem['Desmarcou/Faltou']||0, destaque:false},
+    {lbl:'Agendados', num: contagem['Agendados']||0, destaque:false, quieto:true},
+    {lbl:'Atendido', num: contagem['Atendido']||0, destaque:false, quieto:true},
+    {lbl:'Orçamento Aprovado', num: contagem['Orçamento Aprovado']||0, destaque:false, quieto:true},
+  ];
+  itens.forEach(it=>{
+    const div = document.createElement('div');
+    div.className = 'stat' + (it.destaque ? ' destaque':'') + (it.quieto ? ' quieto':'');
+    div.innerHTML = `<div class="num">${it.num}</div><div class="lbl">${it.lbl}</div>`;
+    wrap.appendChild(div);
+  });
+}
+
+/* ---------- render: board ---------- */
+
+function passaFiltro(lead){
+  if(filtro.etapa !== 'todas' && lead.etapa !== filtro.etapa) return false;
+  if(filtro.apenasAtencao && !precisaAtencao(lead)) return false;
+  if(filtro.busca){
+    const alvo = normalizarNome(lead.nome) + ' ' + normalizarTelefone(lead.telefone);
+    if(!alvo.includes(normalizarNome(filtro.busca)) && !normalizarTelefone(lead.telefone).includes(normalizarTelefone(filtro.busca))){
+      return false;
+    }
+  }
+  return true;
+}
+
+function renderBoard(){
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+
+  ETAPAS.forEach(etapa=>{
+    const entradas = Object.entries(estado.leads)
+      .filter(([k,l]) => l.etapa === etapa && passaFiltro(l));
+
+    // ordena por prioridade (atrasado > hoje > urgente > atenção > ok > futuro > quieto);
+    // dentro da mesma prioridade, quem está parado há mais tempo aparece primeiro
+    entradas.sort((a,b)=>{
+      const sa = statusLead(a[1]);
+      const sb = statusLead(b[1]);
+      if(sa.prioridade !== sb.prioridade) return sa.prioridade - sb.prioridade;
+      const da = ultimaAtividade(a[1]);
+      const db = ultimaAtividade(b[1]);
+      return (da?da.getTime():0) - (db?db.getTime():0);
+    });
+
+    const coluna = document.createElement('div');
+    coluna.className = 'coluna' + (etapa === 'Desmarcou/Faltou' ? ' recuperacao' : '');
+    coluna.innerHTML = `
+      <div class="coluna-titulo">
+        <h3>${etapa}</h3>
+        <span class="contagem">${entradas.length}</span>
+      </div>
+      <div class="cartoes"></div>
+    `;
+    const cartoesWrap = coluna.querySelector('.cartoes');
+
+    if(entradas.length === 0){
+      cartoesWrap.innerHTML = `<div class="vazio-coluna">Nenhum lead aqui${filtro.busca||filtro.apenasAtencao||filtro.etapa!=='todas' ? ' com esse filtro':''}.</div>`;
+    } else {
+      entradas.forEach(([key, lead])=>{
+        cartoesWrap.appendChild(criarCard(key, lead));
+      });
+    }
+    board.appendChild(coluna);
+  });
+}
+
+function criarCard(key, lead){
+  const status = statusLead(lead);
+
+  const card = document.createElement('div');
+  card.className = `card ${status.classe}`;
+  card.tabIndex = 0;
+  card.setAttribute('role','button');
+  card.setAttribute('aria-label', `Abrir detalhes de ${lead.nome}`);
+
+  card.innerHTML = `
+    <div class="card-topo">
+      <div class="card-nome">${escapeHTML(lead.nome)}</div>
+      ${status.texto ? `<div class="card-badge ${status.classe}">${status.texto}</div>` : ''}
+    </div>
+    <div class="card-meta">${telefoneFormatado(lead.telefone)} · desde ${lead.dataCriacao||'—'}</div>
+    ${lead.observacoes ? `<div class="card-obs">${escapeHTML(lead.observacoes)}</div>` : ''}
+    <div class="card-rodape">
+      <span class="card-historico-count">${lead.history.length ? lead.history.length + ' registro(s)' : 'sem registros'}</span>
+    </div>
+  `;
+  card.addEventListener('click', ()=>abrirModal(key));
+  card.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); abrirModal(key); }});
+  return card;
+}
+
+function escapeHTML(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ---------- modal ---------- */
+
+function abrirModal(key){
+  fecharGuia(); fecharSegmentacao();
+  modalKeyAtual = key;
+  const lead = estado.leads[key];
+  if(!lead) return;
+
+  document.getElementById('modalNome').textContent = lead.nome;
+  document.getElementById('modalSub').textContent = `${lead.etapa} · adicionado por ${lead.adicionadoPor || '—'}`;
+
+  document.getElementById('modalInfo').innerHTML = `
+    <div class="linha-info"><span>Telefone</span><span>${telefoneFormatado(lead.telefone)}</span></div>
+    <div class="linha-info"><span>Data de criação</span><span>${lead.dataCriacao || '—'}</span></div>
+    <div class="linha-info"><span>Última mudança de etapa</span><span>${lead.dataEtapa || '—'}</span></div>
+    <div class="linha-info"><span>Observações da planilha</span><span>${lead.observacoes ? escapeHTML(lead.observacoes) : '—'}</span></div>
+  `;
+
+  const retornoWrap = document.getElementById('retornoAtualWrap');
+  if(lead.proximoRetorno){
+    const dataRet = parseDataBR(lead.proximoRetorno);
+    const diff = dataRet ? diasEntre(new Date(), new Date(dataRet)) : null;
+    let situacao = '';
+    if(diff !== null){
+      if(diff < 0) situacao = `<span style="color:var(--urgente);font-weight:700;">atrasado ${Math.abs(diff)}d</span>`;
+      else if(diff === 0) situacao = `<span style="color:#8a7233;font-weight:700;">hoje</span>`;
+      else situacao = `<span style="color:var(--verde);font-weight:700;">em ${diff}d</span>`;
+    }
+    retornoWrap.innerHTML = `
+      <div class="linha-info">
+        <span>Retorno agendado</span>
+        <span>${lead.proximoRetorno} — ${situacao}
+          <button type="button" id="botaoLimparRetorno" class="btn btn-linha btn-sm" style="margin-left:8px;padding:2px 9px;">Cancelar</button>
+        </span>
+      </div>`;
+    document.getElementById('botaoLimparRetorno').addEventListener('click', ()=>limparRetorno(key));
+  } else {
+    retornoWrap.innerHTML = '';
+  }
+
+  const linkZap = linkWhatsApp(lead.telefone, lead.nome);
+  const botaoZap = document.getElementById('botaoZapModal');
+  if(linkZap){
+    botaoZap.href = linkZap;
+    botaoZap.style.display = 'inline-flex';
+  } else {
+    botaoZap.style.display = 'none';
+  }
+  const linkTel = lead.telefone ? `tel:+55${normalizarTelefone(lead.telefone)}` : null;
+  const botaoLigar = document.getElementById('botaoLigarModal');
+  if(linkTel){ botaoLigar.href = linkTel; botaoLigar.style.display='inline-flex'; }
+  else { botaoLigar.style.display='none'; }
+
+  renderHistorico(lead);
+
+  document.getElementById('formRegistro').reset();
+  document.getElementById('modalFundo').classList.add('aberto');
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharModal(){
+  document.getElementById('modalFundo').classList.remove('aberto');
+  document.body.style.overflow = '';
+  modalKeyAtual = null;
+}
+
+function fecharGuia(){
+  document.getElementById('guiaFundo').classList.remove('aberto');
+  document.body.style.overflow = '';
+}
+
+function renderHistorico(lead){
+  const wrap = document.getElementById('historicoLista');
+  if(!lead.history.length){
+    wrap.innerHTML = '<div class="sem-historico">Nenhum contato registrado ainda. Use o formulário abaixo para começar o histórico.</div>';
+    return;
+  }
+  wrap.innerHTML = lead.history.map(h=>{
+    const dataFmt = new Date(h.ts).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    return `
+      <div class="historico-item ${h.sistema?'sistema':''}">
+        <span class="tipo">${escapeHTML(h.tipo)}</span><span class="quando">${dataFmt}</span>
+        ${h.nota ? `<div class="nota">${escapeHTML(h.nota)}</div>` : ''}
+        ${h.proximoRetorno ? `<div class="nota">Próximo retorno sugerido: ${h.proximoRetorno}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+/* ---------- segmentação por grupo de cadência ---------- */
+
+const GRUPOS_INFO = [
+  {id:0, titulo:'Novo — ainda sem tentativa', legenda:'1º contato: fazer no mesmo dia.'},
+  {id:1, titulo:'Aguardando 2º contato (+1 dia)', legenda:'Confirmar se a pessoa recebeu a primeira mensagem.'},
+  {id:2, titulo:'Aguardando 3º contato (+2 a 3 dias)', legenda:'Trocar de canal — sugerir ligação em vez de mensagem.'},
+  {id:3, titulo:'Aguardando 4º contato (+5 a 7 dias)', legenda:'Reengajamento com um gatilho real (condição, horário, dúvida).'},
+  {id:4, titulo:'Aguardando 5º contato (+14 dias)', legenda:'Última tentativa direta antes de virar lead frio.'},
+  {id:5, titulo:'Lead frio (5+ tentativas)', legenda:'Reengajamento mensal, sem cobrança diária.'},
+];
+
+const TEMPLATES_PADRAO = {
+  0: 'Olá {nome}, tudo bem? Aqui é da NC Clinic 💛 Vi seu interesse em conhecer nossos tratamentos de estética integrativa — posso te ajudar a agendar sua avaliação?',
+  1: 'Oi {nome}! Passando de novo por aqui 💛 Só confirmando se você recebeu minha mensagem sobre a avaliação na NC Clinic — consigo te ajudar a encontrar um horário?',
+  2: 'Olá {nome}, tudo bem? Aqui é da NC Clinic 💛 Tentei falar por aqui algumas vezes — se preferir, posso te ligar rapidinho pra tirar suas dúvidas. Qual o melhor horário pra você?',
+  3: 'Oi {nome}! Aqui é da NC Clinic 💛 Essa semana temos horários abertos pra avaliação gratuita — ótimo momento pra conhecer de perto nossos tratamentos. Posso reservar um horário pra você?',
+  4: 'Olá {nome}, tudo bem? Essa é nossa última tentativa por aqui 💛 Continuamos à disposição na NC Clinic caso queira agendar sua avaliação — é só responder quando quiser.',
+  5: 'Oi {nome}! Aqui é da NC Clinic 💛 Faz um tempinho que conversamos — abrimos novas condições esse mês para avaliação e tratamentos. Se ainda tiver interesse, me chama!'
+};
+
+function grupoCadencia(lead){
+  if(!ETAPAS_ATIVAS_ATENCAO.includes(lead.etapa)) return null;
+  const t = lead.tentativaAtual || 0;
+  return t >= 5 ? 5 : t;
+}
+
+function getTemplate(id){
+  if(estado.templates && estado.templates[id] !== undefined) return estado.templates[id];
+  return TEMPLATES_PADRAO[id];
+}
+
+const _debounceTemplates = {};
+function salvarTemplate(id, texto){
+  if(!estado.templates) estado.templates = {};
+  estado.templates[id] = texto; // atualiza local imediatamente para a UI ficar fluida
+  clearTimeout(_debounceTemplates[id]);
+  _debounceTemplates[id] = setTimeout(async ()=>{
+    try{
+      await chamarAPI('salvarTemplate', {grupoId: id, texto});
+    }catch(e){
+      mostrarToast('Não consegui salvar o modelo de mensagem agora.');
+      console.error(e);
+    }
+  }, 800);
+}
+
+function personalizarMensagem(template, nome){
+  return String(template||'').split('{nome}').join(primeiroNome(nome));
+}
+
+async function copiarTexto(texto){
+  try{
+    await navigator.clipboard.writeText(texto);
+    mostrarToast('Mensagem copiada.');
+  }catch(e){
+    mostrarToast('Não foi possível copiar automaticamente neste navegador — selecione e copie manualmente.');
+    console.error(e);
+  }
+}
+
+function renderSegmentacao(){
+  const wrap = document.getElementById('segmentacaoConteudo');
+  const porGrupo = {0:[],1:[],2:[],3:[],4:[],5:[]};
+  Object.entries(estado.leads).forEach(([key,lead])=>{
+    const g = grupoCadencia(lead);
+    if(g !== null) porGrupo[g].push([key,lead]);
+  });
+
+  wrap.innerHTML = GRUPOS_INFO.map(info=>{
+    const leadsGrupo = porGrupo[info.id];
+    const template = getTemplate(info.id);
+    const listaHtml = leadsGrupo.length ? leadsGrupo.map(([key,lead])=>{
+      const msg = personalizarMensagem(template, lead.nome);
+      const linkZap = linkWhatsAppTexto(lead.telefone, msg);
+      return `
+        <div class="lead-seg-item">
+          <div>
+            <div class="lead-seg-nome">${escapeHTML(lead.nome)}</div>
+            <div class="lead-seg-tel">${telefoneFormatado(lead.telefone)}</div>
+          </div>
+          <div class="lead-seg-acoes">
+            <button type="button" class="btn btn-linha btn-sm" data-copiar="${key}" data-grupo="${info.id}">Copiar</button>
+            ${linkZap ? `<a class="btn btn-zap btn-sm" href="${linkZap}" target="_blank" rel="noopener">Zap</a>` : ''}
+          </div>
+        </div>`;
+    }).join('') : `<div class="grupo-vazio">Nenhum lead neste grupo agora.</div>`;
+
+    return `
+      <div class="grupo-seg">
+        <div class="grupo-seg-topo">
+          <span class="grupo-seg-titulo">${info.titulo}</span>
+          <span class="contagem">${leadsGrupo.length}</span>
+        </div>
+        <div class="grupo-seg-legenda">${info.legenda}</div>
+        <textarea data-template="${info.id}" placeholder="Modelo de mensagem para este grupo... use {nome} para personalizar">${escapeHTML(template)}</textarea>
+        ${listaHtml}
+      </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('textarea[data-template]').forEach(ta=>{
+    ta.addEventListener('input', (e)=>{
+      salvarTemplate(e.target.dataset.template, e.target.value);
+    });
+  });
+  wrap.querySelectorAll('button[data-copiar]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      const key = e.currentTarget.dataset.copiar;
+      const grupo = e.currentTarget.dataset.grupo;
+      const lead = estado.leads[key];
+      if(!lead) return;
+      copiarTexto(personalizarMensagem(getTemplate(grupo), lead.nome));
+    });
+  });
+}
+
+function fecharSegmentacao(){
+  document.getElementById('segmentacaoFundo').classList.remove('aberto');
+  document.body.style.overflow = '';
+}
+
+/* ---------- toasts ---------- */
+
+function mostrarToast(msg, duracao=4200){
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.remove(); }, duracao);
+}
+
+/* ---------- exportar / importar backup json ---------- */
+
+function exportarBackup(){
+  const blob = new Blob([JSON.stringify(estado, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const hoje = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `nc-clinic-followup-backup-${hoje}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  mostrarToast('Backup exportado. Guarde este arquivo — ele contém todo o histórico de contatos.');
+}
+
+async function importarBackup(arquivo){
+  const leitor = new FileReader();
+  leitor.onload = async (e)=>{
+    try{
+      const backup = JSON.parse(e.target.result);
+      if(!backup.leads) throw new Error('formato inválido');
+      const ok = confirm('Isso vai MESCLAR este backup com os dados online (nada é apagado — leads e históricos são combinados). Deseja continuar?');
+      if(!ok) return;
+      const resultado = await chamarAPI('importarBackup', {estado: backup});
+      await recarregar();
+      mostrarToast(`Backup mesclado: ${resultado.novos} lead(s) novo(s), ${resultado.mesclados} combinado(s) com dados existentes.`);
+    }catch(err){
+      mostrarToast('Não foi possível ler ou mesclar este arquivo de backup.');
+      console.error(err);
+    }
+  };
+  leitor.readAsText(arquivo);
+}
+
+/* ---------- render geral ---------- */
+
+function renderTudo(){
+  renderStats();
+  renderBoard();
+}
+
+/* ---------- login ---------- */
+
+async function tentarLogin(pin){
+  const erroEl = document.getElementById('erroLogin');
+  const botao = document.getElementById('botaoEntrar');
+  erroEl.textContent = '';
+  botao.disabled = true;
+  const textoOriginal = botao.textContent;
+  botao.textContent = 'Entrando...';
+  try{
+    estado = await buscarEstado(pin);
+    pinAtual = pin;
+    localStorage.setItem(PIN_STORAGE_KEY, pin);
+    document.getElementById('telaLogin').style.display = 'none';
+    document.getElementById('appConteudo').style.display = '';
+    renderTudo();
+  }catch(e){
+    localStorage.removeItem(PIN_STORAGE_KEY);
+    erroEl.textContent = (e.message === 'PIN inválido')
+      ? 'PIN incorreto. Confira e tente de novo.'
+      : 'Não consegui conectar ao servidor. Verifique sua internet ou avise o Miguel.';
+  }finally{
+    botao.disabled = false;
+    botao.textContent = textoOriginal;
+  }
+}
+
+/* ---------- eventos ---------- */
+
+function iniciar(){
+  if(API_URL.indexOf('COLE_AQUI') !== -1){
+    document.getElementById('erroLogin').textContent = 'Configuração pendente: cole a URL do Apps Script na variável API_URL, no topo do arquivo.';
+  } else {
+    const pinSalvo = localStorage.getItem(PIN_STORAGE_KEY);
+    if(pinSalvo){
+      document.getElementById('campoPin').value = pinSalvo;
+      tentarLogin(pinSalvo);
+    }
+  }
+
+  document.getElementById('formLogin').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const pin = document.getElementById('campoPin').value.trim();
+    if(pin) tentarLogin(pin);
+  });
+
+  document.getElementById('botaoSair').addEventListener('click', ()=>{
+    localStorage.removeItem(PIN_STORAGE_KEY);
+    pinAtual = null;
+    estado = null;
+    document.getElementById('appConteudo').style.display = 'none';
+    document.getElementById('telaLogin').style.display = '';
+    document.getElementById('campoPin').value = '';
+  });
+
+  document.getElementById('campoBusca').addEventListener('input', (e)=>{
+    filtro.busca = e.target.value;
+    renderBoard();
+  });
+
+  document.getElementById('filtroEtapa').addEventListener('change', (e)=>{
+    filtro.etapa = e.target.value;
+    renderBoard();
+  });
+
+  document.getElementById('toggleAtencao').addEventListener('click', (e)=>{
+    filtro.apenasAtencao = !filtro.apenasAtencao;
+    e.currentTarget.classList.toggle('ativo', filtro.apenasAtencao);
+    renderBoard();
+  });
+
+  document.getElementById('inputPlanilha').addEventListener('change', (e)=>{
+    const arquivo = e.target.files[0];
+    if(!arquivo) return;
+    const leitor = new FileReader();
+    leitor.onload = async (ev)=>{
+      mostrarToast('Importando planilha...', 2500);
+      try{
+        const resultado = await processarPlanilha(ev.target.result);
+        await recarregar();
+        mostrarToast(`Planilha importada: ${resultado.novos} novo(s), ${resultado.atualizados} atualizado(s), ${resultado.semAlteracao} sem mudança.`);
+      }catch(err){
+        console.error(err);
+        mostrarToast('Não consegui importar essa planilha. Verifique sua internet e se é o export do Clinicorp com as colunas originais.');
+      }
+    };
+    leitor.readAsArrayBuffer(arquivo);
+    e.target.value = '';
+  });
+
+  document.getElementById('inputBackup').addEventListener('change', (e)=>{
+    const arquivo = e.target.files[0];
+    if(arquivo) importarBackup(arquivo);
+    e.target.value = '';
+  });
+
+  document.getElementById('botaoImportarPlanilha').addEventListener('click', ()=>document.getElementById('inputPlanilha').click());
+  document.getElementById('botaoExportarBackup').addEventListener('click', exportarBackup);
+  document.getElementById('botaoImportarBackup').addEventListener('click', ()=>document.getElementById('inputBackup').click());
+
+  document.getElementById('fecharModalBtn').addEventListener('click', fecharModal);
+  document.getElementById('modalFundo').addEventListener('click', (e)=>{
+    if(e.target.id === 'modalFundo') fecharModal();
+  });
+
+  document.getElementById('botaoGuia').addEventListener('click', ()=>{
+    fecharModal(); fecharSegmentacao();
+    document.getElementById('guiaFundo').classList.add('aberto');
+    document.body.style.overflow = 'hidden';
+  });
+  document.getElementById('guiaFecharBtn').addEventListener('click', fecharGuia);
+  document.getElementById('guiaFundo').addEventListener('click', (e)=>{
+    if(e.target.id === 'guiaFundo') fecharGuia();
+  });
+
+  document.getElementById('botaoSegmentacao').addEventListener('click', ()=>{
+    fecharModal(); fecharGuia();
+    renderSegmentacao();
+    document.getElementById('segmentacaoFundo').classList.add('aberto');
+    document.body.style.overflow = 'hidden';
+  });
+  document.getElementById('segmentacaoFecharBtn').addEventListener('click', fecharSegmentacao);
+  document.getElementById('segmentacaoFundo').addEventListener('click', (e)=>{
+    if(e.target.id === 'segmentacaoFundo') fecharSegmentacao();
+  });
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape'){ fecharModal(); fecharGuia(); fecharSegmentacao(); }
+  });
+
+  // sugere automaticamente a próxima data de retorno seguindo a cadência recomendada
+  document.getElementById('tipoContato').addEventListener('change', (e)=>{
+    if(!modalKeyAtual) return;
+    const lead = estado.leads[modalKeyAtual];
+    if(!lead) return;
+    const campoData = document.getElementById('proximoRetorno');
+    if(e.target.value === 'Não atendeu / sem resposta'){
+      const tentativas = (lead.tentativaAtual||0) + 1;
+      campoData.value = dataMaisDias(sugerirDiasRetorno(tentativas));
+    } else if(TIPOS_SUCESSO.includes(e.target.value)){
+      campoData.value = '';
+    }
+  });
+
+  document.getElementById('formRegistro').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const botaoSalvar = e.target.querySelector('button[type=submit]');
+    const tipo = document.getElementById('tipoContato').value;
+    const nota = document.getElementById('notaContato').value.trim();
+    const proximo = document.getElementById('proximoRetorno').value;
+    let proximoFmt = null;
+    if(proximo){
+      const [a,m,d] = proximo.split('-');
+      proximoFmt = `${d}/${m}/${a}`;
+    }
+    const chaveAlvo = modalKeyAtual;
+    botaoSalvar.disabled = true;
+    try{
+      await registrarContato(chaveAlvo, tipo, nota, proximoFmt);
+      await recarregar();
+      if(estado.leads[chaveAlvo]) renderHistorico(estado.leads[chaveAlvo]);
+      document.getElementById('formRegistro').reset();
+      mostrarToast('Contato registrado no histórico.');
+    }catch(err){
+      console.error(err);
+      mostrarToast('Não consegui salvar esse registro agora. Verifique sua internet e tente de novo.');
+    }finally{
+      botaoSalvar.disabled = false;
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', iniciar);
+
+</script>
+</body>
+</html>
