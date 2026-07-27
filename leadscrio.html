@@ -205,6 +205,28 @@ select.filtro{
 .stat.quieto{background:transparent;box-shadow:none;border-style:dashed;}
 .stat.quieto .num{color:var(--texto-suave);font-size:18px;}
 
+/* ---------- ABAS DO BOARD ---------- */
+.abas-board{
+  display:flex;gap:8px;flex-wrap:wrap;
+  padding:14px 28px 0;
+}
+.aba-botao{
+  font-family:'Archivo',sans-serif;
+  border:1px solid var(--linha);
+  background:var(--branco);
+  color:var(--texto-suave);
+  padding:9px 16px;
+  border-radius:9px 9px 0 0;
+  font-size:13px;font-weight:600;
+  cursor:pointer;
+  border-bottom:none;
+}
+.aba-botao.ativa{
+  background:var(--creme-forte);
+  color:var(--texto);
+  border-color:var(--dourado);
+}
+
 /* ---------- BOARD ---------- */
 .board-wrap{
   padding:20px 28px 60px;
@@ -558,6 +580,11 @@ input[type=file]{display:none;}
 
 <div class="stats" id="stats"></div>
 
+<div class="abas-board">
+  <button type="button" class="aba-botao ativa" id="abaAtivo">Follow-up ativo · Lead &amp; Desmarcou/Faltou</button>
+  <button type="button" class="aba-botao" id="abaOutras">Outras etapas · Agendados, Atendido, Orçamento</button>
+</div>
+
 <div class="board-wrap">
   <div class="board" id="board"></div>
 </div>
@@ -688,18 +715,20 @@ input[type=file]{display:none;}
    ========================================================= */
 
 // ---- CONFIGURAÇÃO: cole aqui a URL do seu Apps Script (termina em /exec) ----
-const API_URL = 'https://script.google.com/macros/s/AKfycbzAeltuEqpgjV1DblhxiIG7jkeiQeRa76ytNWBJbsnoGw6Ktu9-iVVictKuA1aM_CSyrQ/exec';
+const API_URL = 'COLE_AQUI_A_URL_DO_SEU_APPS_SCRIPT';
 
 const PIN_STORAGE_KEY = 'ncclinic_followup_pin';
 const ETAPAS = ['Lead','Agendados','Atendido','Orçamento Aprovado','Desmarcou/Faltou'];
 // Só cobramos follow-up ativo em Lead e Desmarcou/Faltou.
 // Depois de agendado (Agendados, Atendido, Orçamento Aprovado) o Clinicorp já assume o acompanhamento.
 const ETAPAS_ATIVAS_ATENCAO = ['Lead','Desmarcou/Faltou'];
+const ETAPAS_OUTRAS = ['Agendados','Atendido','Orçamento Aprovado'];
 
 let estado = null;      // { leads:{...}, templates:{...} } — sempre vindo do servidor
 let pinAtual = null;
 let modalKeyAtual = null;
 let filtro = { busca:'', etapa:'todas', apenasAtencao:false };
+let visaoAtual = 'ativo'; // 'ativo' = Lead por dias de cadência + Desmarcou/Faltou · 'outras' = Agendados/Atendido/Orçamento
 
 /* ---------- utilidades de data ---------- */
 
@@ -967,53 +996,75 @@ function passaFiltro(lead){
   if(filtro.etapa !== 'todas' && lead.etapa !== filtro.etapa) return false;
   if(filtro.apenasAtencao && !precisaAtencao(lead)) return false;
   if(filtro.busca){
-    const alvo = normalizarNome(lead.nome) + ' ' + normalizarTelefone(lead.telefone);
-    if(!alvo.includes(normalizarNome(filtro.busca)) && !normalizarTelefone(lead.telefone).includes(normalizarTelefone(filtro.busca))){
-      return false;
-    }
+    const buscaNome = normalizarNome(filtro.busca);
+    const buscaTel = normalizarTelefone(filtro.busca);
+    const bateNome = normalizarNome(lead.nome).includes(buscaNome);
+    // só considera "bateu pelo telefone" se a busca realmente tiver dígitos —
+    // senão uma busca por nome (sem números) "batia" com qualquer telefone.
+    const bateTelefone = buscaTel.length > 0 && normalizarTelefone(lead.telefone).includes(buscaTel);
+    if(!bateNome && !bateTelefone) return false;
   }
   return true;
+}
+
+function ordenarEntradas(entradas){
+  entradas.sort((a,b)=>{
+    const sa = statusLead(a[1]);
+    const sb = statusLead(b[1]);
+    if(sa.prioridade !== sb.prioridade) return sa.prioridade - sb.prioridade;
+    const da = ultimaAtividade(a[1]);
+    const db = ultimaAtividade(b[1]);
+    return (da?da.getTime():0) - (db?db.getTime():0);
+  });
+  return entradas;
+}
+
+function criarColunaDOM(titulo, entradas, opts){
+  opts = opts || {};
+  const coluna = document.createElement('div');
+  coluna.className = 'coluna' + (opts.recuperacao ? ' recuperacao' : '');
+  coluna.innerHTML = `
+    <div class="coluna-titulo">
+      <h3>${titulo}</h3>
+      <span class="contagem">${entradas.length}</span>
+    </div>
+    <div class="cartoes"></div>
+  `;
+  const cartoesWrap = coluna.querySelector('.cartoes');
+  if(entradas.length === 0){
+    cartoesWrap.innerHTML = `<div class="vazio-coluna">Nenhum lead aqui${filtro.busca||filtro.apenasAtencao||filtro.etapa!=='todas' ? ' com esse filtro':''}.</div>`;
+  } else {
+    entradas.forEach(([key, lead])=>{
+      cartoesWrap.appendChild(criarCard(key, lead));
+    });
+  }
+  return coluna;
 }
 
 function renderBoard(){
   const board = document.getElementById('board');
   board.innerHTML = '';
 
-  ETAPAS.forEach(etapa=>{
-    const entradas = Object.entries(estado.leads)
-      .filter(([k,l]) => l.etapa === etapa && passaFiltro(l));
-
-    // ordena por prioridade (atrasado > hoje > urgente > atenção > ok > futuro > quieto);
-    // dentro da mesma prioridade, quem está parado há mais tempo aparece primeiro
-    entradas.sort((a,b)=>{
-      const sa = statusLead(a[1]);
-      const sb = statusLead(b[1]);
-      if(sa.prioridade !== sb.prioridade) return sa.prioridade - sb.prioridade;
-      const da = ultimaAtividade(a[1]);
-      const db = ultimaAtividade(b[1]);
-      return (da?da.getTime():0) - (db?db.getTime():0);
+  if(visaoAtual === 'ativo'){
+    // "Lead" dividido pelos dias da cadência — como se cada um fosse andando
+    // da esquerda pra direita conforme as tentativas de contato avançam.
+    GRUPOS_INFO.forEach(info=>{
+      const entradas = ordenarEntradas(Object.entries(estado.leads)
+        .filter(([k,l]) => l.etapa === 'Lead' && grupoCadencia(l) === info.id && passaFiltro(l)));
+      board.appendChild(criarColunaDOM(info.curto, entradas));
     });
 
-    const coluna = document.createElement('div');
-    coluna.className = 'coluna' + (etapa === 'Desmarcou/Faltou' ? ' recuperacao' : '');
-    coluna.innerHTML = `
-      <div class="coluna-titulo">
-        <h3>${etapa}</h3>
-        <span class="contagem">${entradas.length}</span>
-      </div>
-      <div class="cartoes"></div>
-    `;
-    const cartoesWrap = coluna.querySelector('.cartoes');
-
-    if(entradas.length === 0){
-      cartoesWrap.innerHTML = `<div class="vazio-coluna">Nenhum lead aqui${filtro.busca||filtro.apenasAtencao||filtro.etapa!=='todas' ? ' com esse filtro':''}.</div>`;
-    } else {
-      entradas.forEach(([key, lead])=>{
-        cartoesWrap.appendChild(criarCard(key, lead));
-      });
-    }
-    board.appendChild(coluna);
-  });
+    // Desmarcou/Faltou fica como coluna própria, ao lado — também é follow-up ativo
+    const desmarcou = ordenarEntradas(Object.entries(estado.leads)
+      .filter(([k,l]) => l.etapa === 'Desmarcou/Faltou' && passaFiltro(l)));
+    board.appendChild(criarColunaDOM('Desmarcou/Faltou', desmarcou, {recuperacao:true}));
+  } else {
+    ETAPAS_OUTRAS.forEach(etapa=>{
+      const entradas = ordenarEntradas(Object.entries(estado.leads)
+        .filter(([k,l]) => l.etapa === etapa && passaFiltro(l)));
+      board.appendChild(criarColunaDOM(etapa, entradas));
+    });
+  }
 }
 
 function criarCard(key, lead){
@@ -1139,12 +1190,12 @@ function renderHistorico(lead){
 /* ---------- segmentação por grupo de cadência ---------- */
 
 const GRUPOS_INFO = [
-  {id:0, titulo:'Novo — ainda sem tentativa', legenda:'1º contato: fazer no mesmo dia.'},
-  {id:1, titulo:'Aguardando 2º contato (+1 dia)', legenda:'Confirmar se a pessoa recebeu a primeira mensagem.'},
-  {id:2, titulo:'Aguardando 3º contato (+2 a 3 dias)', legenda:'Trocar de canal — sugerir ligação em vez de mensagem.'},
-  {id:3, titulo:'Aguardando 4º contato (+5 a 7 dias)', legenda:'Reengajamento com um gatilho real (condição, horário, dúvida).'},
-  {id:4, titulo:'Aguardando 5º contato (+14 dias)', legenda:'Última tentativa direta antes de virar lead frio.'},
-  {id:5, titulo:'Lead frio (5+ tentativas)', legenda:'Reengajamento mensal, sem cobrança diária.'},
+  {id:0, curto:'Novo', titulo:'Novo — ainda sem tentativa', legenda:'1º contato: fazer no mesmo dia.'},
+  {id:1, curto:'1 dia', titulo:'Aguardando 2º contato (+1 dia)', legenda:'Confirmar se a pessoa recebeu a primeira mensagem.'},
+  {id:2, curto:'2 a 3 dias', titulo:'Aguardando 3º contato (+2 a 3 dias)', legenda:'Trocar de canal — sugerir ligação em vez de mensagem.'},
+  {id:3, curto:'5 a 7 dias', titulo:'Aguardando 4º contato (+5 a 7 dias)', legenda:'Reengajamento com um gatilho real (condição, horário, dúvida).'},
+  {id:4, curto:'14 dias', titulo:'Aguardando 5º contato (+14 dias)', legenda:'Última tentativa direta antes de virar lead frio.'},
+  {id:5, curto:'Frio (30d)', titulo:'Lead frio (5+ tentativas)', legenda:'Reengajamento mensal, sem cobrança diária.'},
 ];
 
 const TEMPLATES_PADRAO = {
@@ -1304,6 +1355,11 @@ async function importarBackup(arquivo){
 
 /* ---------- render geral ---------- */
 
+function atualizarBotoesVisao(){
+  document.getElementById('abaAtivo').classList.toggle('ativa', visaoAtual === 'ativo');
+  document.getElementById('abaOutras').classList.toggle('ativa', visaoAtual === 'outras');
+}
+
 function renderTudo(){
   renderStats();
   renderBoard();
@@ -1371,6 +1427,24 @@ function iniciar(){
 
   document.getElementById('filtroEtapa').addEventListener('change', (e)=>{
     filtro.etapa = e.target.value;
+    if(ETAPAS_OUTRAS.includes(filtro.etapa)){
+      visaoAtual = 'outras';
+      atualizarBotoesVisao();
+    } else if(filtro.etapa === 'Lead' || filtro.etapa === 'Desmarcou/Faltou'){
+      visaoAtual = 'ativo';
+      atualizarBotoesVisao();
+    }
+    renderBoard();
+  });
+
+  document.getElementById('abaAtivo').addEventListener('click', ()=>{
+    visaoAtual = 'ativo';
+    atualizarBotoesVisao();
+    renderBoard();
+  });
+  document.getElementById('abaOutras').addEventListener('click', ()=>{
+    visaoAtual = 'outras';
+    atualizarBotoesVisao();
     renderBoard();
   });
 
