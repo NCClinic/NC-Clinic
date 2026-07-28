@@ -406,17 +406,31 @@ function getURL(){return 'https://script.google.com/macros/s/AKfycbzlVq13tDnGurD
 function saveURL(){}
 function saveURLConfig(){}
 
-// ── API ─────────────────────────────────────────────────────────────
-async function api(payload){
-  const url = getURL();
-  if(!url) throw new Error('URL do Apps Script não configurada. Vá em Config.');
-  const r = await fetch(url, {
-    method:'POST',
-    body: JSON.stringify({...payload, usuario: SESSION?.usuario, senha: SESSION?.senha})
+// ── API via JSONP (contorna CORS do GitHub Pages) ──────────────────
+function api(payload){
+  return new Promise((resolve, reject) => {
+    const url = getURL();
+    const cbName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const fullPayload = {...payload, usuario: SESSION?.usuario, senha: SESSION?.senha, callback: cbName};
+    const qs = encodeURIComponent(JSON.stringify(fullPayload));
+
+    window[cbName] = (data) => {
+      delete window[cbName];
+      document.getElementById(cbName)?.remove();
+      if(!data.ok) reject(new Error(data.erro||'Erro desconhecido'));
+      else resolve(data);
+    };
+
+    const script = document.createElement('script');
+    script.id = cbName;
+    script.src = url + '?payload=' + qs;
+    script.onerror = () => {
+      delete window[cbName];
+      script.remove();
+      reject(new Error('Erro de conexão com o Apps Script.'));
+    };
+    document.head.appendChild(script);
   });
-  const data = await r.json();
-  if(!data.ok) throw new Error(data.erro||'Erro desconhecido');
-  return data;
 }
 
 // ── Login ────────────────────────────────────────────────────────────
@@ -435,14 +449,14 @@ async function doLogin(){
   
   setLoading(true);
   try{
-    const res = await fetch(getURL(),{method:'POST',body:JSON.stringify({action:'login',usuario,senha})});
-    const data = await res.json();
-    if(!data.ok){showErr(data.erro||'Credenciais inválidas.');return;}
+    SESSION = {usuario, senha, nome:'', perfil:''};
+    const data = await api({action:'login'});
     SESSION = {usuario, senha, nome:data.nome, perfil:data.perfil};
     sessionStorage.setItem('nc_session', JSON.stringify(SESSION));
     enterApp();
   } catch(e){
-    showErr('Erro de conexão. Verifique a URL do Apps Script.');
+    SESSION = null;
+    showErr('Usuário ou senha incorretos. Verifique e tente novamente.');
   } finally {setLoading(false);}
 }
 
