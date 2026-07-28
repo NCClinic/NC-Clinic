@@ -508,6 +508,9 @@ input[type=file]{display:none;}
 .login-erro{
   color:var(--urgente);font-size:12.5px;margin:14px 0 0;min-height:14px;
 }
+.login-debug{
+  color:#a8a294;font-size:10px;margin:10px 0 0;word-break:break-all;
+}
 
 @media (prefers-reduced-motion: reduce){
   *{animation:none !important;transition:none !important;}
@@ -537,6 +540,7 @@ input[type=file]{display:none;}
       <button type="submit" class="btn btn-dourado" id="botaoEntrar" style="width:100%;justify-content:center;margin-top:10px;">Entrar</button>
     </form>
     <p id="erroLogin" class="login-erro"></p>
+    <p id="debugUrl" class="login-debug"></p>
   </div>
 </div>
 
@@ -1408,6 +1412,8 @@ async function tentarLogin(pin){
 /* ---------- eventos ---------- */
 
 function iniciar(){
+  document.getElementById('debugUrl').textContent = 'Servidor configurado: ' + API_URL;
+
   if(API_URL.indexOf('COLE_AQUI') !== -1){
     document.getElementById('erroLogin').textContent = 'Configuração pendente: cole a URL do Apps Script na variável API_URL, no topo do arquivo.';
   } else {
