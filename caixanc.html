@@ -411,10 +411,21 @@ function api(payload){
   return new Promise((resolve, reject) => {
     const url = getURL();
     const cbName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const fullPayload = {...payload, usuario: SESSION?.usuario, senha: SESSION?.senha, callback: cbName};
+
+    // Para login, SESSION ainda não existe; para outras chamadas usa SESSION
+    const usuario = payload.usuario || SESSION?.usuario;
+    const senha   = payload.senha   || SESSION?.senha;
+    const fullPayload = {...payload, usuario, senha, callback: cbName};
     const qs = encodeURIComponent(JSON.stringify(fullPayload));
 
+    let timer = setTimeout(() => {
+      delete window[cbName];
+      document.getElementById(cbName)?.remove();
+      reject(new Error('Tempo esgotado. Verifique se o Apps Script foi publicado corretamente.'));
+    }, 15000);
+
     window[cbName] = (data) => {
+      clearTimeout(timer);
       delete window[cbName];
       document.getElementById(cbName)?.remove();
       if(!data.ok) reject(new Error(data.erro||'Erro desconhecido'));
@@ -424,10 +435,11 @@ function api(payload){
     const script = document.createElement('script');
     script.id = cbName;
     script.src = url + '?payload=' + qs;
-    script.onerror = () => {
+    script.onerror = (e) => {
+      clearTimeout(timer);
       delete window[cbName];
       script.remove();
-      reject(new Error('Erro de conexão com o Apps Script.'));
+      reject(new Error('Script bloqueado. Verifique permissões do Apps Script (deve ser "Qualquer pessoa").'));
     };
     document.head.appendChild(script);
   });
@@ -449,14 +461,13 @@ async function doLogin(){
   
   setLoading(true);
   try{
-    SESSION = {usuario, senha, nome:'', perfil:''};
-    const data = await api({action:'login'});
+    const data = await api({action:'login', usuario, senha});
     SESSION = {usuario, senha, nome:data.nome, perfil:data.perfil};
     sessionStorage.setItem('nc_session', JSON.stringify(SESSION));
     enterApp();
   } catch(e){
     SESSION = null;
-    showErr('Usuário ou senha incorretos. Verifique e tente novamente.');
+    showErr('Erro: ' + e.message);
   } finally {setLoading(false);}
 }
 
