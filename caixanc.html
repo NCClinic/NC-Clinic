@@ -415,7 +415,7 @@ function api(payload){
     // Para login, SESSION ainda não existe; para outras chamadas usa SESSION
     const usuario = payload.usuario || SESSION?.usuario;
     const senha   = payload.senha   || SESSION?.senha;
-    const fullPayload = {...payload, usuario, senha, callback: cbName};
+    const fullPayload = {...payload, usuario, senha};
     const qs = encodeURIComponent(JSON.stringify(fullPayload));
 
     let timer = setTimeout(() => {
@@ -434,7 +434,7 @@ function api(payload){
 
     const script = document.createElement('script');
     script.id = cbName;
-    script.src = url + '?payload=' + qs;
+    script.src = url + '?callback=' + cbName + '&payload=' + qs;
     script.onerror = (e) => {
       clearTimeout(timer);
       delete window[cbName];
@@ -695,7 +695,7 @@ function fmt(v){return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDi
 function fmtDate(s){
   if(!s) return '—';
   const [y,m,d] = s.split('-');
-  return (d||'??)+'/'+(m||'??')+'/'+((y||'????').slice(2));
+  return (d||'??')+'/'+(m||'??')+'/'+((y||'????').slice(2));
 }
 function setToday(){
   const t = new Date().toISOString().slice(0,10);
