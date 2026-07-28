@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NC Clinic — Financeiro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#BCA366;--gold-d:#a8924f;--black:#0a0a0a;--surface:#fff;
+  --bg:#f5f4f1;--border:#e2e1dc;--text:#111;--muted:#6b6b66;
+  --radius:6px;--danger:#E24B4A;--success:#1baf7a;
+}
+body{font-family:'Archivo',sans-serif;font-weight:300;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+.login-card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:2.5rem 2rem;width:100%;max-width:380px}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:2rem}
+.monogram{width:44px;height:44px;background:var(--black);color:var(--gold);display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:16px;font-weight:500;letter-spacing:1px}
+.login-brand{font-size:18px;font-weight:400;color:var(--black)}
+.login-sub{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
+.login-title{font-size:14px;color:var(--muted);margin-bottom:1.5rem}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:1rem}
+.field label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select{font-family:'Archivo',sans-serif;font-weight:300;font-size:14px;padding:10px 12px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus{border-color:var(--gold)}
+.btn{width:100%;font-family:'Archivo',sans-serif;font-weight:500;font-size:14px;padding:11px;border:none;border-radius:var(--radius);cursor:pointer;transition:background .15s}
+.btn-primary{background:var(--black);color:var(--gold)}
+.btn-primary:hover{background:#222}
+.btn-gold{background:var(--gold);color:var(--black)}
+.btn-gold:hover{background:var(--gold-d)}
+.btn-outline{background:transparent;color:var(--text);border:0.5px solid var(--border)}
+.btn-outline:hover{background:var(--bg)}
+.err{font-size:12px;color:var(--danger);margin-top:.5rem;display:none}
+
+/* APP */
+.app{display:none;flex-direction:column;min-height:100vh}
+.topbar{background:var(--black);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.top-monogram{width:30px;height:30px;background:var(--gold);color:var(--black);display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:12px;font-weight:500;letter-spacing:1px}
+.top-title{color:#fff;font-size:14px;font-weight:400}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.user-pill{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:.05em}
+.btn-logout{font-size:11px;color:var(--gold);background:none;border:0.5px solid rgba(188,163,102,.3);padding:4px 10px;border-radius:4px;cursor:pointer;font-family:'Archivo',sans-serif}
+.btn-logout:hover{background:rgba(188,163,102,.1)}
+
+.main{flex:1;padding:1.25rem 1.5rem;max-width:900px;margin:0 auto;width:100%}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:1.25rem}
+.tab{padding:10px 18px;font-size:13px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:'Archivo',sans-serif;font-weight:400;transition:color .15s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:500}
+
+/* KPIs */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1.25rem}
+.kpi{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px}
+.kpi-label{font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.kpi-value{font-size:22px;font-weight:400;color:var(--text);line-height:1}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.kpi.gold .kpi-value{color:var(--gold)}
+
+/* CHARTS */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
+@media(max-width:560px){.charts-row{grid-template-columns:1fr}}
+.chart-card{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px}
+.chart-title{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.bar-item{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar-name{font-size:11px;color:var(--muted);width:100px;flex-shrink:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;background:var(--bg);border-radius:3px;height:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+.bar-val{font-size:10px;color:var(--muted);width:70px;flex-shrink:0;text-align:right}
+
+/* TABLE */
+.table-wrap{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;overflow:hidden}
+.filters{display:flex;gap:8px;padding:10px 14px;border-bottom:0.5px solid var(--border);flex-wrap:wrap;align-items:center}
+.filters input,.filters select{font-family:'Archivo',sans-serif;font-weight:300;font-size:12px;padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none}
+.filters input{flex:1;min-width:120px}
+.filters input:focus,.filters select:focus{border-color:var(--gold)}
+.nc-table{width:100%;font-size:12px;border-collapse:collapse;table-layout:fixed}
+.nc-table th{padding:9px 12px;text-align:left;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:0.5px solid var(--border);background:var(--surface);font-family:'Archivo',sans-serif}
+.nc-table td{padding:9px 12px;border-bottom:0.5px solid var(--border);color:var(--text);font-weight:300}
+.nc-table tr:last-child td{border-bottom:none}
+.nc-table tr:hover td{background:var(--bg)}
+.badge{display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:500}
+.badge-pix{background:#E1F5EE;color:#0F6E56}
+.badge-din{background:#FAEEDA;color:#854F0B}
+.badge-cc{background:#EEEDFE;color:#3C3489}
+.badge-nayara{background:#FBEAF0;color:#72243E}
+.badge-carla{background:#E6F1FB;color:#0C447C}
+.badge-miguel{background:#EAF3DE;color:#3B6D11}
+.btn-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:3px 5px;border-radius:3px}
+.btn-del:hover{color:var(--danger);background:#FEF2F2}
+.empty-state{padding:2.5rem;text-align:center;color:var(--muted);font-size:13px}
+
+/* FORM */
+.form-card{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:1.5rem}
+.form-section{font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.form-grid{grid-template-columns:1fr}}
+.form-full{grid-column:1/-1}
+.form-actions{display:flex;gap:8px;margin-top:1rem}
+.form-actions .btn{width:auto;padding:10px 20px;font-size:13px}
+
+/* LOADING */
+.loading{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;padding:1.5rem 0}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--black);color:var(--gold);padding:11px 18px;border-radius:var(--radius);font-size:13px;font-family:'Archivo',sans-serif;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;z-index:200}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.err{color:#f87171}
+
+/* CONFIG */
+.config-card{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:1.5rem;max-width:480px}
+.config-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:0.5px solid var(--border)}
+.config-row:last-child{border-bottom:none}
+.config-label{font-size:13px;color:var(--text)}
+.config-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.url-input{font-family:'Archivo',sans-serif;font-size:11px;padding:7px 10px;border:0.5px solid var(--border);border-radius:var(--radius);width:100%;background:var(--bg);color:var(--text);outline:none;margin-top:8px}
+.url-input:focus{border-color:var(--gold)}
+
+.section-head{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;margin-top:1.5rem}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="monogram">NC</div>
+      <div>
+        <div class="login-brand">NC Clinic</div>
+        <div class="login-sub">Estética Integrativa</div>
+      </div>
+    </div>
+    <p class="login-title">Acesse o painel financeiro</p>
+    <div class="field">
+      <label>Usuário</label>
+      <select id="login-user">
+        <option value="miguel">Miguel</option>
+        <option value="nayara">Nayara</option>
+        <option value="carla">Carla</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <p class="err" id="login-err">Usuário ou senha incorretos.</p>
+    <div id="login-loading" style="display:none" class="loading"><div class="spinner"></div> Verificando...</div>
+    <button class="btn btn-primary" onclick="doLogin()" style="margin-top:.5rem">Entrar</button>
+
+
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="top-monogram">NC</div>
+      <span class="top-title">NC Clinic</span>
+    </div>
+    <div class="topbar-right">
+      <span class="user-pill" id="user-pill"></span>
+      <button class="btn-logout" onclick="logout()">Sair</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="tabs">
+      <div class="tab active" onclick="goTab('painel')">Painel</div>
+      <div class="tab" onclick="goTab('despesas')">Despesas</div>
+      <div class="tab" onclick="goTab('entradas')">Caixa</div>
+      <div class="tab" onclick="goTab('novo-desp')">+ Despesa</div>
+      <div class="tab" onclick="goTab('nova-ent')">+ Entrada</div>
+      <div class="tab" onclick="goTab('config')">Config</div>
+    </div>
+
+    <!-- PAINEL -->
+    <div id="tab-painel">
+      <div class="kpi-row" id="kpis">
+        <div class="loading"><div class="spinner"></div> Carregando...</div>
+      </div>
+      <div id="charts-container"></div>
+    </div>
+
+    <!-- DESPESAS -->
+    <div id="tab-despesas" style="display:none">
+      <div class="table-wrap">
+        <div class="filters">
+          <input type="text" id="s-busca" placeholder="Buscar..." oninput="renderDespTable()">
+          <select id="s-forma" onchange="renderDespTable()">
+            <option value="">Todas as formas</option>
+            <option>Dinheiro</option><option>PIX</option><option>Cartão Crédito</option>
+            <option>Cartão Débito</option><option>Transferência</option><option>Boleto</option>
+          </select>
+          <select id="s-quem" onchange="renderDespTable()">
+            <option value="">Todos</option>
+            <option>Carla</option><option>Nayara</option><option>Miguel</option>
+          </select>
+          <select id="s-cat" onchange="renderDespTable()">
+            <option value="">Todas as categorias</option>
+            <option>Insumos Clínicos</option><option>Material HOF</option><option>Manutenção</option>
+            <option>Marketing</option><option>Alimentação</option><option>Transporte</option>
+            <option>Serviços</option><option>Outros</option>
+          </select>
+        </div>
+        <table class="nc-table">
+          <thead><tr>
+            <th style="width:82px">Data</th>
+            <th style="width:80px">Forma</th>
+            <th style="width:65px">Quem</th>
+            <th style="width:95px">Categoria</th>
+            <th>Descrição</th>
+            <th style="width:85px;text-align:right">Valor</th>
+            <th style="width:32px"></th>
+          </tr></thead>
+          <tbody id="desp-body"></tbody>
+        </table>
+        <div id="desp-empty" class="empty-state" style="display:none">Nenhum lançamento.</div>
+        <div id="desp-loading" class="loading" style="padding:1.5rem 1rem"><div class="spinner"></div> Buscando dados...</div>
+      </div>
+    </div>
+
+    <!-- ENTRADAS -->
+    <div id="tab-entradas" style="display:none">
+      <div class="table-wrap">
+        <table class="nc-table">
+          <thead><tr>
+            <th style="width:90px">Data</th>
+            <th style="width:120px">Categoria</th>
+            <th>Descrição</th>
+            <th style="width:90px">Responsável</th>
+            <th style="width:90px;text-align:right">Valor</th>
+          </tr></thead>
+          <tbody id="ent-body"></tbody>
+        </table>
+        <div id="ent-empty" class="empty-state" style="display:none">Nenhuma entrada registrada.</div>
+        <div id="ent-loading" class="loading" style="padding:1.5rem 1rem"><div class="spinner"></div> Buscando dados...</div>
+      </div>
+    </div>
+
+    <!-- NOVA DESPESA -->
+    <div id="tab-novo-desp" style="display:none">
+      <div class="form-card">
+        <div class="form-section">Nova despesa</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Data</label>
+            <input type="date" id="nd-data">
+          </div>
+          <div class="field">
+            <label>Valor (R$)</label>
+            <input type="number" id="nd-valor" placeholder="0,00" step="0.01" min="0">
+          </div>
+          <div class="field">
+            <label>Forma de pagamento</label>
+            <select id="nd-forma">
+              <option>Dinheiro</option><option>PIX</option><option>Cartão Crédito</option>
+              <option>Cartão Débito</option><option>Transferência</option><option>Boleto</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Quem pagou</label>
+            <select id="nd-quem">
+              <option>Carla</option><option>Nayara</option><option>Miguel</option><option>NC Clinic</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Categoria</label>
+            <select id="nd-cat">
+              <option>Insumos Clínicos</option><option>Material HOF</option><option>Cinta Modeladora</option>
+              <option>Equipamentos</option><option>Manutenção</option><option>Marketing</option>
+              <option>Alimentação</option><option>Transporte</option><option>Serviços</option><option>Outros</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Parcelado?</label>
+            <select id="nd-parc" onchange="toggleParc()">
+              <option value="À Vista">À Vista</option>
+              <option value="Sim">Sim (parcelado)</option>
+            </select>
+          </div>
+          <div class="field" id="nd-nparc-wrap" style="display:none">
+            <label>Nº de parcelas</label>
+            <input type="number" id="nd-nparc" min="2" max="24" placeholder="Ex: 6">
+          </div>
+          <div class="field form-full">
+            <label>Descrição / Produto</label>
+            <input type="text" id="nd-desc" placeholder="Ex: Luvas descartáveis, papel toalha...">
+          </div>
+          <div class="field form-full">
+            <label>Fornecedor</label>
+            <input type="text" id="nd-forn" placeholder="Ex: Shopee, Nossa Casa, Mercado Livre...">
+          </div>
+          <div class="field form-full">
+            <label>Observações</label>
+            <input type="text" id="nd-obs" placeholder="Opcional">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-gold" onclick="salvarDespesa()">Salvar despesa</button>
+          <button class="btn btn-outline" onclick="goTab('despesas')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOVA ENTRADA -->
+    <div id="tab-nova-ent" style="display:none">
+      <div class="form-card">
+        <div class="form-section">Nova entrada no caixa</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Data</label>
+            <input type="date" id="ne-data">
+          </div>
+          <div class="field">
+            <label>Valor (R$)</label>
+            <input type="number" id="ne-valor" placeholder="0,00" step="0.01" min="0">
+          </div>
+          <div class="field">
+            <label>Categoria</label>
+            <select id="ne-cat">
+              <option>Recebimento Paciente</option><option>Reembolso</option>
+              <option>Sangria</option><option>Outros</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Responsável</label>
+            <select id="ne-resp">
+              <option>Carla</option><option>Nayara</option><option>Miguel</option>
+            </select>
+          </div>
+          <div class="field form-full">
+            <label>Descrição</label>
+            <input type="text" id="ne-desc" placeholder="Ex: Recebimento paciente Ana Clara — HOF">
+          </div>
+          <div class="field form-full">
+            <label>Observações</label>
+            <input type="text" id="ne-obs" placeholder="Opcional">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-gold" onclick="salvarEntrada()">Salvar entrada</button>
+          <button class="btn btn-outline" onclick="goTab('entradas')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div id="tab-config" style="display:none">
+      <div class="config-card">
+        <div class="form-section">Configurações</div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">URL do Apps Script</div>
+            <div class="config-sub" style="word-break:break-all;font-size:10px;margin-top:4px">AKfycbzlVq13tDnGurDbu... (configurada)</div>
+          </div>
+          <span style="font-size:11px;color:var(--success);font-weight:500">✓ Ativa</span>
+        </div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">Sessão atual</div>
+            <div class="config-sub" id="config-user-info"></div>
+          </div>
+          <button class="btn btn-outline" style="width:auto;padding:8px 14px;font-size:12px" onclick="logout()">Sair</button>
+        </div>
+        <div class="config-row">
+          <div>
+            <div class="config-label">Senhas padrão (altere no Apps Script)</div>
+            <div class="config-sub">Miguel: NC@2026miguel · Nayara: NC@2026nayara · Carla: NC@2026carla</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Estado ─────────────────────────────────────────────────────────
+let SESSION = null;
+let DESPESAS = [];
+let ENTRADAS = [];
+const CAT_COLORS = {
+  'Marketing':'#2a78d6','Outros':'#73726c','Manutenção':'#1baf7a',
+  'Insumos Clínicos':'#eda100','Alimentação':'#e87ba4','Material HOF':'#4a3aa7',
+  'Transporte':'#e34948','Serviços':'#008300','Cinta Modeladora':'#eb6834','Equipamentos':'#1baf7a'
+};
+const FORMA_COLORS = {
+  'Dinheiro':'#eda100','PIX':'#1baf7a','Cartão Crédito':'#2a78d6',
+  'Cartão Débito':'#4a3aa7','Transferência':'#e87ba4','Boleto':'#e34948'
+};
+const QUEM_COLORS = {'Carla':'#2a78d6','Nayara':'#e87ba4','Miguel':'#1baf7a','NC Clinic':'#4a3aa7'};
+
+// ── URL ─────────────────────────────────────────────────────────────
+function getURL(){return 'https://script.google.com/macros/s/AKfycbzlVq13tDnGurDbuKo-pBly7itwWlsZs8pjdJc2rpTGuoWDrFJCGFMxK740Egbuv0tB/exec';}
+function saveURL(){}
+function saveURLConfig(){}
+
+// ── API ─────────────────────────────────────────────────────────────
+async function api(payload){
+  const url = getURL();
+  if(!url) throw new Error('URL do Apps Script não configurada. Vá em Config.');
+  const r = await fetch(url, {
+    method:'POST',
+    body: JSON.stringify({...payload, usuario: SESSION?.usuario, senha: SESSION?.senha})
+  });
+  const data = await r.json();
+  if(!data.ok) throw new Error(data.erro||'Erro desconhecido');
+  return data;
+}
+
+// ── Login ────────────────────────────────────────────────────────────
+window.onload = () => {
+  const sess = sessionStorage.getItem('nc_session');
+  if(sess){
+    SESSION = JSON.parse(sess);
+    enterApp();
+  }
+};
+
+async function doLogin(){
+  const usuario = document.getElementById('login-user').value;
+  const senha   = document.getElementById('login-pass').value;
+  if(!senha){showErr('Informe a senha.');return;}
+  
+  setLoading(true);
+  try{
+    const res = await fetch(getURL(),{method:'POST',body:JSON.stringify({action:'login',usuario,senha})});
+    const data = await res.json();
+    if(!data.ok){showErr(data.erro||'Credenciais inválidas.');return;}
+    SESSION = {usuario, senha, nome:data.nome, perfil:data.perfil};
+    sessionStorage.setItem('nc_session', JSON.stringify(SESSION));
+    enterApp();
+  } catch(e){
+    showErr('Erro de conexão. Verifique a URL do Apps Script.');
+  } finally {setLoading(false);}
+}
+
+function showErr(msg){
+  const el = document.getElementById('login-err');
+  el.textContent = msg; el.style.display='block';
+  setTimeout(()=>el.style.display='none',4000);
+}
+function setLoading(v){
+  document.getElementById('login-loading').style.display = v?'flex':'none';
+}
+
+function enterApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('user-pill').textContent = SESSION.nome;
+  document.getElementById('config-user-info').textContent = SESSION.nome + ' · ' + SESSION.perfil;
+  setToday();
+  loadAll();
+}
+
+function logout(){
+  sessionStorage.removeItem('nc_session');
+  SESSION=null; DESPESAS=[]; ENTRADAS=[];
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-pass').value='';
+}
+
+// ── Dados ────────────────────────────────────────────────────────────
+async function loadAll(){
+  try{
+    const [rd, re] = await Promise.all([
+      api({action:'getLancamentos'}),
+      api({action:'getEntradas'})
+    ]);
+    DESPESAS = rd.dados;
+    ENTRADAS = re.dados;
+    renderAll();
+  } catch(e){
+    toast('Erro ao carregar: '+e.message, true);
+  }
+}
+
+function renderAll(){renderKPIs();renderCharts();renderDespTable();renderEntTable();}
+
+// ── KPIs ─────────────────────────────────────────────────────────────
+function renderKPIs(){
+  const total = DESPESAS.reduce((a,x)=>a+x.valor,0);
+  const mes = new Date().toISOString().slice(0,7);
+  const mesAtual = DESPESAS.filter(x=>x.data.startsWith(mes)).reduce((a,x)=>a+x.valor,0);
+  const dinheiro = DESPESAS.filter(x=>x.forma==='Dinheiro').reduce((a,x)=>a+x.valor,0);
+  const totalEnt = ENTRADAS.reduce((a,x)=>a+x.valor,0);
+  document.getElementById('kpis').innerHTML = `
+    <div class="kpi gold">
+      <div class="kpi-label">Total despesas</div>
+      <div class="kpi-value">${fmt(total)}</div>
+      <div class="kpi-sub">${DESPESAS.length} lançamentos</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Mês atual</div>
+      <div class="kpi-value">${fmt(mesAtual)}</div>
+      <div class="kpi-sub">${DESPESAS.filter(x=>x.data.startsWith(mes)).length} lançamentos</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Em dinheiro</div>
+      <div class="kpi-value">${fmt(dinheiro)}</div>
+      <div class="kpi-sub">${total>0?Math.round(dinheiro/total*100):0}% do total</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Entradas caixa</div>
+      <div class="kpi-value">${fmt(totalEnt)}</div>
+      <div class="kpi-sub">${ENTRADAS.length} entradas</div>
+    </div>
+  `;
+}
+
+// ── Charts ────────────────────────────────────────────────────────────
+function renderCharts(){
+  const cats={}, formas={}, quems={};
+  DESPESAS.forEach(x=>{
+    cats[x.cat]=(cats[x.cat]||0)+x.valor;
+    formas[x.forma]=(formas[x.forma]||0)+x.valor;
+    quems[x.quem]=(quems[x.quem]||0)+x.valor;
+  });
+  document.getElementById('charts-container').innerHTML = `
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px">
+      <div class="chart-title">Despesas por categoria</div>
+      <div id="ch-cat">${barHTML(cats, CAT_COLORS, 130)}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem">
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px">
+        <div class="chart-title">Por forma</div>
+        <div>${barHTML(formas, FORMA_COLORS, 90)}</div>
+      </div>
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px">
+        <div class="chart-title">Por responsável</div>
+        <div>${barHTML(quems, QUEM_COLORS, 90)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function barHTML(obj, colors, nameW){
+  const entries = Object.entries(obj).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length) return '<p style="font-size:12px;color:var(--muted)">Sem dados.</p>';
+  const max = entries[0][1];
+  return entries.map(([k,v])=>`
+    <div class="bar-item">
+      <div class="bar-name" style="width:${nameW}px">${k}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/max*100)}%;background:${colors[k]||'#888'}"></div></div>
+      <div class="bar-val">${fmt(v)}</div>
+    </div>`).join('');
+}
+
+// ── Tabela despesas ───────────────────────────────────────────────────
+function renderDespTable(){
+  document.getElementById('desp-loading').style.display='none';
+  const busca = (document.getElementById('s-busca')||{value:''}).value.toLowerCase();
+  const forma = (document.getElementById('s-forma')||{value:''}).value;
+  const quem  = (document.getElementById('s-quem')||{value:''}).value;
+  const cat   = (document.getElementById('s-cat')||{value:''}).value;
+  let rows = DESPESAS.filter(x=>{
+    if(forma && x.forma!==forma) return false;
+    if(quem  && x.quem!==quem)  return false;
+    if(cat   && x.cat!==cat)    return false;
+    if(busca && !JSON.stringify(x).toLowerCase().includes(busca)) return false;
+    return true;
+  }).sort((a,b)=>b.data.localeCompare(a.data));
+
+  const isEmpty = rows.length===0;
+  document.getElementById('desp-empty').style.display = isEmpty?'block':'none';
+  const fBadge = f=>({PIX:'badge-pix',Dinheiro:'badge-din','Cartão Crédito':'badge-cc','Cartão Débito':'badge-cc'}[f]||'');
+  const qBadge = q=>({Nayara:'badge-nayara',Carla:'badge-carla',Miguel:'badge-miguel'}[q]||'');
+  const isAdmin = SESSION?.perfil==='admin';
+  document.getElementById('desp-body').innerHTML = rows.map(x=>`<tr>
+    <td style="color:var(--muted);font-size:11px">${fmtDate(x.data)}</td>
+    <td><span class="badge ${fBadge(x.forma)}">${x.forma.replace('Cartão ','')}</span></td>
+    <td><span class="badge ${qBadge(x.quem)}">${x.quem}</span></td>
+    <td style="font-size:11px;color:var(--muted)">${x.cat}</td>
+    <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${x.desc||''}">${x.desc||'—'}</td>
+    <td style="text-align:right;font-weight:500">${fmt(x.valor)}</td>
+    <td>${isAdmin?`<button class="btn-del" onclick="delDesp(${x.rowIndex})" title="Excluir">✕</button>`:''}</td>
+  </tr>`).join('');
+}
+
+// ── Tabela entradas ───────────────────────────────────────────────────
+function renderEntTable(){
+  document.getElementById('ent-loading').style.display='none';
+  const isEmpty = ENTRADAS.length===0;
+  document.getElementById('ent-empty').style.display = isEmpty?'block':'none';
+  document.getElementById('ent-body').innerHTML = ENTRADAS.sort((a,b)=>b.data.localeCompare(a.data)).map(x=>`<tr>
+    <td style="color:var(--muted);font-size:11px">${fmtDate(x.data)}</td>
+    <td style="font-size:11px;color:var(--muted)">${x.cat}</td>
+    <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x.desc||'—'}</td>
+    <td>${x.resp||'—'}</td>
+    <td style="text-align:right;font-weight:500;color:var(--success)">${fmt(x.valor)}</td>
+  </tr>`).join('');
+}
+
+// ── Salvar despesa ────────────────────────────────────────────────────
+async function salvarDespesa(){
+  const data  = document.getElementById('nd-data').value;
+  const valor = parseFloat(document.getElementById('nd-valor').value);
+  const desc  = document.getElementById('nd-desc').value.trim();
+  if(!data||!valor||!desc){toast('Preencha data, valor e descrição.',true);return;}
+  const l = {
+    data, valor, desc,
+    forma: document.getElementById('nd-forma').value,
+    quem:  document.getElementById('nd-quem').value,
+    cat:   document.getElementById('nd-cat').value,
+    forn:  document.getElementById('nd-forn').value,
+    parc:  document.getElementById('nd-parc').value,
+    nParc: parseInt(document.getElementById('nd-nparc').value)||0,
+    obs:   document.getElementById('nd-obs').value
+  };
+  try{
+    const r = await api({action:'addLancamento', lancamento:l});
+    l.rowIndex = r.id;
+    l.id = 'new_'+Date.now();
+    DESPESAS.push(l);
+    renderAll();
+    clearForm('nd');
+    toast('Despesa salva na planilha!');
+    goTab('despesas');
+  } catch(e){toast('Erro: '+e.message,true);}
+}
+
+// ── Salvar entrada ────────────────────────────────────────────────────
+async function salvarEntrada(){
+  const data  = document.getElementById('ne-data').value;
+  const valor = parseFloat(document.getElementById('ne-valor').value);
+  const desc  = document.getElementById('ne-desc').value.trim();
+  if(!data||!valor||!desc){toast('Preencha data, valor e descrição.',true);return;}
+  const e = {
+    data, valor, desc,
+    cat:  document.getElementById('ne-cat').value,
+    resp: document.getElementById('ne-resp').value,
+    obs:  document.getElementById('ne-obs').value
+  };
+  try{
+    const r = await api({action:'addEntrada', entrada:e});
+    e.rowIndex = r.id;
+    ENTRADAS.push(e);
+    renderAll();
+    clearForm('ne');
+    toast('Entrada salva no caixa!');
+    goTab('entradas');
+  } catch(e2){toast('Erro: '+e2.message,true);}
+}
+
+// ── Excluir ───────────────────────────────────────────────────────────
+async function delDesp(rowIndex){
+  if(!confirm('Excluir este lançamento da planilha?')) return;
+  try{
+    await api({action:'delLancamento', rowIndex});
+    DESPESAS = DESPESAS.filter(x=>x.rowIndex!==rowIndex);
+    renderAll();
+    toast('Lançamento excluído.');
+  } catch(e){toast('Erro: '+e.message,true);}
+}
+
+// ── Utils ─────────────────────────────────────────────────────────────
+function fmt(v){return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function fmtDate(s){
+  if(!s) return '—';
+  const [y,m,d] = s.split('-');
+  return (d||'??)+'/'+(m||'??')+'/'+((y||'????').slice(2));
+}
+function setToday(){
+  const t = new Date().toISOString().slice(0,10);
+  ['nd-data','ne-data'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=t;});
+}
+function toggleParc(){
+  const v = document.getElementById('nd-parc').value;
+  document.getElementById('nd-nparc-wrap').style.display = v==='Sim'?'block':'none';
+}
+function clearForm(prefix){
+  ['data','valor','desc','forn','obs'].forEach(f=>{
+    const el = document.getElementById(prefix+'-'+f);
+    if(el) el.value='';
+  });
+  setToday();
+}
+function goTab(name){
+  const names = ['painel','despesas','entradas','novo-desp','nova-ent','config'];
+  names.forEach((n,i)=>{
+    document.getElementById('tab-'+n).style.display = n===name?'block':'none';
+    document.querySelectorAll('.tab')[i]?.classList.toggle('active', n===name);
+  });
+  if(name==='despesas') renderDespTable();
+  if(name==='entradas') renderEntTable();
+}
+function toast(msg, isErr=false){
+  const el = document.getElementById('toast');
+  el.textContent=msg;
+  el.className='toast'+(isErr?' err':'')+' show';
+  setTimeout(()=>el.classList.remove('show'),2800);
+}
+</script>
+</body>
+</html>
