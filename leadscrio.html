@@ -824,9 +824,22 @@ async function chamarAPI(acao, dadosExtras){
 }
 
 async function buscarEstado(pin){
-  const resp = await fetch(API_URL + '?pin=' + encodeURIComponent(pin) + '&t=' + Date.now(), {cache:'no-store'});
-  if(!resp.ok) throw new Error('Falha de rede (' + resp.status + ')');
-  const json = await resp.json();
+  let resp;
+  try{
+    resp = await fetch(API_URL + '?pin=' + encodeURIComponent(pin) + '&t=' + Date.now(), {cache:'no-store'});
+  }catch(erroRede){
+    throw new Error('Falha de rede ao contatar o servidor. Verifique a internet, ou se a URL do Apps Script (API_URL) está correta.');
+  }
+  if(!resp.ok){
+    throw new Error('O servidor respondeu com erro HTTP ' + resp.status + '.');
+  }
+  let json;
+  const textoBruto = await resp.text();
+  try{
+    json = JSON.parse(textoBruto);
+  }catch(erroJson){
+    throw new Error('Resposta inesperada do servidor (não é JSON). Provável causa: a implantação do Apps Script não está com acesso "Qualquer pessoa", ou a URL configurada não é a de /exec.');
+  }
   if(json.erro) throw new Error(json.erro);
   return json; // { leads, templates }
 }
@@ -1385,7 +1398,7 @@ async function tentarLogin(pin){
     localStorage.removeItem(PIN_STORAGE_KEY);
     erroEl.textContent = (e.message === 'PIN inválido')
       ? 'PIN incorreto. Confira e tente de novo.'
-      : 'Não consegui conectar ao servidor. Verifique sua internet ou avise o Miguel.';
+      : e.message;
   }finally{
     botao.disabled = false;
     botao.textContent = textoOriginal;
