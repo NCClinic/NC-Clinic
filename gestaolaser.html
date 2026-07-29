@@ -370,7 +370,7 @@ const SEED_DATA = [{"nome":"Nathaly Saúna","telefone":"44984395103","datas":["2
 // ══════════════════════════════════════
 const INTERVAL = 28;
 
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzi1BuzS6XpNyDe9dRHcm1KLbOOMf1bkNnoAIQGsb7M_e8niWilweqbdZCiaDt5BGVA/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwQSSH-3J4Hiryttf_v3iEXaYTtKH-e_hu0MkK2QySWbn5zRg0HCMRcuxq58XzG4ong/exec';
 let BASE       = [];
 let CONFIRMED  = {};   // { nome: {mes, data_agendada} }
 let OBS        = {};   // { nome: {tipo, nota, data} }
@@ -811,8 +811,6 @@ document.getElementById('pclose').addEventListener('click',closePanel);
 document.getElementById('ov').addEventListener('click',e=>{if(e.target===document.getElementById('ov'))closePanel();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePanel();closeModalAg();closeModalObs();closeGenModal();}});
 
-// ══════════════════════════════════════
-// INIT
 // ══════════════════════════════════════
 // INIT
 // ══════════════════════════════════════
