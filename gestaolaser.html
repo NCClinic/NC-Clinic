@@ -437,18 +437,21 @@ async function loadFromServer() {
     const d = await api({action:'load'});
     // First time: push seed
     if(!d.base || d.base.length === 0) {
+      // Base vazia no Sheets — enviar seed inicial
+      sync('load','Inicializando base…');
       await apiPost({action:'init_seed', data: SEED_DATA});
       BASE = JSON.parse(JSON.stringify(SEED_DATA));
     } else {
-      BASE = d.base;
+      // Filtrar registros inválidos (nome null)
+      BASE = d.base.filter(r => r.nome && String(r.nome).trim() !== '' && r.nome !== 'null');
     }
     // Confirmed: array → dict
     CONFIRMED = {};
-    (d.confirmed||[]).forEach(r => { CONFIRMED[r.nome] = {mes:r.mes, data_agendada:r.data_agendada}; });
+    (d.confirmed||[]).filter(r=>r.nome&&r.nome!=='null').forEach(r => { CONFIRMED[r.nome] = {mes:r.mes, data_agendada:r.data_agendada}; });
     OBS = {};
-    (d.obs||[]).forEach(r => { OBS[r.nome] = {tipo:r.tipo, nota:r.nota, data:r.data}; });
+    (d.obs||[]).filter(r=>r.nome&&r.nome!=='null').forEach(r => { OBS[r.nome] = {tipo:r.tipo, nota:r.nota, data:r.data}; });
     FALTOU = {};
-    (d.faltou||[]).forEach(r => { FALTOU[r.nome] = {mes:r.mes, data_agendada:r.data_agendada}; });
+    (d.faltou||[]).filter(r=>r.nome&&r.nome!=='null').forEach(r => { FALTOU[r.nome] = {mes:r.mes, data_agendada:r.data_agendada}; });
     META = d.meta || {};
     sync('ok','Conectado · Google Sheets');
     const imp = META.ultima_importacao || '—';
