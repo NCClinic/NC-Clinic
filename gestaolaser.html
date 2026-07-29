@@ -452,21 +452,39 @@ async function loadFromServer() {
     const d = await api({action:'load'});
     // First time: push seed
     if(!d.base || d.base.length === 0) {
-      // Base vazia no Sheets — enviar seed inicial
       sync('load','Inicializando base…');
       await apiPost({action:'init_seed', data: SEED_DATA});
       BASE = JSON.parse(JSON.stringify(SEED_DATA));
     } else {
-      // Filtrar registros inválidos (nome null)
-      BASE = d.base.filter(r => r.nome && String(r.nome).trim() !== '' && r.nome !== 'null');
+      // Filtrar inválidos e normalizar datas que vieram do Sheets como ISO
+      BASE = d.base
+        .filter(r => r.nome && String(r.nome).trim() !== '' && r.nome !== 'null')
+        .map(r => ({
+          ...r,
+          ultima_sessao:   normDate(r.ultima_sessao),
+          primeira_sessao: normDate(r.primeira_sessao),
+          agendada_data:   normDate(r.agendada_data),
+          datas: Array.isArray(r.datas) ? r.datas.map(normDate) : [],
+        }));
     }
     // Confirmed: array → dict
     CONFIRMED = {};
-    (d.confirmed||[]).filter(r=>r.nome&&r.nome!=='null').forEach(r => { CONFIRMED[r.nome] = {mes:r.mes, data_agendada:r.data_agendada}; });
+    (d.confirmed||[]).filter(r=>r.nome&&r.nome!=='null').forEach(r => {
+      // Normalizar mes: pode vir como "2026-07" ou "2026-07-01T03:00:00.000Z"
+      let mes = r.mes || '';
+      if(mes.includes('T')) mes = mes.split('T')[0].slice(0,7); // pegar só YYYY-MM
+      else if(mes.length > 7) mes = mes.slice(0,7);
+      CONFIRMED[r.nome] = {mes: mes, data_agendada: normDate(r.data_agendada)};
+    });
     OBS = {};
     (d.obs||[]).filter(r=>r.nome&&r.nome!=='null').forEach(r => { OBS[r.nome] = {tipo:r.tipo, nota:r.nota, data:r.data}; });
     FALTOU = {};
-    (d.faltou||[]).filter(r=>r.nome&&r.nome!=='null').forEach(r => { FALTOU[r.nome] = {mes:r.mes, data_agendada:r.data_agendada}; });
+    (d.faltou||[]).filter(r=>r.nome&&r.nome!=='null').forEach(r => {
+      let mes = r.mes || '';
+      if(mes.includes('T')) mes = mes.split('T')[0].slice(0,7);
+      else if(mes.length > 7) mes = mes.slice(0,7);
+      FALTOU[r.nome] = {mes: mes, data_agendada: normDate(r.data_agendada)};
+    });
     META = d.meta || {};
     sync('ok','Conectado · Google Sheets');
     const imp = META.ultima_importacao || '—';
@@ -490,10 +508,36 @@ async function loadFromServer() {
 function todayStr()     { return document.getElementById('today-date').value||new Date().toISOString().slice(0,10); }
 function todayTs()      { return new Date(todayStr()); }
 function currentMonth() { return todayStr().slice(0,7); }
+// Normaliza qualquer formato de data para objeto Date
+// Aceita: dd/mm/yyyy, yyyy-mm-dd, ISO completo (2026-07-01T03:00:00.000Z)
 function parseDate(s) {
   if(!s) return null;
-  if(s.includes('-')) return new Date(s);
-  const [d,m,y]=s.split('/'); return new Date(`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
+  const str = String(s).trim();
+  // ISO completo com T — extrair só a parte da data (ignorar timezone)
+  if(str.includes('T')) {
+    const datePart = str.split('T')[0]; // "2026-07-01"
+    const [y,m,d] = datePart.split('-');
+    return new Date(parseInt(y), parseInt(m)-1, parseInt(d));
+  }
+  // yyyy-mm-dd
+  if(str.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [y,m,d] = str.split('-');
+    return new Date(parseInt(y), parseInt(m)-1, parseInt(d));
+  }
+  // dd/mm/yyyy
+  if(str.includes('/')) {
+    const [d,m,y] = str.split('/');
+    return new Date(parseInt(y), parseInt(m)-1, parseInt(d));
+  }
+  return null;
+}
+// Normaliza qualquer data para dd/mm/yyyy
+function normDate(s) {
+  if(!s) return '';
+  const str = String(s).trim();
+  if(str.includes('T')) { const p=str.split('T')[0].split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
+  if(str.match(/^\d{4}-\d{2}-\d{2}$/)) { const p=str.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
+  return str; // já é dd/mm/yyyy
 }
 function addDays(s,n) { const d=parseDate(s); if(!d) return ''; d.setDate(d.getDate()+n); return d.toLocaleDateString('pt-BR'); }
 function diffDays(s)  { const d=parseDate(s); if(!d) return null; return Math.round((d-todayTs())/86400000); }
@@ -508,7 +552,7 @@ function computePriority(rec) {
   const conf=CONFIRMED[rec.nome];
   if(conf&&conf.mes===currentMonth())              return 'agendada';
   if(rec.agendada_data){ const d=diffDays(rec.agendada_data); if(d!==null&&d>=0) return 'agendada'; }
-  const ul=parseDate(rec.ultima_sessao); if(!ul) return 'monitorar';
+  const ul=parseDate(normDate(rec.ultima_sessao)); if(!ul) return 'monitorar';
   const m=(todayTs()-ul)/(1000*60*60*24*30);
   const dias=diffDays(addDays(rec.ultima_sessao,INTERVAL));
   if(dias!==null&&dias<0&&m<=3)  return 'agendar_agora';
@@ -737,10 +781,10 @@ function render(){
     const obs=OBS[r.nome],conf=CONFIRMED[r.nome],ft=FALTOU[r.nome];
     const ne=r.nome.replace(/'/g,"\'");
     let nameExtra='';
-    if(isFt&&ft) nameExtra=`<span class="sub" style="color:var(--rose)">Agendada p/ ${ft.data_agendada} — não compareceu</span>`;
+    if(isFt&&ft) nameExtra=`<span class="sub" style="color:var(--rose)">Agendada p/ ${normDate(ft.data_agendada)} — não compareceu</span>`;
     else if(obs) nameExtra=`<span class="sub" style="color:var(--teal)">${OL[obs.tipo]||obs.tipo}</span>`;
     else if(isAg){
-      const da=(conf&&conf.data_agendada)?conf.data_agendada:r.agendada_data;
+      const da=normDate((conf&&conf.data_agendada)?conf.data_agendada:r.agendada_data);
       const dia=r.dias_para_agendamento;
       const dt=dia!==null?(dia===0?' · hoje':dia===1?' · amanhã':` · em ${dia}d`):'';
       nameExtra=`<span class="sub" style="color:var(--green)">Agendada para ${da||'—'}${dt}</span>`;
@@ -763,7 +807,7 @@ function render(){
       <td class="nm">${r.nome}${nameExtra}</td>
       <td style="font-size:11px">${tel}</td>
       <td><div class="sess-bar">${boxes}</div><div style="font-size:9px;color:var(--white-faint)">${r.total_sessoes} sessão${r.total_sessoes>1?'ões':''}</div></td>
-      <td><div>${r.ultima_sessao||'—'}</div><div style="font-size:9px;color:var(--white-faint);margin-top:2px">${r.meses_desde_ultima<900?r.meses_desde_ultima.toFixed(1)+'m atrás':'—'}</div></td>
+      <td><div>${normDate(r.ultima_sessao)||'—'}</div><div style="font-size:9px;color:var(--white-faint);margin-top:2px">${r.meses_desde_ultima<900?r.meses_desde_ultima.toFixed(1)+'m atrás':'—'}</div></td>
       <td><div style="font-size:11px;margin-bottom:3px">${r.proxima_estimada||'—'}</div>${dc(r.dias_para_proxima)}</td>
       <td style="white-space:nowrap">${actions}</td>
       <td style="font-size:10px;color:var(--white-faint);max-width:150px">${areas}</td>
@@ -781,7 +825,7 @@ function openPanel(idx){
     `<span class="pbadge ${r.prioridade}"><span class="dot"></span>${LP[r.prioridade]||r.prioridade}</span>`+
     (r.telefone?`<span style="font-size:11px;color:var(--white-faint)">${r.telefone}</span>`:'<span style="color:var(--red);font-size:11px">Sem telefone</span>');
   const obs=OBS[r.nome],conf=CONFIRMED[r.nome],ft=FALTOU[r.nome];
-  const da=(conf&&conf.data_agendada)?conf.data_agendada:r.agendada_data;
+  const da=normDate((conf&&conf.data_agendada)?conf.data_agendada:r.agendada_data);
   const dia=r.dias_para_agendamento;
   const dt=dia!==null?(dia===0?' — hoje':dia===1?' — amanhã':` — em ${dia} dias`):'';
   let al='';
@@ -796,8 +840,8 @@ function openPanel(idx){
     <div class="ps"><div class="psval">${r.total_sessoes}</div><div class="pslabel">Sessões</div></div>
     <div class="ps"><div class="psval">28d</div><div class="pslabel">Intervalo</div></div>
     <div class="ps"><div class="psval">${r.meses_desde_ultima<900?r.meses_desde_ultima.toFixed(1)+'m':'—'}</div><div class="pslabel">Desde última</div></div>
-    <div class="ps"><div class="psval">${r.primeira_sessao||'—'}</div><div class="pslabel">1ª sessão</div></div>
-    <div class="ps"><div class="psval">${r.ultima_sessao||'—'}</div><div class="pslabel">Última sessão</div></div>
+    <div class="ps"><div class="psval">${normDate(r.primeira_sessao)||'—'}</div><div class="pslabel">1ª sessão</div></div>
+    <div class="ps"><div class="psval">${normDate(r.ultima_sessao)||'—'}</div><div class="pslabel">Última sessão</div></div>
     <div class="ps"><div class="psval">${r.proxima_estimada||'—'}</div><div class="pslabel">Próxima est.</div></div>`;
   const isAg=r.prioridade==='agendada',isObs=r.prioridade==='observacao',isFP=r.prioridade==='faltou';
   const ne=r.nome.replace(/'/g,"\'");
@@ -808,7 +852,7 @@ function openPanel(idx){
   else pa=`<button class="pbtn green" onclick="openModalAg('${ne}')">✓ Confirmar agendamento</button><button class="pbtn teal" onclick="openModalObs('${ne}')">⚑ Observação</button>`;
   document.getElementById('pactions').innerHTML=pa;
   document.getElementById('phist').innerHTML=[...r.datas].reverse().map((d,i,arr)=>
-    `<div class="titem"><div class="tnum">Sessão ${arr.length-i}</div><div class="tdate">${d}</div></div>`).join('');
+    `<div class="titem"><div class="tnum">Sessão ${arr.length-i}</div><div class="tdate">${normDate(d)}</div></div>`).join('');
   document.getElementById('pareas').innerHTML=r.areas.map(a=>`<span class="area-tag">${a}</span>`).join('');
   const wa=document.getElementById('pwa');
   if(r.telefone){const n=r.telefone.startsWith('55')?r.telefone:'55'+r.telefone;wa.href='https://wa.me/'+n;wa.style.display='flex';}
