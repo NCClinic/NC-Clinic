@@ -393,25 +393,25 @@ const LP = {
 const PO = {faltou:0,agendar_agora:1,agendada:2,observacao:3,em_risco:4,reativar:5,inativa:6,monitorar:7};
 
 // ══════════════════════════════════════
-// API
+// API — tudo via GET para evitar CORS
 // ══════════════════════════════════════
 async function api(params) {
   const url = SCRIPT_URL + '?' + new URLSearchParams(params);
-  const r = await fetch(url);
+  const r = await fetch(url, {redirect:'follow'});
   if(!r.ok) throw new Error('HTTP ' + r.status);
-  const d = await r.json();
+  const text = await r.text();
+  const d = JSON.parse(text);
   if(d.error) throw new Error(d.error);
   return d;
 }
 
+// Writes via GET com payload ?p=JSON (evita preflight CORS)
 async function apiPost(body) {
-  const r = await fetch(SCRIPT_URL, {
-    method:'POST', redirect:'follow',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(body)
-  });
+  const url = SCRIPT_URL + '?p=' + encodeURIComponent(JSON.stringify(body));
+  const r = await fetch(url, {redirect:'follow'});
   if(!r.ok) throw new Error('HTTP ' + r.status);
-  const d = await r.json();
+  const text = await r.text();
+  const d = JSON.parse(text);
   if(d.error) throw new Error(d.error);
   return d;
 }
