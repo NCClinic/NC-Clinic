@@ -456,7 +456,13 @@ async function loadFromServer() {
     refreshAll();
   } catch(e) {
     sync('err','Erro: ' + e.message);
-    throw e;
+    console.error('loadFromServer error:', e);
+    // Fallback: usar seed local se server falhar
+    if(BASE.length === 0) {
+      BASE = JSON.parse(JSON.stringify(SEED_DATA));
+      sync('err','Offline — usando dados locais. Erro: ' + e.message);
+      refreshAll();
+    }
   }
 }
 
@@ -808,21 +814,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePanel();closeM
 // ══════════════════════════════════════
 // INIT
 // ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
 document.getElementById('today-date').value = new Date().toISOString().slice(0,10);
 document.getElementById('app').style.display = 'block';
 loadFromServer();
-const savedUrl = localStorage.getItem(LS_URL);
-if(savedUrl) {
-  SCRIPT_URL = savedUrl;
-  document.getElementById('cfg-url').value = savedUrl;
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('cfg').classList.add('hidden');
-  loadFromServer().catch(()=>{
-    SCRIPT_URL='';
-    document.getElementById('app').style.display='none';
-    document.getElementById('cfg').classList.remove('hidden');
-  });
-}
 </script>
 </body>
 </html>
