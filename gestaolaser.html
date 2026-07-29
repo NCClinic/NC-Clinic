@@ -645,30 +645,35 @@ function showUpload(msg,ok){
 async function doConfirm(nome, dataAg) {
   const mes=currentMonth();
   CONFIRMED[nome]={mes,data_agendada:dataAg};
-  await apiPost({action:'confirm',nome,mes,data_agendada:dataAg});
-  refreshAll();
+  refreshAll(); // atualiza UI imediatamente
+  try { await apiPost({action:'confirm',nome,mes,data_agendada:dataAg}); }
+  catch(e) { console.error('Erro ao salvar agendamento:', e); }
 }
 async function doUnconfirm(nome,fp=false) {
   delete CONFIRMED[nome];
   if(fp) closePanel();
-  await apiPost({action:'unconfirm',nome});
   refreshAll();
+  try { await apiPost({action:'unconfirm',nome}); }
+  catch(e) { console.error('Erro:', e); }
 }
 async function doObs(nome,tipo,nota) {
   const data=new Date().toLocaleDateString('pt-BR');
   OBS[nome]={tipo,nota,data};
-  await apiPost({action:'obs',nome,tipo,nota,data});
   refreshAll();
+  try { await apiPost({action:'obs',nome,tipo,nota,data}); }
+  catch(e) { console.error('Erro:', e); }
 }
 async function doRemoveObs(nome,fp=false) {
   delete OBS[nome]; if(fp) closePanel();
-  await apiPost({action:'remove_obs',nome});
   refreshAll();
+  try { await apiPost({action:'remove_obs',nome}); }
+  catch(e) { console.error('Erro:', e); }
 }
 async function doRemoveFaltou(nome,fp=false) {
   delete FALTOU[nome]; if(fp) closePanel();
-  await apiPost({action:'remove_faltou',nome});
   refreshAll();
+  try { await apiPost({action:'remove_faltou',nome}); }
+  catch(e) { console.error('Erro:', e); }
 }
 
 // ══════════════════════════════════════
@@ -775,11 +780,10 @@ function render(){
   tbody.innerHTML=filtered.map((r,i)=>{
     const tot=Math.min(r.total_sessoes,15);
     const boxes=Array.from({length:tot},(_,j)=>`<div class="sbox ${j===tot-1?'last':'done'}"></div>`).join('');
-    const areas=r.areas.map(a=>a.replace('Depilação - ','')).join(' · ');
+    const areas=(r.areas||[]).map(a=>a.replace('Depilação - ','')).join(' · ');
     const tel=r.telefone||'<span style="color:var(--red);font-size:10px">sem tel</span>';
     const isAg=r.prioridade==='agendada',isObs=r.prioridade==='observacao',isFt=r.prioridade==='faltou';
     const obs=OBS[r.nome],conf=CONFIRMED[r.nome],ft=FALTOU[r.nome];
-    const ne=r.nome.replace(/'/g,"\'");
     let nameExtra='';
     if(isFt&&ft) nameExtra=`<span class="sub" style="color:var(--rose)">Agendada p/ ${normDate(ft.data_agendada)} — não compareceu</span>`;
     else if(obs) nameExtra=`<span class="sub" style="color:var(--teal)">${OL[obs.tipo]||obs.tipo}</span>`;
@@ -789,20 +793,21 @@ function render(){
       const dt=dia!==null?(dia===0?' · hoje':dia===1?' · amanhã':` · em ${dia}d`):'';
       nameExtra=`<span class="sub" style="color:var(--green)">Agendada para ${da||'—'}${dt}</span>`;
     }
+    // Botões usam data-nome em vez de inline onclick com string
     let actions='';
     if(isFt){
-      actions=`<button class="cbtn" onclick="event.stopPropagation();openModalAg('${ne}')" style="border-color:var(--rose);color:var(--rose)">↻ Remarcar</button>
-               <button class="ubtn" onclick="event.stopPropagation();doRemoveFaltou('${ne}')">✕</button>`;
+      actions=`<button class="cbtn act-remarcar" data-nome="${i}" style="border-color:var(--rose);color:var(--rose)">↻ Remarcar</button>
+               <button class="ubtn act-rm-faltou" data-nome="${i}">✕</button>`;
     } else if(isAg){
-      actions=`<button class="ubtn" onclick="event.stopPropagation();doUnconfirm('${ne}')">↩</button>`;
+      actions=`<button class="ubtn act-unconfirm" data-nome="${i}">↩</button>`;
     } else if(isObs){
-      actions=`<button class="cbtn" onclick="event.stopPropagation();openModalAg('${ne}')">✓ Agendar</button>
-               <button class="ubtn" onclick="event.stopPropagation();doRemoveObs('${ne}')">✕ Obs</button>`;
+      actions=`<button class="cbtn act-agendar" data-nome="${i}">✓ Agendar</button>
+               <button class="ubtn act-rm-obs" data-nome="${i}">✕ Obs</button>`;
     } else if(r.prioridade==='agendar_agora'||r.prioridade==='em_risco'){
-      actions=`<button class="cbtn" onclick="event.stopPropagation();openModalAg('${ne}')">✓ Agendar</button>
-               <button class="obtn" onclick="event.stopPropagation();openModalObs('${ne}')">⚑</button>`;
+      actions=`<button class="cbtn act-agendar" data-nome="${i}">✓ Agendar</button>
+               <button class="obtn act-obs" data-nome="${i}">⚑</button>`;
     }
-    return `<tr class="${isAg?'agendada-row':isObs?'observ-row':isFt?'faltou-row':''}" onclick="openPanel(${i})">
+    return `<tr data-idx="${i}" class="${isAg?'agendada-row':isObs?'observ-row':isFt?'faltou-row':''}">
       <td><span class="pbadge ${r.prioridade}"><span class="dot"></span>${LP[r.prioridade]||r.prioridade}</span></td>
       <td class="nm">${r.nome}${nameExtra}</td>
       <td style="font-size:11px">${tel}</td>
@@ -814,6 +819,29 @@ function render(){
     </tr>`;
   }).join('');
 }
+
+// Event delegation — um handler no tbody resolve tudo
+document.getElementById('tbody').addEventListener('click', function(e) {
+  const btn = e.target.closest('button[data-nome]');
+  if(btn) {
+    e.stopPropagation();
+    const idx = parseInt(btn.dataset.nome);
+    const nome = filtered[idx]?.nome;
+    if(!nome) return;
+    if(btn.classList.contains('act-agendar') || btn.classList.contains('act-remarcar')) openModalAg(nome);
+    else if(btn.classList.contains('act-obs')) openModalObs(nome);
+    else if(btn.classList.contains('act-unconfirm')) doUnconfirm(nome);
+    else if(btn.classList.contains('act-rm-obs')) doRemoveObs(nome);
+    else if(btn.classList.contains('act-rm-faltou')) doRemoveFaltou(nome);
+    return;
+  }
+  // Click na linha (não em botão) → abrir painel
+  const tr = e.target.closest('tr[data-idx]');
+  if(tr) {
+    const idx = parseInt(tr.dataset.idx);
+    openPanel(idx);
+  }
+});
 
 // ══════════════════════════════════════
 // PANEL
@@ -844,13 +872,21 @@ function openPanel(idx){
     <div class="ps"><div class="psval">${normDate(r.ultima_sessao)||'—'}</div><div class="pslabel">Última sessão</div></div>
     <div class="ps"><div class="psval">${r.proxima_estimada||'—'}</div><div class="pslabel">Próxima est.</div></div>`;
   const isAg=r.prioridade==='agendada',isObs=r.prioridade==='observacao',isFP=r.prioridade==='faltou';
-  const ne=r.nome.replace(/'/g,"\'");
   let pa='';
-  if(isFP) pa=`<button class="pbtn" style="border-color:var(--rose);color:var(--rose)" onclick="openModalAg('${ne}')">↻ Remarcar</button><button class="pbtn teal" onclick="openModalObs('${ne}')">⚑ Observação</button><button class="pbtn muted" onclick="doRemoveFaltou('${ne}',true)">✕ Limpar sinal</button>`;
-  else if(isAg) pa=`<button class="pbtn muted" onclick="doUnconfirm('${ne}',true)">↩ Desfazer</button><button class="pbtn teal" onclick="openModalObs('${ne}')">⚑ Observação</button>`;
-  else if(isObs) pa=`<button class="pbtn green" onclick="openModalAg('${ne}')">✓ Agendar</button><button class="pbtn teal" onclick="openModalObs('${ne}')">✏️ Editar obs.</button><button class="pbtn muted" onclick="doRemoveObs('${ne}',true)">✕ Remover obs.</button>`;
-  else pa=`<button class="pbtn green" onclick="openModalAg('${ne}')">✓ Confirmar agendamento</button><button class="pbtn teal" onclick="openModalObs('${ne}')">⚑ Observação</button>`;
+  if(isFP) pa=`<button class="pbtn p-remarcar" style="border-color:var(--rose);color:var(--rose)">↻ Remarcar</button><button class="pbtn teal p-obs">⚑ Observação</button><button class="pbtn muted p-rm-faltou">✕ Limpar sinal</button>`;
+  else if(isAg) pa=`<button class="pbtn muted p-unconfirm">↩ Desfazer</button><button class="pbtn teal p-obs">⚑ Observação</button>`;
+  else if(isObs) pa=`<button class="pbtn green p-agendar">✓ Agendar</button><button class="pbtn teal p-obs">✏️ Editar obs.</button><button class="pbtn muted p-rm-obs">✕ Remover obs.</button>`;
+  else pa=`<button class="pbtn green p-agendar">✓ Confirmar agendamento</button><button class="pbtn teal p-obs">⚑ Observação</button>`;
   document.getElementById('pactions').innerHTML=pa;
+  document.querySelectorAll('#pactions .pbtn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      if(b.classList.contains('p-agendar')||b.classList.contains('p-remarcar')) openModalAg(panelNome);
+      else if(b.classList.contains('p-obs')) openModalObs(panelNome);
+      else if(b.classList.contains('p-unconfirm')) doUnconfirm(panelNome,true);
+      else if(b.classList.contains('p-rm-obs')) doRemoveObs(panelNome,true);
+      else if(b.classList.contains('p-rm-faltou')) doRemoveFaltou(panelNome,true);
+    });
+  });
   document.getElementById('phist').innerHTML=[...r.datas].reverse().map((d,i,arr)=>
     `<div class="titem"><div class="tnum">Sessão ${arr.length-i}</div><div class="tdate">${normDate(d)}</div></div>`).join('');
   document.getElementById('pareas').innerHTML=r.areas.map(a=>`<span class="area-tag">${a}</span>`).join('');
