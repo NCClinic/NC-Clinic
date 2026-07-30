@@ -692,11 +692,12 @@ function openModalAg(nome){
 }
 function closeModalAg(){ document.getElementById('m-ag').classList.remove('open'); pendingNome=null; }
 document.getElementById('m-ag-ok').addEventListener('click',async()=>{
-  if(!pendingNome) return;
+  const nome=pendingNome; // salvar ANTES de closeModalAg zerar
+  if(!nome) return;
   const iso=document.getElementById('m-ag-date').value;
   if(!iso){alert('Selecione uma data.');return;}
-  const fp=panelNome===pendingNome; closeModalAg(); if(fp) closePanel();
-  await doConfirm(pendingNome, isoToDisp(iso));
+  const fp=panelNome===nome; closeModalAg(); if(fp) closePanel();
+  await doConfirm(nome, isoToDisp(iso));
 });
 document.getElementById('m-ag-cancel').addEventListener('click',closeModalAg);
 
@@ -714,11 +715,13 @@ document.querySelectorAll('.otype').forEach(b=>b.addEventListener('click',()=>{
   b.classList.add('sel'); selObsType=b.dataset.obs;
 }));
 document.getElementById('m-obs-ok').addEventListener('click',async()=>{
-  if(!pendingNome){closeModalObs();return;}
-  if(!selObsType){alert('Selecione um tipo.');return;}
+  const nome=pendingNome; // salvar ANTES de closeModalObs zerar
+  const tipo=selObsType;
+  if(!nome){closeModalObs();return;}
+  if(!tipo){alert('Selecione um tipo.');return;}
   const nota=document.getElementById('obs-note').value.trim();
-  const fp=panelNome===pendingNome; closeModalObs(); if(fp) closePanel();
-  await doObs(pendingNome,selObsType,nota);
+  const fp=panelNome===nome; closeModalObs(); if(fp) closePanel();
+  await doObs(nome,tipo,nota);
 });
 document.getElementById('m-obs-cancel').addEventListener('click',closeModalObs);
 
