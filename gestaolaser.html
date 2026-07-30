@@ -278,7 +278,7 @@ td.nm .sub{display:block;font-family:'Archivo',sans-serif;font-size:9px;margin-t
   <table>
     <thead><tr>
       <th>Status</th><th>Paciente</th><th>Telefone</th><th>Sessões</th>
-      <th>Última Sessão</th><th>Próxima (28d)</th><th>Ações</th><th>Áreas</th>
+      <th>Última Sessão</th><th>Próxima (28d)</th><th>Agendada</th><th>Ações</th><th>Áreas</th>
     </tr></thead>
     <tbody id="tbody"></tbody>
   </table>
@@ -758,7 +758,13 @@ function apply(){
   if(searchTerm){const t=searchTerm.toLowerCase();r=r.filter(x=>x.nome.toLowerCase().includes(t)||String(x.telefone||'').includes(t));}
   r=[...r].sort((a,b)=>{
     switch(sortKey){
-      case 'prioridade': return (PO[a.prioridade]??9)-(PO[b.prioridade]??9)||a.meses_desde_ultima-b.meses_desde_ultima;
+      case 'prioridade': {
+        const po = (PO[a.prioridade]??9)-(PO[b.prioridade]??9);
+        if(po !== 0) return po;
+        // Dentro de agendadas: ordenar por data de agendamento (mais próxima primeiro)
+        if(a.prioridade==='agendada') return (a.dias_para_agendamento??999)-(b.dias_para_agendamento??999);
+        return a.meses_desde_ultima-b.meses_desde_ultima;
+      }
       case 'proxima':    return (a.dias_para_proxima??999)-(b.dias_para_proxima??999);
       case 'ultima_asc': return a.meses_desde_ultima-b.meses_desde_ultima;
       case 'ultima_desc':return b.meses_desde_ultima-a.meses_desde_ultima;
@@ -820,6 +826,7 @@ function render(){
       <td><div class="sess-bar">${boxes}</div><div style="font-size:9px;color:var(--white-faint)">${r.total_sessoes} sessão${r.total_sessoes>1?'ões':''}</div></td>
       <td><div>${normDate(r.ultima_sessao)||'—'}</div><div style="font-size:9px;color:var(--white-faint);margin-top:2px">${r.meses_desde_ultima<900?r.meses_desde_ultima.toFixed(1)+'m atrás':'—'}</div></td>
       <td><div style="font-size:11px;margin-bottom:3px">${r.proxima_estimada||'—'}</div>${dc(r.dias_para_proxima)}</td>
+      <td style="font-size:11px;text-align:center">${isAg ? '<div style="color:var(--green)">'+(normDate((conf&&conf.data_agendada)?conf.data_agendada:r.agendada_data)||'—')+'</div>'+(r.dias_para_agendamento!==null?'<div style="font-size:9px;color:var(--white-faint);margin-top:2px">'+(r.dias_para_agendamento===0?'hoje':r.dias_para_agendamento===1?'amanhã':'em '+r.dias_para_agendamento+'d')+'</div>':'') : '<span style="color:var(--white-faint)">—</span>'}</td>
       <td style="white-space:nowrap">${actions}</td>
       <td style="font-size:10px;color:var(--white-faint);max-width:150px">${areas}</td>
     </tr>`;
