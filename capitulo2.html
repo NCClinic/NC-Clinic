@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NC Clinic — Capítulo II · Agosto 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100;200;300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #bca366;
+    --gold-light: #d4b97a;
+    --gold-pale: #e8d5a8;
+    --gold-dim: #8a7548;
+    --black: #0a0a0a;
+    --black-soft: #111111;
+    --black-card: #161616;
+    --black-border: #222222;
+    --white: #f5f0e8;
+    --white-dim: #c8c0b0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Archivo', sans-serif;
+    font-weight: 200;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    text-align: center;
+    padding: 60px 32px 36px;
+    border-bottom: 1px solid var(--black-border);
+    position: relative;
+    overflow: hidden;
+  }
+  .header-monogram {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 480px;
+    max-width: 70vw;
+    height: auto;
+    opacity: 0.05;
+    z-index: -1;
+    pointer-events: none;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .chapter-eyebrow { font-size: 10px; letter-spacing: 0.45em; color: var(--gold-dim); text-transform: uppercase; margin-bottom: 18px; }
+  .logo-svg { width: 300px; height: auto; margin: 0 auto 8px; display: block; }
+  .logo-text { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 54px; letter-spacing: 0.18em; color: var(--gold); line-height: 1; margin-bottom: 8px; }
+  .tagline { font-size: 10px; letter-spacing: 0.35em; color: var(--white-dim); text-transform: uppercase; margin-bottom: 26px; }
+  .campanha-badge { display: inline-block; font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); border: 1px solid var(--gold-dim); padding: 7px 22px; }
+  .hero-copy {
+    max-width: 560px; margin: 26px auto 0;
+    font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 17px;
+    color: var(--white-dim); line-height: 1.6;
+  }
+
+  /* Tab nav */
+  .tab-nav-wrap {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(10,10,10,0.94); backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--black-border);
+  }
+  .tab-nav { max-width: 1000px; margin: 0 auto; display: flex; overflow-x: auto; scrollbar-width: none; }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex: 1 1 auto; white-space: nowrap; background: transparent; border: none;
+    color: var(--white-dim); font-family: 'Archivo', sans-serif; font-weight: 300;
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    padding: 20px 16px; cursor: pointer; position: relative; transition: color 0.25s;
+  }
+  .tab-btn::after {
+    content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
+    background: var(--gold); transform: scaleX(0); transition: transform 0.3s;
+  }
+  .tab-btn:hover { color: var(--white); }
+  .tab-btn.active { color: var(--gold-pale); }
+  .tab-btn.active::after { transform: scaleX(1); }
+
+  .container { max-width: 1000px; margin: 0 auto; padding: 48px 24px 90px; }
+  .tab-panel { display: none; animation: fadeIn 0.4s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .panel-intro { margin-bottom: 32px; }
+  .panel-eyebrow { font-size: 9px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 10px; }
+  .panel-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 34px; color: var(--white); line-height: 1.15; margin-bottom: 12px; }
+  .panel-title em { color: var(--gold); font-style: normal; }
+  .panel-desc { font-size: 13.5px; line-height: 1.75; color: var(--white-dim); max-width: 620px; }
+
+  .section-label {
+    font-size: 9px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold-dim);
+    margin: 36px 0 18px; display: flex; align-items: center; gap: 12px;
+  }
+  .section-label:first-of-type { margin-top: 0; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--black-border); }
+
+  /* Clickable cards */
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .card-grid { grid-template-columns: 1fr; } }
+
+  .p-card {
+    background: var(--black-card);
+    border: 1px solid var(--black-border);
+    border-top: 1px solid #2a2a2a;
+    padding: 24px 26px;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.25s, transform 0.25s;
+  }
+  .p-card:hover { border-color: var(--gold-dim); transform: translateY(-2px); }
+  .p-card::after {
+    content: 'Ver detalhes →';
+    position: absolute; bottom: 14px; right: 20px;
+    font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-dim);
+    opacity: 0; transition: opacity 0.25s;
+  }
+  .p-card:hover::after { opacity: 1; }
+  .p-card.featured { grid-column: 1 / -1; border-left: 2px solid var(--gold); }
+
+  .p-name { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 23px; color: var(--white); line-height: 1.2; margin-bottom: 4px; }
+  .p-sub { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 14px; }
+  .p-price-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .p-price { font-family: 'Cormorant Garamond', serif; font-size: 26px; color: var(--gold); }
+  .p-price-note { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--white-dim); }
+  .p-before { font-size: 11px; color: #4a4a4a; text-decoration: line-through; margin-top: 4px; }
+  .p-teaser { font-size: 12px; color: var(--white-dim); margin-top: 10px; line-height: 1.5; max-width: 90%; }
+
+  /* Modal */
+  .modal-backdrop {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.78); backdrop-filter: blur(3px);
+    padding: 24px; overflow-y: auto;
+  }
+  .modal-backdrop.open { display: flex; align-items: flex-start; justify-content: center; }
+  .modal-box {
+    background: var(--black-soft);
+    border: 1px solid var(--gold-dim);
+    max-width: 560px; width: 100%;
+    margin-top: 40px;
+    padding: 36px 34px 32px;
+    position: relative;
+    animation: modalIn 0.3s ease;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .modal-close {
+    position: absolute; top: 18px; right: 20px;
+    background: none; border: none; color: var(--white-dim);
+    font-size: 20px; cursor: pointer; line-height: 1;
+    transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--gold); }
+
+  .modal-photo {
+    width: 100%; height: 240px;
+    border: 1px dashed #3a352c;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 22px;
+    color: #5a5347; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    gap: 10px;
+    background: var(--black-card);
+    overflow: hidden;
+    position: relative;
+  }
+  .modal-photo img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .modal-photo .placeholder {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .modal-photo svg { opacity: 0.5; }
+
+  .modal-eyebrow { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 8px; }
+  .modal-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 30px; color: var(--white); margin-bottom: 4px; line-height: 1.15; }
+  .modal-sub { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--white-dim); margin-bottom: 22px; }
+
+  .modal-price-block { border-top: 1px solid var(--black-border); border-bottom: 1px solid var(--black-border); padding: 18px 0; margin-bottom: 20px; }
+  .modal-price-main { font-family: 'Cormorant Garamond', serif; font-size: 32px; color: var(--gold); line-height: 1; }
+  .modal-price-installments { font-size: 12.5px; color: var(--white-dim); margin-top: 6px; }
+  .modal-price-installments span { color: var(--gold-pale); }
+  .modal-before { font-size: 11px; color: #4a4a4a; text-decoration: line-through; margin-top: 6px; }
+
+  .modal-desc { font-size: 13.5px; line-height: 1.7; color: var(--white-dim); margin-bottom: 18px; }
+
+  .modal-conversion {
+    font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 16.5px;
+    color: var(--gold-pale); line-height: 1.6; margin-bottom: 20px;
+    border-left: 2px solid var(--gold-dim); padding-left: 16px;
+  }
+
+  .modal-includes { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+  .modal-includes .include-item {
+    display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--white-dim); line-height: 1.5;
+  }
+  .modal-includes .include-item::before { content: '—'; color: var(--gold-dim); font-size: 11px; flex-shrink: 0; margin-top: 1px; }
+  .modal-includes .include-item strong { color: var(--white); font-weight: 300; }
+
+  .modal-bonus-label { font-size: 8px; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .modal-bonus-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .modal-bonus-tag {
+    font-size: 11px; letter-spacing: 0.05em; color: var(--gold-pale);
+    border: 1px solid var(--gold-dim); padding: 4px 12px; background: rgba(188,163,102,0.04);
+  }
+  .modal-bonus-tag::before { content: '✦ '; font-size: 8px; color: var(--gold); }
+  .modal-optional-tag {
+    font-size: 11px; letter-spacing: 0.05em; color: var(--white-dim);
+    border: 1px dashed #3a352c; padding: 4px 12px;
+  }
+  .modal-optional-tag::before { content: '+ '; font-size: 10px; color: var(--gold-dim); }
+
+  .modal-cta {
+    display: block; width: 100%; text-align: center;
+    background: var(--gold); color: var(--black);
+    font-family: 'Archivo', sans-serif; font-weight: 400; font-size: 12px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    padding: 16px; text-decoration: none; border: none; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .modal-cta:hover { background: var(--gold-light); }
+
+  footer { text-align: center; padding: 36px 24px 52px; border-top: 1px solid var(--black-border); position: relative; }
+  footer::after {
+    content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 300px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  }
+  .footer-brand { font-family: 'Cormorant Garamond', serif; font-size: 22px; letter-spacing: 0.2em; color: var(--gold-dim); margin-bottom: 6px; }
+  .footer-sub { font-size: 9px; letter-spacing: 0.35em; color: #3a3530; text-transform: uppercase; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tab-panel, .modal-box { animation: none; }
+    html { scroll-behavior: auto; }
+  }
+
+</style>
+</head>
+<body>
+<header>
+  <svg class="header-monogram" viewBox="3600 500 12500 12500" xmlns="http://www.w3.org/2000/svg">
+    <path fill="var(--gold)" d="M12363.38 3514.31c114.54,-34.72 382.97,-187.25 506.21,-249.63 1270.2,-642.98 2855.16,-960.2 4303.37,-870.09 3057.45,190.25 5801.43,2159.79 6953.46,4906.41 1986.13,4735.21 -934.77,9759.33 -5559.32,10933.76 -2501.74,635.33 -5065.9,178.09 -7128.98,-1214.09 -317.23,-214.06 -1441.3,-1063.67 -1605.04,-1330.31 25.55,136.11 590.76,673.89 711.94,800.99 224.16,235.07 563.74,492.15 848.69,697.87 2076.39,1499.12 4755.12,2045.27 7348.45,1407.83 1663.21,-408.82 3032.06,-1341.69 3937.29,-2245.85 1121.4,-1120.08 1830.39,-2298.66 2261.48,-3922.93 493.73,-1860.26 236.33,-3649.06 -420.28,-5275.12 -1178.19,-2917.77 -4119.96,-4923.68 -7374.46,-4996.35 -1542.96,-34.45 -3645.73,439.03 -4782.81,1357.51z"/>
+  </svg>
+  <div class="chapter-eyebrow">Capítulo II</div>
+  <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8IS0tIENyZWF0b3I6IENvcmVsRFJBVyBTdGFuZGFyZCAyMDI0IChWZXJzw6NvIGRlIGF2YWxpYcOnw6NvKSAtLT4NCjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMjk3bW0iIGhlaWdodD0iMjEwbW0iIHZlcnNpb249IjEuMSIgc3R5bGU9InNoYXBlLXJlbmRlcmluZzpnZW9tZXRyaWNQcmVjaXNpb247IHRleHQtcmVuZGVyaW5nOmdlb21ldHJpY1ByZWNpc2lvbjsgaW1hZ2UtcmVuZGVyaW5nOm9wdGltaXplUXVhbGl0eTsgZmlsbC1ydWxlOmV2ZW5vZGQ7IGNsaXAtcnVsZTpldmVub2RkIg0Kdmlld0JveD0iMCAwIDI5NzAwIDIxMDAwIg0KIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIg0KIHhtbG5zOnhvZG09Imh0dHA6Ly93d3cuY29yZWwuY29tL2NvcmVsZHJhdy9vZG0vMjAwMyI+DQogPGRlZnM+DQogIDxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+DQogICA8IVtDREFUQVsNCiAgICAuZmlsMCB7ZmlsbDojQkNBMzY2fQ0KICAgIC5maWwxIHtmaWxsOiNCQ0EzNjY7ZmlsbC1ydWxlOm5vbnplcm99DQogICBdXT4NCiAgPC9zdHlsZT4NCiA8L2RlZnM+DQogPGcgaWQ9IkNhbWFkYV94MDAyMF8xIj4NCiAgPG1ldGFkYXRhIGlkPSJDb3JlbENvcnBJRF8wQ29yZWwtTGF5ZXIiLz4NCiAgPGcgaWQ9Il8xOTgxNDU0NzM1OTM2Ij4NCiAgIDxnPg0KICAgIDxwYXRoIGNsYXNzPSJmaWwwIiBkPSJNMjQ4Ni4xOCA4NjYyLjc4YzE2NC40LDAgMzQxLjAyLDE2LjE4IDUwMC4yOCw1NS4wNiAxMTEuMzYsMjcuMTggMjAzLjU3LDYzLjg1IDMwMi4zNiwxMTMuMDkgMTUuMzcsNy42NyA4My4zNyw0MC4wOSA4My4zNyw1Ni41M2wwIDM4NDkuMjRjMCw0OC43MiAtMTEuMSwxMTUuOCAtMjEuOTksMTU2LjA2IC01Ni4yOCwyMDcuOTIgLTE3OC4wOSwyOTEuMDQgLTM3My44MSwzNTUuMzUgLTY3LjAzLDIyLjAyIC0xNTQuMzYsMzkuODQgLTIyNy41LDQzLjgxIC0yNC45NCwxLjM1IC02Mi4xMSwyLjAzIC04Ny43NCw1LjUyIC01MC4wNSw2LjgyIC0xMjQuOTksMy4xNiAtMTc0Ljk3LDcuMzJsMCA2My41OSAxODU2LjggMCAwIC02My41OWMtNDQuNTcsLTEwLjM4IC0xMDYuMywwLjc1IC0xNTYuMjQsLTQuODYgLTE1Ny45NywtMTcuNzMgLTI2My40LC0xOC4xMiAtNDE0LjI3LC04MS43MSAtODEuMzIsLTM0LjI4IC0xMzYuNCwtNjYuOCAtMTk1LjgsLTEzMC42NCAtNDYuMzQsLTQ5LjgxIC04OS4wMSwtMTQ0IC0xMDUuMTksLTIyNS40NyAtMzIuNSwtMTYzLjY2IC0xOC43NSwtNDQyLjgyIC0xOC43NSwtNjM4LjMzbDAgLTMyODUuNDJjMzUuMzMsMjMuNjYgNjkuMzMsNTYuNzQgMTAwLjc0LDg1Ljc5IDM5Ljg5LDM2Ljg5IDYyLjQ4LDY2Ljk5IDkxLjAyLDk1LjVsMTY5LjE5IDIwOC4xMWMxNC4wNSwxOC43IDI0LjU0LDM1LjYzIDM4LjczLDU0LjUzIDk3LjA0LDEyOS4yIDIwOS44NywzMjcuNjggMjg1LjY5LDQ2OC45bDEyOS45NyAyNDcuMzJjMTEuMzQsMjIuODUgMjEuNjUsMzguODkgMzIuNTIsNjAuNzVsMTI0LjM1IDI1Mi45NWMxMS4xOSwyMi4zNiAxOS44OCwzOS44MSAzMS4wOCw2Mi4xNyAxMS41NiwyMy4wNyAyMC4wOSw0NC42NyAzMS4wNyw2Ni40MyAyMC45Miw0MS40MiAzOS4zLDgzLjA0IDYwLjgxLDEyNS43Mmw0MDIuNjUgODIyLjVjNi42NSwxMy4zMSAxMC4xNCwxNy41MSAxNi45NSwyOS42N2w4Mi4wNyAxNTUuMzNjMTEuNjIsMjAuOCAyMS4yMSwzOS4yOCAzMy40OCw1OS43OGw2OC4yMSAxMjIuNTZjOTYuMjUsMTgwLjQ5IDIwMy45OSwzNTcuNCAzMjYuNTksNTIxLjI3IDE0LjI2LDE5LjA3IDI2LjE3LDMzLjQxIDQwLjYxLDUyLjY2IDUzLjYxLDcxLjQzIDExMi40NywxMzkuNDUgMTY5LjYxLDIwNy42OCA3Ljk3LDkuNSAxNC45NywxNC4xOCAyMi45NCwyMy42OSAxMTUuMTIsMTM3LjUxIDI0OS4zNiwyNTUuNzYgMzk1LjQ3LDM1OS4xMiA5LjkzLDcuMDMgMTkuNzUsMTIuMjUgMzEuNTQsMTkuMzMgMjU3LjY3LDE1NC44NCA1MjAsMjU4IDgzMC44OSwzMDAuOTkgNTYuNDMsNy44IDExNS4zNSwxMC4zNyAxNjguODksMTcuNjMgNDcuOTcsNi41IDI0OS4xNCw4Ljk4IDI3MC42MSwxMy40MyAxNjEuNDUsMzMuMzggMjUwLjQ4LDQwLjM5IDQwOS41NCw2MS4wMSA5My40NCwxMi4xMSAyNzMuNTgsMTguNjggMzU3LjU0LDExLjczIDI5LjQsLTIuNDQgNjMuMjMsMS40IDkzLjA2LC0wLjIxIDEyOS4yNiwtNi45NyAyOTIuMzEsLTI5LjM2IDQxNS40NywtNTkuMzIgMTQyLjQsLTM0LjYzIDI4OS42MSwtNzcuNTYgNDIyLjQxLC0xNDEuNDFsMTI3LjI5IC02My40OGMxNTIuMDEsLTg0Ljk1IDIyNi45MiwtMTQzLjcgMzYxLjcyLC0yNDguNzMgOS43NSwtNy41OSAxNS42NCwtMTMuNjggMjUuNDIsLTIxLjIxbDE0Ny4zIC0xMzYuNzNjNDcuOSwtNDcuOSA4OC41MiwtOTkuOTcgMTMzLjU3LC0xNTAuNDYgMTUuMjcsLTE3LjExIDI4LjA3LC0zNC4yOCA0MS4zLC01MS45Nmw4MC41NCAtMTEwLjIyYy0yMS40NywtMTEuMzcgLTQxLjczLC0yMi4zNSAtNjMuNTgsLTMzLjkyIC00OS43OCw3NC4zNCAtMTA0Ljg4LDE1MC40OCAtMTY0LjM0LDIxNy4yIC04Ljk0LDEwLjAyIC0xMC43NiwxMS4wNCAtMTkuNzQsMjIuNjUgLTEzLjI1LDE3LjE0IC0yNS42OCwyNi45IC0zOS45Nyw0NC44MSAtMjguODMsMzYuMTUgLTkyLjQsOTQuODIgLTEzMC4yNiwxMjQuMWwtNDUuMjUgMzkuNTRjLTE0LjUyLDEzLjg0IC0zMC41MiwyNi4zMSAtNDYuMTIsMzguNjcgLTE0Ni4wNiwxMTUuNjkgLTI5Ny44NCwyMTguNDQgLTQ3MS43NiwyOTEuMjkgLTE2Ny4xNyw3MC4wMyAtMzQ3LjU5LDEyMC44NyAtNTMwLjU1LDE0Ny43MyAtMjk3LjU4LDQzLjcxIC02MTkuNzksNDAuMzMgLTkxMi40NywtMzIuMzIgLTY5LjcxLC0xNy4zIC0xNDAuNSwtMzguOTkgLTIwNC44MywtNjIuMjMgLTgwLjUsLTI5LjA5IC0xNTcuMzMsLTYyLjI2IC0yMzEuMjYsLTEwMy42NCAtODUuMjIsLTQ3LjcgLTE2OS4wOCwtOTYuNzYgLTI0Ny4yNCwtMTU1LjQ5bC03My45MiAtNTcuNWMtNjMuNjYsLTQ5LjUzIC0xMjAuODYsLTEwMy4xMiAtMTc3LjM0LC0xNjEuODEgLTExMS4wNCwtMTE1LjM2IC0yMDMuMjUsLTI0Ni43MyAtMjg2LjM1LC0zODMuNDQgLTE2LjgzLC0yNy42OCAtMzAuOTgsLTU1LjM5IC00NS45OSwtODUuNDNsLTg1IC0xODYuMzJjLTcuMjEsLTE4LjI1IC0xMy40NSwtMjkuNjYgLTE5LjgyLC00OGwtODEuMzQgLTI1My41N2MtMzEuNjgsLTExMS45NSAtNTEuMTYsLTIxOS4zNiAtNjcuMiwtMzM1LjUyIC0xMS4zNSwtODIuMTQgLTI4LjE2LC0yMjkuMjIgLTI3Ljg2LC0zMTEuMjggMC4wOSwtMjIuNjQgMC4xOSwtNDUuMzYgMC4xNiwtNjcuOTkgLTAuMDQsLTI2LjE0IC00LjQxLC0zMi44NiAtNC41NCwtNTkuMDdsNy40OCAtMTk2LjNjNS40MSwtMzkuNzYgMy43MywtODYuNzcgOC40MiwtMTIyLjk5IDUuNTYsLTQyLjk2IDguOTgsLTgyLjE2IDEzLjU3LC0xMjIuMDkgMzkuMzgsLTM0Mi44NyAxNTcsLTcxMS44MSAzMzUuMDEsLTEwMDguODMgMTcuMTUsLTI4LjYxIDM1LjM4LC01NC4wOSA1Mi40NywtODMuMTlsMTQyLjc4IC0xOTIuMTJjMTAuODQsLTE0LjA2IDE5LjQ4LC0yMC44MyAzMS40NywtMzYuMzUgMTAuNTgsLTEzLjcgMTkuODUsLTIwLjMgMzEuMTIsLTMyLjQ3bDMxLjczIC0zNi4xYzEyLjM3LC0xMi4yNiAyMS41MSwtMjEuNzkgMzMuODQsLTMzLjk5IDEzLjEsLTEyLjk3IDIyLjYzLC0xNy45NyAzNi4xNiwtMzEuNjcgODkuNDksLTkwLjY3IDE5OC42NSwtMTY1LjUzIDMwNy41OCwtMjMwLjggMzY4LjM2LC0yMjAuNzMgOTM4Ljg0LC0zMDkuMTQgMTM4MC4wNiwtMTMyLjE1IDk1Ljg1LDM4LjQ1IDE4NC41OCw4Ni44IDI2NC4wNiwxNTEuMzggNTYuMTYsNDUuNjIgMTA2LjExLDEwMi4zNiAxNDcuNzgsMTYxLjY5IDExNi44NSwxNjYuNCAxODEuODcsMzI1LjEgMTg2LjM3LDU0Ny4wMiAyLjA3LDEwMi4wMSA5NC4wNywxOTYuMTcgMTgxLjExLDIzNC4zMyAxMDAuNzMsNDQuMTggMjQxLjMzLDQ4LjY3IDM0MS45MiwwLjE3IDg3Ljc2LC00Mi4zMiAxODUuMDUsLTEyMi40MiAxODUuMDUsLTIzNC42MyAwLC0xMjIuMDQgLTM2LjE1LC0xOTcuODggLTk1LjE0LC0yODYuMzkgLTMzLjk5LC01MC45OSAtNzMuNDcsLTk5LjA3IC0xMTUuNjgsLTE0Mi45MiAtNTQuODMsLTU2Ljk2IC0xMjIuNDMsLTExNC4yNCAtMTg1Ljg2LC0xNjEuNzYgLTE5My42MiwtMTQ1LjAzIC00MTIuNzcsLTI0NS4xMiAtNjQ0LjY1LC0zMTMuNDEgLTQ1LC0xMy4yNiAtOTAuNjYsLTI3LjUyIC0xMzYuODMsLTM2Ljk4IC05OC43NiwtMjAuMjQgLTE5MS41MSwtNDEuNDUgLTI5My42NCwtNTMuOTkgLTQ5NC42MiwtNjAuNyAtMTAwOS43MywzLjQ1IC0xNDUxLjg5LDIwOC4zNCAtNzAsMzIuNDQgLTE0My4yOSw2OS41MyAtMjA4Ljg3LDEwOS4wOGwtMTAwLjIgNjAuODljLTM0LjY5LDIxLjE1IC02My4xNCw0Mi44NyAtOTUuODksNjUuMmwtMTM0LjgyIDEwMi41OGMtMTQ1LjA2LDExMi43NiAtMzIwLjY1LDMwMC44NCAtNDIzLjA0LDQ1NC40OSAtNjQuOTMsOTcuNDMgLTEyNy40OSwxOTIuOTggLTE4MC4zNSwyOTguNjkgLTEyMy4yNiwyNDYuNTQgLTIxMi44Myw1MTMuMDIgLTIzOS44NCw3OTguNzggLTIuMjYsMjQuMDMgLTMuNSw0OC45MyAtNy4wNyw3My40NiAtNy4xNiw0OS4yNyAtMC42NSwxMDUuOSAtNy44MiwxNTMuMjggLTExLjkxLDc4LjcyIDEwLjI3LDIyMy45NyAxMC4yNywzMDcuMDJsLTE0LjUzIC0yNy44N2MtNC43NywtMTEuNzcgLTguMzEsLTE3Ljc0IC0xMy43OCwtMjguNjFsLTc5LjQ2IC0xNzQuOWMtNC45NSwtMTEuOTggLTguNTUsLTE3LjQxIC0xMy43NywtMjguNjIgLTUuMzksLTExLjU1IC03LjEsLTE4LjI1IC0xMi42NiwtMjkuNzMgLTkuNjUsLTE5Ljk2IC0xOC4yOCwtMzguOTQgLTI2LjgyLC01Ny45NmwtNTMuNzYgLTEyMC4wNWMtMTkuMTYsLTM5Ljg4IC0zNC42NywtNzcuNiAtNTIuMzUsLTExNy4yMyAtMzUuMzYsLTc5LjIzIC02OC41MSwtMTU4LjY0IC0xMDcuMjksLTIzNi4wOWwtMTExLjY4IC0yMzEuNjljLTEwLjI5LC0yMC41OSAtMTcuOTIsLTM1Ljk5IC0yOC4yMSwtNTYuNTggLTEwLjI3LC0yMC41NCAtMTkuMDgsLTMzLjUzIC0yOS43MiwtNTUuMDYgLTQ2LjI3LC05My41OSAtMTAwLjQ2LC0xODQuNTMgLTE1NC4xMSwtMjc0LjA2IC0xMS40MSwtMTkuMDQgLTIwLjI3LC0zNS40NSAtMzEuMjEsLTUzLjU4IC03NC44LC0xMjMuOTggLTE1Ni41LC0yNDMuMTggLTI0Mi4xLC0zNTkuODcgLTM1LjU5LC00OC41MyAtNzIuMDIsLTk2Ljg5IC0xMTQuOTIsLTEzOS40M2wtMTkyLjg2IC0xOTIuOTJjLTE3Mi40NSwtMTUxLjg2IC0yNjQuNTIsLTIyMy4yIC00ODkuOTgsLTMyMy45NWwtMTIwLjk2IC00OC42MmMtODMuNjYsLTMwLjA2IC0xNjguNiwtNTguMTcgLTI2NS44MywtNzcuNTUgLTcyLjkxLC0xNC41MyAtMTQ5Ljk2LC0yMy44OSAtMjIyLjg5LC0zMS40NSAtMjguODUsLTIuOTkgLTU0LjE4LC0yLjI5IC04Mi45NCwtNi4wOSAtMTMwLjE2LC0xNy4xNyAtMzc4LjgxLC0xNS43OCAtNTA1LjY1LC0xNS43OGwwIDYzLjU5eiIvPg0KICAgIDxwYXRoIGNsYXNzPSJmaWwwIiBkPSJNOTQ3LjMzIDkyOTAuMThjMCwxNDAuMDkgMzQuNzcsMjMxLjM3IDEzMC4zNiwzMjcuNDkgNjAuMzksNjAuNzMgMTc0LjMxLDEyNi4xMiAyOTMuNTcsMTI2LjEybDQ2LjYzIDBjMTg1LjY2LDAgMzY1LjQyLC0xNDUuNDQgNDA5LjU3LC0zMjMuODIgMzguNTksLTE1NS45IC00LjQsLTMwMi40NyAtMTEzLjg0LC00MTIuNzkgLTY3LjkzLC02OC40OCAtMTg5LjMsLTEyOC4yIC0yOTEuNDksLTEyOC4yIC05OC45OCwwIC0xMjYuNywxLjY3IC0yMTguNjgsMzkuOTEgLTEzNy40LDU3LjEyIC0yNTYuMTIsMjE4LjM2IC0yNTYuMTIsMzcxLjI5eiIvPg0KICAgIDxwYXRoIGNsYXNzPSJmaWwwIiBkPSJNMTcyNy4zNiAxMDU5MS42NGM5OC4zMywwIDE0OS43NSwtMTIuNzEgMjIxLjUyLC04My43MSA3NS43NywtNzQuOTYgOTYsLTE5NC42OCA0Ny4wOSwtMjk1LjEyIC02LjY4LC0xMy43MSAtMTUuNDYsLTI3LjMyIC0yNC40NSwtMzkuMTUgLTk4Ljk3LC0xMzAuMjQgLTI4OS4wNiwtMTUxLjQ2IC00MTEuMTEsLTM3LjI0bC0zMC41OCAzMy4wMWMtNzguMDUsOTkuMiAtNzIuMTgsMjQ3LjE5IDE2LjIxLDMzNi40NSAyNi4zOCwyNi42MyA0MC41MSwzOC43NCA3NS4yOCw1Ni4xMyAyOC44NSwxNC40MyA2Mi44NywyOS42MyAxMDYuMDQsMjkuNjN6Ii8+DQogICAgPHBhdGggY2xhc3M9ImZpbDAiIGQ9Ik0xMDE3Ni4xOSAxMTEwMC4zNWMxMTYuNDQsMCAxOTQuNjgsLTUwLjYyIDI0NS43NywtMTQwIDE1LjUxLC0yNy4xNCAyMy44NCwtNjAuOTMgMjUuNTQsLTk1Ljc4bDAgLTI3LjExYy0xLjc1LC0zNi4zMyAtMTAuNSwtNzIuMjQgLTI1LjY2LC0xMDEuNDYgLTE0LjA0LC0yNy4wOCAtMzIuMzIsLTQ3LjY1IC01My43NiwtNjkuMTggLTQxLjgsLTQxLjk3IC0xMDQuNzksLTcwLjk0IC0xODMuNDEsLTcwLjk0IC0xNTkuNzgsMCAtMjg0LjI2LDE0NS41NiAtMjUxLjk4LDMwMi44NCAxNC4wMyw2OC4zNSA1MC41OSwxMTMuNzIgMTAxLjc1LDE1Mi42MSAzNS4wNCwyNi42NCA5Myw0OS4wMiAxNDEuNzUsNDkuMDJ6Ii8+DQogICAgPHBhdGggY2xhc3M9ImZpbDAiIGQ9Ik0xNzM1LjgzIDgyNDMuMDljMCw3MS45OSA1LjQ1LDE0My4yNyAxNS4wOCwyMDkuNmwyMy40MiAxNDEuOTJjMy45NywyMC42MSAxLjc1LDMxLjg0IDE2LjYyLDQyLjczIDAuNDEsLTE4LjQyIDMuMjYsLTE0Ljk3IDQuMjYsLTMzLjg5IDIuMzYsLTQ1LjAzIDMuMzcsLTE0Ny4wMiA5LjYxLC0xOTMuODYgMi40MiwtMTguMTQgNS44MiwtNTMuMjkgNy4xNywtNzMuMzkgMy4yLC00Ny40MSAxMC41OCwtOTguOTQgMTYuODYsLTE0NC4yMyAxMy4yOSwtOTUuOTUgMzAuMDEsLTE3NS44NyA1NS4zNiwtMjY2LjgzIDEwLjgsLTM4Ljc1IDI1Ljk2LC04NS42NyA0Mi4zMywtMTE4Ljc2IDI3LjAxLC01NC41OCAxOC45NywtNDguNjEgNTkuMzIsLTEwMS43NiA5Ni44MywtMTI3LjUzIDE5OC4wMSwtMjIuMzUgMjM5Ljk2LDgyLjQgNS43NSwxNC4zMyAxMC40NywyNy4yOSAxNC41LDQwLjYxIDczLjU3LDI0My4yMyAxNS43NCw1MDMuMiAtODQuMjYsNzIxLjIyIC00OC45OCwxMDYuODEgLTEyMC45NywxOTguMzMgLTE5My4xNCwyOTAuMTQgLTE1LjM0LDE5LjUyIC0zOC45LDQ0LjM1IC00NC44LDY5LjY2IDQxLjMxLC0xMS4wMiAxNzkuNTgsLTIwMS44OCAyMDUuMjcsLTI0NC4wOCA2MC4xMiwtOTguNzYgMTE1LjUyLC0xODIuMDQgMTU0LjU4LC0yOTkuMDQgNzAuMTEsLTIxMCA1OS40NywtMzcwLjc1IC0xMy44LC01NzguNzEgLTI1LjUzLC03Mi40NyAtOTkuNDgsLTE5NC40OCAtMTU5LjUyLC0yMjYuMjUgLTg3LjEyLDU4LjM0IC0xODEuNjUsMTI2LjI2IC0yMzguODMsMjE5LjAxIC04Mi40NSwxMzMuNzQgLTEyOS45OSwyNjEuMjEgLTEyOS45OSw0NjMuNTF6Ii8+DQogICA8L2c+DQogICA8Zz4NCiAgICA8Zz4NCiAgICAgPHBhdGggY2xhc3M9ImZpbDAiIGQ9Ik0xMTM2MC4yOSA5NzQ2LjkyYzU1LjA3LDQuNTggMTMyLjI0LDE1LjI5IDE3NS42OSwzNC43NSAzOC42OCwxNy4zMyA5NS42OSw2Mi45MSAxMTUuNTcsOTQuODcgNTUuNDQsODkuMTYgNjQuODcsMjEyLjg1IDY0Ljg3LDM1Ni4wMWwwIDEyNTQuNTVjMCwyNTUuMjYgLTM1LjE3LDQ3Ny41MyAtMzU2LjEzLDQ3Ny41M2wwIDQwLjQ2IDc4NS4xIDBjLTAuODUsLTM4LjQgMy43OCwtMzQuNTQgLTMxLjE1LC00MS42OSAtNDcuNiwtOS43NCAtMTA3LjU0LC01LjM4IC0xNzQuMTIsLTQ0LjQyIC02My4zNSwtMzcuMTUgLTEwNC40LC05Ni44NSAtMTI1Ljg0LC0xNjUuNTMgLTM3LjkyLC0xMjEuNTIgLTI1LjAyLC0zOTMuNjYgLTI1LjAyLC01NTcuNzMgMCwtMzkxLjIxIDAsLTc4Mi40MSAwLC0xMTczLjYxIDEwNC4wOSwxMTkuNzUgMjg1Ljk4LDM1Ny40NiAzOTUuNTQsNDk0Ljc5bDExMzkuNzQgMTQzNC4xYzQ5LjgzLDYyLjI3IDI4LjgxLDU0LjA5IDEyMy45Niw1NC4wOWwwIC0xNzcyLjU0YzAsLTI3Ni44NCA0MS43NywtNDc4LjYyIDM1Ni4xMiwtNDg1LjYzbDAgLTQwLjQ3IC03ODUuMDkgMCAwIDQwLjQ3YzM5Ny41LDMzLjA4IDM1Ni4xMiwyNzcuMTcgMzU2LjEyLDY2My42OSAwLDM0Mi42NCAwLDY4NS4yOCAwLDEwMjcuOTIgLTI1LjU4LC0xNy4xMyAtMTQzLjg4LC0xNzcuMzEgLTE3My4zOCwtMjE1LjEybC00MjYuNjggLTU0NC41OGMtMjguNzcsLTM4LjYxIC01Ni4xNSwtNjguOTYgLTg1LjU5LC0xMDguNjcgLTE3My44NywtMjM0LjQzIC00MTEuOTQsLTUyMy42NiAtNTk3Ljg1LC03NjEuOTFsLTYzLjAzIC04Mi42NWMtMTAuNzEsLTEyLjAzIC05LjQ4LC0xOS4xNSAtMjkuNDIsLTE5LjE1bC02MzkuNDEgMCAwIDQwLjQ3eiIvPg0KICAgICA8cGF0aCBjbGFzcz0iZmlsMCIgZD0iTTIyNzgwLjY4IDk3NDYuOTJjMzI1LjkzLDI3LjEyIDM1Ni4xMiwxODkuNzIgMzU2LjEyLDUzNC4xOWwwIDExNDEuMjNjMCwyODAuOTggLTExLjEyLDU0Mi4yOSAtMzU2LjEyLDU0Mi4yOWwwIDQwLjQ2IDc3NyAwIDAgLTQwLjQ2Yy00MzIuMTcsMCAtMzQ4LjAzLC00MzEuNzggLTM0OC4wMywtNzkzLjE5IDAsLTM4MC40MiAwLC03NjAuODMgMCwtMTE0MS4yNCAyNi45MiwxOC4wMyAxMTMuNjgsMTM1LjAyIDE0Ny41NiwxNzYuMTkgMTguNTUsMjIuNTMgMzAuNTMsNDEuMTkgNDkuMiw2NC4xMmw2ODguOTYgODY1LjA1YzM0LjI1LDQzLjU3IDYxLjU3LDc5LjYyIDk2LjE3LDEyMi4zNmw1NjYuODUgNzExLjk4YzE2Ljk1LDIxLjA3IDEzLjg3LDYuNzggMjEuNDYsMzUuMTlsODkuMDMgMCAwIC0xODI5LjJjMCwtMTI0LjU4IDE2LjU3LC0yNDQuMzIgNzUuMDksLTMxMy40IDY5Ljk0LC04Mi41NyAxNjguMjQsLTExMy4wNiAyODEuMDQsLTExNS41N2wwIC00MC40NyAtNzg1LjExIDAgMCA0MC40N2MzOTAuMzQsMzIuNDggMzU2LjE0LDI3My4wNSAzNTYuMTQsNjcxLjc5IDAsMzQyLjY0IDAsNjg1LjI3IDAsMTAyNy45MSAtNy4yLC04LjI4IC0xMy45OCwtMTYuMTYgLTIyLjAxLC0yNi41NWwtMTQ5LjA4IC0xOTAuODZjLTI4Ljc3LC0zOC42MiAtNTYuMTUsLTY4Ljk3IC04NS42LC0xMDguNjYgLTE2LjM5LC0yMi4xMSAtMjcuODksLTM0LjY0IC00Mi44NywtNTQuMjVsLTEwMjMuMjMgLTEzMDcuNzljLTkuMDksLTExLjcyIC0xMy4yNCwtMTcuMzQgLTIxLjQsLTI3LjE2IC0xMi40OSwtMTUuMDYgLTguMDgsLTI0LjkgLTMxLjc3LC0yNC45bC02MzkuNCAwIDAgNDAuNDd6Ii8+DQogICAgIDxwYXRoIGNsYXNzPSJmaWwwIiBkPSJNMTQwNDcuNDQgMTA4MzkuNThjMCwzMDkuNjYgMzguODQsNTQ0LjQ0IDIxNS4xLDc4OC41NCAyMDMuMDUsMjgxLjIgNTM5LjA5LDQzMy42MyA4OTMuNzYsNDMzLjYzIDIwNy43NywwIDM5Ni4wMiwtMTMuNzEgNTgyLjQ5LC0xMjEuNjYgMTgyLjcyLC0xMDUuNzkgMjc2LjU0LC0yNTYuNTEgMzI5LC00NjQuMiAzOS45NSwtMTU4LjE1IDMwLjQyLC0xNTAuNjggLTIxLjE4LC0xNTAuNjggLTEuNTQsNjkgLTQ0Ljc4LDE5MS43MyAtNjguMSwyNDcuNTYgLTMzLDc5IC03Mi41OSwxNDAuMDUgLTEyOC4xNCwxOTUuNjIgLTIyMywyMjMuMDYgLTY4My4xLDIyOS45IC05MzYuNjMsODIuNjYgLTEwMy41MiwtNjAuMTIgLTE3MS42NiwtMTI1LjY1IC0yNDMuMiwtMjE4LjE0IC0xMTcuNTgsLTE1Mi4wMyAtMjEwLjMyLC00MzIuNDIgLTIxMC4zMiwtNzA0LjI5IDAsLTIyMC4wNSAxLjQyLC0zNDguNDEgNzMuODgsLTU2NS41NCA3NS4wNSwtMjI0LjkgMjE0LjI1LC00NTMuODEgNDIxLjQ0LC01NzQuMDkgMTUuNTksLTkuMDUgMjMuMDgsLTEwLjk5IDM4LjYyLC0xOC4wNiA0MTMuMTQsLTE4Ny43MiA3NjcuMTcsNDIuNTYgOTI3LjYzLDQyNC41NiAxOS45Myw0Ny40NSAzMy44Miw4OC44MiA1MS45LDEzNC4yNyA0Ny4yMywxMTguNzQgMjkuMDIsMTIxLjMyIDg5LjEyLDEyMS4zMiAwLC0zMi4zIDAuNzEsLTY1LjI1IDAuMzEsLTk3LjQ1IC0wLjU1LC00NC45NSAtOC4xOCwtNTEuNTMgLTguNzQsLTk2LjQ4IC0wLjgxLC02NS45IDUuMTksLTE0Ni41NCAtMC4xLC0yMTAuMzRsLTguMDUgLTI5OS41MWMtNC4yNiwtNDAuMzkgLTExLjM4LC00Ny45NCAtNTYuMjcsLTQ4Ljk0IC0zLjE3LDM4LjEyIC00My40NSw4OS4wMiAtODAuOTQsODkuMDIgLTQzLjAxLDAgLTExMi4wNiwtMjcuODggLTE0Ni43MiwtMzkuNDMgLTQ4LjU3LC0xNi4xOSAtOTAuNDQsLTI3Ljc5IC0xNDEuNjIsLTQ0LjU1IC0yOTAuNDksLTk1LjEgLTYxMC4xNCwtNTkuMDggLTg4NC4yMyw1Mi42NSAtMTg5LjE5LDc3LjExIC0zNzkuOTIsMjIxLjg3IC00ODQuMDgsMzk4LjE1IC0xMjIuODQsMjA3LjkgLTIwNC45Myw0MzYuNiAtMjA0LjkzLDY4NS4zOHoiLz4NCiAgICAgPHBhdGggY2xhc3M9ImZpbDAiIGQ9Ik0yNjcwNi4xNyAxMDg0Ny42OGMwLDIxNy44NSAxMi41NCwzNzIuMDggOTIuMzksNTYzLjIyIDMyLjkyLDc4LjggOTcuNjYsMTk0Ljk0IDE1Mi45MSwyNTkuODggMjQuMTksMjguNDQgNDIuMDUsNTEuMjggNjguMyw3Ny4zOCA5My42NCw5My4xMSAxOTcuNzgsMTY1LjQ4IDMzMS41OCwyMTguOCAxMzIuNDYsNTIuNzkgMjkxLjQ4LDg2LjYyIDQ1MC41Nyw5NC43OWwxNDYuOTcgMGM1My4wNywtMi44NCAxMDUuMiwtOC44NiAxNTUuMzgsLTE4LjMzIDE1Ni4zNCwtMjkuNTMgMzYyLjcxLC0xMTIuNDIgNDU4LjgzLC0yMzcuMjIgNjAuNzIsLTc4LjgzIDU3LjA3LC01My44MyAxMTUuMjIsLTE4NC4yNyAzMS41MSwtNzAuNjcgNTAuMDUsLTE0OC42NiA2NC4yLC0yMjcuNDcgMTEuODYsLTY2LjA3IDIyLjAyLC02OS4yNSAtMzcuMTcsLTY5LjI1IC0yLjg4LDEyOS4zNiAtOTYuNDYsMzQzLjM3IC0xOTYuMjQsNDQzLjE4IC0zMi41OCwzMi41OSAtNDguODIsNDYuNSAtOTAuMzMsNzEuNTQgLTI0MS4xLDE0NS40MiAtNjExLjk1LDE0Ni4xMiAtODQ2LjIyLDExLjA0IC0zMDEuMTIsLTE3My42NCAtNDUzLjYsLTU0MC40MyAtNDUzLjYsLTkyMi4zNSAwLC0yMjguOTcgLTEuOTcsLTMzOC44NCA3MS44MSwtNTU5LjUxIDEyMS40OCwtMzYzLjMgMzU4Ljk3LC02NjIuNjYgNzYxLjg2LC02NjIuNjYgMTEwLjcxLDAgMjIzLjU4LDM1LjczIDI5My4wNiw3OS4yNSAyMzcuNDMsMTQ4LjcyIDI5OC40NiwzMTkuOTggMzg2LjgyLDU0My45NyA4LjAyLDIwLjMyIDE2LjQyLDQ0LjU1IDI0LjExLDY0LjkyIDIwLjUsNTQuMjQgMTIuNTMsNTYuNDkgNjQuOTIsNTYuNDlsLTguMzcgLTE5My45N2MtMC4wOSwtNjQuNzYgNS4wMywtMTQ3Ljc5IC0wLjE1LC0yMTAuMyAtNS4xMiwtNjEuODUgLTcuNjksLTEyMS4xNSAtNy42NywtMTk0LjY3IDAuMDMsLTExMy40MSAxNS44MiwtMTUyLjE3IC01Ni42NSwtMTUzLjc4IC0zMS44NCwxMzYuNjcgLTE0MC4xMSw3OC43NyAtMjI3LjY2LDQ5LjU5IC0zNjguNDQsLTEyMi43OSAtNjU1Ljg1LC0xNDYuNTUgLTEwMzEuNjMsMTAuNDJsLTE0NC40IDc0LjEzYy0yODEuNjEsMTY2LjE5IC00MzYuMjcsNDM0LjI0IC01MDguMjQsNzQ2LjMgLTE1LjgzLDY4LjU3IC0zMC42LDE4Mi44OCAtMzAuNiwyNjguODh6Ii8+DQogICAgIDxwYXRoIGNsYXNzPSJmaWwwIiBkPSJNMTcyMTIuMTIgMTA5MTIuNDNjMCw4MC43NSAxMi41NCwxODUuNiAyNS4yMywyNTguMDYgMjQuMzIsMTM4Ljg5IDg1LjY5LDI5MS4yNSAxNTguMjYsNDA4LjMxIDM4LjUzLDYyLjE1IDc1LjgyLDEwNi45MyAxMjYuMSwxNTcuMTggMTA3LjIxLDEwNy4xMyAxODguNjksMTY5LjIxIDMzNS40NywyMzEuMSAxMzIuNDgsNTUuODggMjk0LjA0LDg4LjUxIDQ1Ny42Miw5NC42N2wxMTMuNTMgMGMxMjAuMjYsLTQuNiAyMzguMiwtMjQuMDMgMzQyLjk5LC01OS41NSAyNTQuNjUsLTg2LjMzIDM4Ny42NiwtMjU1LjI0IDQ2MC45MywtNTEwLjM0IDEwLjM0LC0zNi4wMiAyNy42MSwtMTI3LjQ5IDI3LjYxLC0xNjYuNjUgLTQxLjY5LDAgLTM5Ljg3LC00LjAyIC00OS42MiwzMS4zMiAtNS4xOSwxOC43OCAtOSw0OS41MyAtMTMuMzMsNjcuNjIgLTEwLjMxLDQzLjA3IC0yNy40NCw5MC42IC00Mi4xNywxMjcuOCAtMjQuNjgsNjIuMzIgLTc1LjQ2LDE1OS4wNyAtMTI0LjI0LDIwNy41OCAtMTE4LjA4LDExNy40MSAtMzA1LjM3LDE4OC45MSAtNDc0LjgsMTg4LjkxIC0xODYuOTgsMCAtMzIwLjc3LC00LjgxIC00ODEuMDgsLTEwMS42NyAtNDUxLjQyLC0yNzIuNzcgLTUyMy45NiwtOTQ0LjE0IC0zOTYsLTE0MTQuODIgMjMuODQsLTg3LjY5IDY1LjgxLC0xODguNzIgMTA1LjM0LC0yNjYuOTggMTYuODUsLTMzLjM0IDMwLjI0LC00OS4wOCA0OC43OSwtODAuNzEgMjcuMzMsLTQ2LjU5IDEyMS43NiwtMTY4LjYyIDE2Ny44OSwtMjA0LjQzIDUwLjQ1LC0zOS4xNyA4NC43NiwtNzEuNCAxNDcuNTMsLTEwMy4zNyA4OC4xOCwtNDQuODkgMjAyLjc5LC03MC4wMSAzMTAuNCwtNzAuMDEgMzkyLjc1LDAgNTc2LjAzLDMyNC4wNCA2ODcuMDMsNjMyLjI3IDQxLjI2LDExNC41NSAzMy4wOSwxMTIuMzYgODEuODksMTEyLjM2IDAsLTI1Ni4zMyAtMTYuMTksLTQ5Mi44MiAtMTYuMTksLTc0NC42MyAtNzAuNjEsLTE2LjkgLTM5Ljk3LC02LjIgLTc1Ljk1LDQ1LjQ3IC03OC40NSwxMTIuNyAtMzIzLjU1LC0xMDIuMTMgLTY1Mi41LC0xMDIuMTMgLTI2MS4zLDAgLTM2Ny43NiwyMS4wMiAtNTk3LjksMTE0LjM2IC0xMDAuNjksNDAuODIgLTE5Ni41NCwxMDUuNDEgLTI3OC43MywxNzQuNTIgLTI3NS44OSwyMzEuOTYgLTM5NC4xLDYxOS43OCAtMzk0LjEsOTczLjc2eiIvPg0KICAgICA8cGF0aCBjbGFzcz0iZmlsMCIgZD0iTTE5NDQ2LjAyIDk3NDYuOTJjOTQuMzMsNy44NSAyMDcuNDIsMjkuMjUgMjY3LjQ2LDEwNC44NiA1Ny41Miw3Mi40MyA4MC41NywxNjEuOTMgODAuNTcsMjkxLjc0bDAgMTQyNC41MWMwLDExMy44MSAtMjAuMjEsMjIwLjE3IC03MS40LDI4NC43MiAtNTguMTgsNzMuMzUgLTE1OC4yNCwxMTEuODggLTI3Ni42MywxMTEuODhsMCA0MC40NiAyMDA3LjI3IDBjMCwtMTIzLjU3IDYuMjIsLTIyMi43MSA3Ljc3LC0zNDguMzUgMC42MiwtNTAuNSA4LjU1LC03MS41OCA4LjQxLC0xNjkuNjUgLTAuMSwtNjguNzYgOC4xLC0xMDguNjggOC4xLC0xNjkuOTYgLTE5LjA1LC00LjQ1IC0yMy45LC03LjU2IC00OC41NywtOC4xIC0xNi4yNCwxOTUuMjIgLTEzNS43Miw0NjQuNjEgLTMyNy43Niw1NjIuNTUgLTE2OS43OCw4Ni42IC01MDUuMDksMTExLjM0IC02ODcuNTcsMzEuOSAtMjM4LjA2LC0xMDMuNjIgLTI0Ny4zLC0zNjYuNTcgLTI0Ny4zLC01OTQuNDVsMCAtMTExNi45NWMwLC0xMjguODUgMTMuMSwtMjUyLjM0IDcxLjQ0LC0zMjUuMTYgNjcuMzIsLTg0IDE0OC41NiwtMTA4LjY3IDI4NC42OCwtMTIwbDAgLTQwLjQ3IC0xMDc2LjQ3IDAgMCA0MC40N3oiLz4NCiAgICAgPHBhdGggY2xhc3M9ImZpbDAiIGQ9Ik0yMTU0Mi4zMSA5NzQ2LjkyYzMxNC4yNiwyNi4xNSAzNTYuMTQsMTczLjg5IDM1Ni4xNCw0NzcuNTRsMCAxMjc4LjgyYzAsMjAxLjY4IC0xMy4yNSwzNDIuNDggLTE3OS41OSw0MjcuNDUgLTQ0LjQsMjIuNjggLTExMy41MywzMy45IC0xNzYuNTUsMzMuOWwwIDQwLjQ2IDEwNzYuNDkgMCAwIC00MC40NmMtMjU3LjgyLDAgLTM0OC4wMywtMTUzLjUzIC0zNDguMDMsLTM5Ni42bDAgLTE0MjQuNTFjMCwtMTI0IDIzLjI4LC0yMjUuMyA4MC44LC0yOTEuNTIgNTguMDIsLTY2LjgxIDE1Mi4xMywtOTUuNSAyNjcuMjMsLTEwNS4wOGwwIC00MC40NyAtMTA3Ni40OSAwIDAgNDAuNDd6Ii8+DQogICAgIDxwYXRoIGNsYXNzPSJmaWwwIiBkPSJNMjUzODYuODkgOTc0Ni45MmM2Mi4xNSw1LjE3IDE0MC43NCwxOC45NyAxODYuNDQsNDAuMTggMTgyLjE3LDg0LjU1IDE2OS42OCwzMzkuODEgMTY5LjY4LDUzNC40OWwwIDEwODQuNTZjMCwyNzQuNjUgNi40NSw1NTguNDggLTM1Ni4xMiw1NTguNDhsMCA0MC40NiAxMDc2LjQ3IDAgMCAtNDAuNDZjLTM2My4zMSwwIC0zNTYuMTIsLTI4OS45MyAtMzU2LjEyLC01ODIuNzZsMCAtMTA1Mi4yYzAsLTM0Mi4wNSAtMi44NCwtNTUyLjg4IDM1Ni4xMiwtNTgyLjc1bDAgLTQwLjQ3IC0xMDc2LjQ3IDAgMCA0MC40N3oiLz4NCiAgICA8L2c+DQogICAgPHBhdGggY2xhc3M9ImZpbDEiIGQ9Ik0xMTcwNy4xNyAxMzE1OS40OGwwIC01Ni40NyAxMjAxLjM5IDAgMCA1Ni40NyAtMTIwMS4zOSAwem0xNTU4MC43OSAwbDAgLTU2LjQ3IDEyMDEuMzggMCAwIDU2LjQ3IC0xMjAxLjM4IDB6bS0xMzk5Ny4zNiAyOTYuNzRsMCAtODI0LjE1IDYyNC43MiAwIDAgNTcuNjYgLTU1OS44NSAwIDAgMzE0Ljc3IDUwNi45OSAwIDAgNTcuNjYgLTUwNi45OSAwIDAgMzM2LjM5IDU2Ny4wNiAwIDAgNTcuNjcgLTYzMS45MyAwem0xMTE3LjI5IDE0LjQyYy00NC4wNiwwIC04Ni43LC0zLjYxIC0xMjcuOTQsLTEwLjgyIC00MS4yNiwtNy4yMSAtNzcuOSwtMTkuODIgLTEwOS45NCwtMzcuODUgLTMyLjA0LC0xOC4wMiAtNTcuNDYsLTQyLjQ0IC03Ni4yOCwtNzMuMjggLTE4LjgyLC0zMC44MyAtMjguMjQsLTcwLjI4IC0yOC4yNCwtMTE4LjMzIDAsLTQgMCwtNy40MSAwLC0xMC4yMiAwLC0yLjggMC40LC03IDEuMiwtMTIuNjFsNjYuMDggMGMtMC44LDQgLTEuNCw5LjAxIC0xLjgsMTUuMDEgLTAuNCw2LjAxIC0wLjYsMTEuNDIgLTAuNiwxNi4yMyAwLDM5LjI1IDEyLjAxLDcxLjg4IDM2LjA0LDk3LjkxIDI0LjAzLDI2LjAzIDU2LjI3LDQ1LjI1IDk2LjcyLDU3LjY2IDQwLjQ0LDEyLjQyIDg0LjY5LDE4LjYzIDEzMi43NCwxOC42MyAxMC40MiwwIDI2LjQzLC0wLjgxIDQ4LjA2LC0yLjQgMjEuNjIsLTEuNiA0NS4wNiwtNS40MSA3MC4yOSwtMTEuNDIgMjUuMjIsLTYuMDEgNDkuMjUsLTE1LjAxIDcyLjA4LC0yNy4wMyAyMi44MywtMTIuMDEgNDEuNjQsLTI4LjI0IDU2LjQ2LC00OC42NiAxNC44MiwtMjAuNDIgMjIuMjMsLTQ2LjY1IDIyLjIzLC03OC42OSAwLC0zMi4wNCAtOC4yMiwtNTguNjYgLTI0LjYzLC03OS44OSAtMTYuNDIsLTIxLjIyIC0zOC4yNCwtMzguNjUgLTY1LjQ4LC01Mi4yNiAtMjcuMjMsLTEzLjYxIC01OC4wNiwtMjUuNDMgLTkyLjUxLC0zNS40NCAtMzQuNDQsLTEwLjAxIC03MC4wNywtMTkuNDIgLTEwNi45MiwtMjguMjMgLTM2Ljg0LC04LjgxIC03Mi40OCwtMTguNjMgLTEwNi45MiwtMjkuNDQgLTM0LjQ1LC0xMC44MSAtNjUuMjcsLTI0LjIzIC05Mi41MSwtNDAuMjQgLTI3LjIzLC0xNi4wMiAtNDkuMDYsLTM2LjQ0IC02NS40NywtNjEuMjcgLTE2LjQyLC0yNC44MyAtMjQuNjMsLTU1LjI3IC0yNC42MywtOTEuMzEgMCwtMjguODMgNS42MSwtNTYuMDcgMTYuODIsLTgxLjY5IDExLjIxLC0yNS42MyAyOS4yMywtNDcuODYgNTQuMDYsLTY2LjY4IDI0LjgzLC0xOC44MiA1Ny44NiwtMzMuNjQgOTkuMTIsLTQ0LjQ2IDQxLjI0LC0xMC44MSA5MS45LC0xNi4yMSAxNTEuOTcsLTE2LjIxIDQxLjY1LDAgODAuMjksNC40MSAxMTUuOTQsMTMuMjIgMzUuNjMsOC44IDY3LjA3LDIyLjIyIDk0LjMsNDAuMjQgMjcuMjQsMTguMDIgNDguNDUsNDEuMDUgNjMuNjcsNjkuMDggMTUuMjMsMjguMDMgMjIuODMsNjEuNjcgMjIuODMsMTAwLjkybDAgMTQuNDIgLTY0Ljg3IDAgMCAtMjUuMjNjMCwtMzIuMDQgLTEwLjAxLC01OS40OCAtMzAuMDQsLTgyLjMgLTIwLjAyLC0yMi44MyAtNDYuODUsLTQwLjY0IC04MC40OSwtNTMuNDYgLTMzLjY0LC0xMi44MiAtNzEuMjgsLTE5LjIyIC0xMTIuOTMsLTE5LjIyIC02Mi40NywwIC0xMTMuMTMsNi40IC0xNTEuOTcsMTkuMjIgLTM4Ljg1LDEyLjgyIC02Ny4yOCwyOS44NCAtODUuMyw1MS4wNSAtMTguMDIsMjEuMjMgLTI3LjA0LDQ0LjY2IC0yNy4wNCw3MC4yOSAwLDMwLjQzIDguMjEsNTUuNjYgMjQuNjQsNzUuNjkgMTYuNDEsMjAuMDIgMzguNDQsMzYuNDQgNjYuMDcsNDkuMjUgMjcuNjMsMTIuODIgNTguNjYsMjQuMDMgOTMuMTEsMzMuNjQgMzQuNDQsOS42MSA2OS44NywxOC44MyAxMDYuMzIsMjcuNjMgMzYuNDQsOC44MSA3MS44OCwxOC44MyAxMDYuMzIsMzAuMDQgMzQuNDQsMTEuMjEgNjUuNDgsMjUuMjMgOTMuMTEsNDIuMDUgMjcuNjMsMTYuODIgNDkuNjYsMzguMDQgNjYuMDgsNjMuNjcgMTYuNDEsMjUuNjMgMjQuNjIsNTcuMjcgMjQuNjIsOTQuOTEgMCw1NC40NiAtMTMuODEsOTkuMzIgLTQxLjQ0LDEzNC41NiAtMjcuNjMsMzUuMjMgLTY1LjY4LDYxLjI3IC0xMTQuMTMsNzguMDkgLTQ4LjQ2LDE2LjgyIC0xMDQuNzMsMjUuMjMgLTE2OC44LDI1LjIzem03MTkuNjMgLTE0LjQybDAgLTc2Ni40OSAtMzA1LjE1IDAgMCAtNTcuNjYgNjc4Ljc4IDAgMCA1Ny42NiAtMzA4Ljc2IDAgMCA3NjYuNDkgLTY0Ljg3IDB6bTUwNi45OCAwbDAgLTgyNC4xNSA2MjQuNzMgMCAwIDU3LjY2IC01NTkuODUgMCAwIDMxNC43NyA1MDYuOTggMCAwIDU3LjY2IC01MDYuOTggMCAwIDMzNi4zOSA1NjcuMDUgMCAwIDU3LjY3IC02MzEuOTMgMHptMjk1LjU1IC04ODQuMjJsMTExLjcyIC0xNTguNTggODQuMSAwIDEuMiAzLjYgLTEzNS43NSAxNTQuOTggLTYxLjI3IDB6bTcyNS42MyA4ODQuMjJsMCAtNzY2LjQ5IC0zMDUuMTUgMCAwIC01Ny42NiA2NzguNzggMCAwIDU3LjY2IC0zMDguNzUgMCAwIDc2Ni40OSAtNjQuODggMHptNTA2Ljk5IDBsMCAtODI0LjE1IDY0Ljg3IDAgMCA4MjQuMTUgLTY0Ljg3IDB6bTYzOS4xNCAxNC40MmMtODQuMSwwIC0xNTQuNzgsLTE2LjAyIC0yMTIuMDQsLTQ4LjA2IC01Ny4yNywtMzIuMDQgLTEwMC41MiwtNzkuNjkgLTEyOS43NSwtMTQyLjk2IC0yOS4yNCwtNjMuMjggLTQzLjg2LC0xNDEuNzcgLTQzLjg2LC0yMzUuNDggMCwtMTQwLjk2IDM0LjA0LC0yNDcuMjggMTAyLjEyLC0zMTguOTcgNjguMDgsLTcxLjY4IDE2My4zOSwtMTA3LjUyIDI4NS45MywtMTA3LjUyIDcyLjg5LDAgMTM2LjM2LDExLjIxIDE5MC40MiwzMy42NCA1NC4wNywyMi40MyA5NS45MSw1Ni4wNyAxMjUuNTQsMTAwLjkyIDI5LjY0LDQ0Ljg0IDQ0LjQ1LDEwMS4zMSA0NC40NSwxNjkuMzlsLTY0Ljg3IDBjMCwtNTcuNjYgLTExLjgyLC0xMDQuNTIgLTM1LjQ0LC0xNDAuNTYgLTIzLjYzLC0zNi4wNCAtNTcuNjYsLTYyLjY3IC0xMDIuMTEsLTc5LjkgLTQ0LjQ2LC0xNy4yMSAtOTcuOTIsLTI1LjgyIC0xNjAuMzksLTI1LjgyIC02MS42NywwIC0xMTYuNTQsMTIuMDEgLTE2NC41OSwzNi4wNCAtNDguMDYsMjQuMDMgLTg1LjUsNjIuNDcgLTExMi4zMywxMTUuMzMgLTI2Ljg0LDUyLjg2IC00MC4yNSwxMjMuMzUgLTQwLjI1LDIxMS40NWwwIDI1LjIzYzAsODQuMDkgMTMuNDEsMTUxLjc3IDQwLjI1LDIwMy4wMyAyNi44Myw1MS4yNiA2NC4yNyw4OC41MSAxMTIuMzMsMTExLjczIDQ4LjA1LDIzLjIyIDEwMy4zMiwzNC44NCAxNjUuNzksMzQuODQgNjEuNjcsMCAxMTQuNzMsLTguNjEgMTU5LjE5LC0yNS44NCA0NC40NSwtMTcuMjEgNzguNjgsLTQzLjg0IDEwMi43MSwtNzkuODggMjQuMDMsLTM2LjA0IDM2LjA0LC04Mi45IDM2LjA0LC0xNDAuNTdsNjMuNjcgMGMwLDY5LjY5IC0xNS42MSwxMjYuOTUgLTQ2Ljg1LDE3MS44IC0zMS4yNCw0NC44NSAtNzQuMDksNzguMDkgLTEyOC41NSw5OS43MiAtNTQuNDYsMjEuNjIgLTExNi45MywzMi40NCAtMTg3LjQxLDMyLjQ0em00NDAuOTEgLTE0LjQybDMzMS41OCAtODI0LjE1IDkzLjcxIDAgMzMxLjU4IDgyNC4xNSAtNjkuNjggMCAtOTYuMTEgLTIzNy44OCAtNDMwLjEgMCAtOTQuOTEgMjM3Ljg4IC02Ni4wNyAwem0xODUuMDEgLTI5NS41NGwzODIuMDQgMCAtMTIwLjE0IC0yOTkuMTVjLTIuNCwtNi40IC02LjAxLC0xNi4wMSAtMTAuODEsLTI4LjgzIC00LjgxLC0xMi44MiAtMTAuNDIsLTI3LjYzIC0xNi44MiwtNDQuNDUgLTYuNDEsLTE2LjgyIC0xMy4wMiwtMzQuMDQgLTE5LjgyLC01MS42NiAtNi44MSwtMTcuNjMgLTEzLjAyLC0zNC4wNCAtMTguNjMsLTQ5LjI2bC05LjYxIDBjLTUuNjEsMTUuMjIgLTEyLjQxLDMzLjI0IC0yMC40Miw1NC4wNiAtOC4wMSwyMC44MiAtMTYuMDIsNDEuODUgLTI0LjAzLDYzLjA3IC04LjAxLDIxLjIzIC0xNS4yMiw0MC4yNSAtMjEuNjIsNTcuMDdsLTEyMC4xNCAyOTkuMTV6bTk2NS45MSAyOTUuNTRsMCAtODI0LjE1IDY0Ljg4IDAgMCA4MjQuMTUgLTY0Ljg4IDB6bTMwMC4zNSAwbDAgLTgyNC4xNSA2Ni4wOCAwIDQ1NS4zMiA2MDkuMWM0LjgxLDUuNjEgMTAuODEsMTMuNjEgMTguMDIsMjQuMDMgNy4yMSwxMC40MSAxNC44MiwyMS4yMyAyMi44MywzMi40NCA4LjAxLDExLjIxIDE1LjIyLDIxLjIyIDIxLjYyLDMwLjAzbDQuODEgMGMwLC0xNC40MiAwLC0yOC44MyAwLC00My4yNSAwLC0xNC40MiAwLC0yOC44MyAwLC00My4yNWwwIC02MDkuMSA2NC44NyAwIDAgODI0LjE1IC01MS42NSAwIC00NjYuMTQgLTYyNS45MmMtNS42MSwtNy4yMSAtMTUuMjIsLTIwLjAzIC0yOC44NCwtMzguNDUgLTEzLjYxLC0xOC40MiAtMjYuMDMsLTM1LjI0IC0zNy4yNCwtNTAuNDZsLTQuOCAwYzAsMTUuMjIgMCwzMC4wNCAwLDQ0LjQ2IDAsMTQuNDEgMCwyOS4yMyAwLDQ0LjQ1bDAgNjI1LjkyIC02NC44OCAwem0xMDkwLjg2IDBsMCAtNzY2LjQ5IC0zMDUuMTUgMCAwIC01Ny42NiA2NzguNzggMCAwIDU3LjY2IC0zMDguNzYgMCAwIDc2Ni40OSAtNjQuODcgMHptNTA2Ljk4IDBsMCAtODI0LjE1IDYyNC43MyAwIDAgNTcuNjYgLTU1OS44NSAwIDAgMzE0Ljc3IDUwNi45OSAwIDAgNTcuNjYgLTUwNi45OSAwIDAgMzM2LjM5IDU2Ny4wNSAwIDAgNTcuNjcgLTYzMS45MyAwem0xMTg1Ljc3IDE0LjQyYy0xMzkuMzYsMCAtMjQzLjA3LC0zNS40NSAtMzExLjE2LC0xMDYuMzMgLTY4LjA4LC03MC44OCAtMTAyLjExLC0xNzcuNiAtMTAyLjExLC0zMjAuMTcgMCwtOTIuMTEgMTUuNDIsLTE2OS43OSA0Ni4yNSwtMjMzLjA3IDMwLjgzLC02My4yNyA3Ny4wOSwtMTExLjMzIDEzOC43NiwtMTQ0LjE2IDYxLjY3LC0zMi44NCAxMzguOTYsLTQ5LjI2IDIzMS44NywtNDkuMjYgNTguNDcsMCAxMTAuMTMsNi4yMSAxNTQuOTgsMTguNjIgNDQuODUsMTIuNDIgODIuNjksMzAuODQgMTEzLjUzLDU1LjI2IDMwLjgzLDI0LjQ0IDU0LjA2LDU1LjA3IDY5LjY4LDkxLjkxIDE1LjYyLDM2Ljg1IDIzLjQzLDgwLjEgMjMuNDMsMTI5Ljc1bC02My42OCAwYzAsLTQ1LjY1IC03LjQxLC04My43IC0yMi4yMiwtMTE0LjEzIC0xNC44MiwtMzAuNDMgLTM1LjY0LC01NC44NyAtNjIuNDcsLTczLjI4IC0yNi44NCwtMTguNDIgLTU4LjY3LC0zMS40NCAtOTUuNTIsLTM5LjA1IC0zNi44NCwtNy42MSAtNzYuODgsLTExLjQxIC0xMjAuMTMsLTExLjQxIC01Mi4wNiwwIC05OS4zMiw2LjQgLTE0MS43NywxOS4yMiAtNDIuNDQsMTIuODIgLTc4Ljg5LDMzLjQ0IC0xMDkuMzIsNjEuODcgLTMwLjQ0LDI4LjQzIC01My44Nyw2NS4yOCAtNzAuMjgsMTEwLjUyIC0xNi40Miw0NS4yNiAtMjQuNjMsMTAwLjMyIC0yNC42MywxNjUuMmwwIDI1LjIzYzAsODYuNSAxMy44MiwxNTUuNzggNDEuNDUsMjA3Ljg0IDI3LjYzLDUyLjA2IDY2LjY3LDg5LjcxIDExNy4xMywxMTIuOTMgNTAuNDYsMjMuMjIgMTA5LjcyLDM0Ljg0IDE3Ny44LDM0Ljg0IDc4LjQ5LDAgMTQwLjE3LC0xMC40MiAxODUuMDIsLTMxLjI0IDQ0Ljg1LC0yMC44MiA3Ni42OSwtNTMuNDYgOTUuNTEsLTk3LjkxIDE4LjgyLC00NC40NiAyOC4yMywtMTAxLjEyIDI4LjIzLC0xNzBsMCAtMjIuODIgLTMyMy4xNyAwIDAgLTU3LjY3IDM4OS4yNSAwIDAgNDIyLjg5IC01NS4yNyAwIC0xMC44MSAtMTE4Ljk0Yy0xOC40MiwzMi4wNCAtNDQuMDUsNTcuODcgLTc2Ljg5LDc3LjQ5IC0zMi44MywxOS42MyAtNjguNjgsMzMuODQgLTEwNy41Miw0Mi42NSAtMzguODUsOC44MSAtNzcuNDksMTMuMjIgLTExNS45NCwxMy4yMnptNTkyLjI5IC0xNC40MmwwIC04MjQuMTUgNDMyLjUgMGM1MS4yNiwwIDkzLjcsMTAuMDEgMTI3LjM0LDMwLjAzIDMzLjY0LDIwLjAzIDU4Ljg3LDQ2Ljg2IDc1LjY5LDgwLjUgMTYuODIsMzMuNjMgMjUuMjMsNzEuNjggMjUuMjMsMTE0LjEzIDAsNjAuMDcgLTE0LjAyLDExMC4zMyAtNDIuMDUsMTUwLjc3IC0yOC4wMyw0MC40NSAtNjMuMjcsNjcuODggLTEwNS43Miw4Mi4zbDE3Ni42IDM2Ni40MiAtNzIuMDggMCAtMTcwLjYgLTM1NC40MSAtMzgyLjA0IDAgMCAzNTQuNDEgLTY0Ljg3IDB6bTY0Ljg3IC00MTIuMDhsMzU4LjAyIDBjNTMuNjYsMCA5NS45MSwtMTYuODIgMTI2Ljc1LC01MC40NiAzMC44MywtMzMuNjMgNDYuMjUsLTc5LjY4IDQ2LjI1LC0xMzguMTUgMCwtMzQuNDUgLTYuNDEsLTYzLjg4IC0xOS4yMywtODguMzEgLTEyLjgxLC0yNC40MyAtMzIuMDQsLTQzLjQ1IC01Ny42NiwtNTcuMDYgLTI1LjYzLC0xMy42MSAtNTcuNjcsLTIwLjQzIC05Ni4xMSwtMjAuNDNsLTM1OC4wMiAwIDAgMzU0LjQxem03MTcuMjMgNDEyLjA4bDMzMS41OCAtODI0LjE1IDkzLjcxIDAgMzMxLjU4IDgyNC4xNSAtNjkuNjggMCAtOTYuMTEgLTIzNy44OCAtNDMwLjA5IDAgLTk0LjkxIDIzNy44OCAtNjYuMDggMHptMTg1LjAxIC0yOTUuNTRsMzgyLjA0IDAgLTEyMC4xMyAtMjk5LjE1Yy0yLjQxLC02LjQgLTYuMDEsLTE2LjAxIC0xMC44MiwtMjguODMgLTQuOCwtMTIuODIgLTEwLjQxLC0yNy42MyAtMTYuODIsLTQ0LjQ1IC02LjQsLTE2LjgyIC0xMy4wMSwtMzQuMDQgLTE5LjgxLC01MS42NiAtNi44MSwtMTcuNjMgLTEzLjAyLC0zNC4wNCAtMTguNjMsLTQ5LjI2bC05LjYxIDBjLTUuNjEsMTUuMjIgLTEyLjQxLDMzLjI0IC0yMC40Miw1NC4wNiAtOC4wMiwyMC44MiAtMTYuMDIsNDEuODUgLTI0LjAzLDYzLjA3IC04LjAxLDIxLjIzIC0xNS4yMiw0MC4yNSAtMjEuNjMsNTcuMDdsLTEyMC4xNCAyOTkuMTV6bTc5NS4zMiAyOTUuNTRsMCAtNzY2LjQ5IC0zMDUuMTUgMCAwIC01Ny42NiA2NzguNzggMCAwIDU3LjY2IC0zMDguNzUgMCAwIDc2Ni40OSAtNjQuODggMHptNTA2Ljk5IDBsMCAtODI0LjE1IDY0Ljg3IDAgMCA4MjQuMTUgLTY0Ljg3IDB6bTUxMS43OSAwbC0zMTcuMTcgLTgyNC4xNSA2OS42OCAwIDIzMC42NyA2MDMuMDljNi40LDE1LjIyIDEzLjAyLDMyLjQ0IDE5LjgzLDUxLjY2IDYuOCwxOS4yMyAxMy42MSwzOC4yNSAyMC40Miw1Ny4wNiA2LjgsMTguODMgMTIuNjEsMzUuNDUgMTcuNDIsNDkuODdsOC40IDBjNS42MSwtMTQuNDIgMTEuNjIsLTMxLjA0IDE4LjAzLC00OS44NyA2LjQsLTE4LjgxIDEzLjIxLC0zNy44MyAyMC40MiwtNTcuMDYgNy4yMSwtMTkuMjIgMTMuNjEsLTM2LjQ0IDE5LjIyLC01MS42NmwyMjcuMDYgLTYwMy4wOSA2OS42OCAwIC0zMTcuMTYgODI0LjE1IC04Ni41IDB6bTQwMy42NiAwbDMzMS41OSAtODI0LjE1IDkzLjcgMCAzMzEuNTkgODI0LjE1IC02OS42OCAwIC05Ni4xMSAtMjM3Ljg4IC00MzAuMSAwIC05NC45MSAyMzcuODggLTY2LjA4IDB6bTE4NS4wMiAtMjk1LjU0bDM4Mi4wNCAwIC0xMjAuMTQgLTI5OS4xNWMtMi40LC02LjQgLTYuMDEsLTE2LjAxIC0xMC44MSwtMjguODMgLTQuODEsLTEyLjgyIC0xMC40MiwtMjcuNjMgLTE2LjgyLC00NC40NSAtNi40MSwtMTYuODIgLTEzLjAyLC0zNC4wNCAtMTkuODIsLTUxLjY2IC02LjgxLC0xNy42MyAtMTMuMDIsLTM0LjA0IC0xOC42MywtNDkuMjZsLTkuNjEgMGMtNS42MSwxNS4yMiAtMTIuNDEsMzMuMjQgLTIwLjQyLDU0LjA2IC04LjAxLDIwLjgyIC0xNi4wMiw0MS44NSAtMjQuMDMsNjMuMDcgLTguMDEsMjEuMjMgLTE1LjIyLDQwLjI1IC0yMS42Miw1Ny4wN2wtMTIwLjE0IDI5OS4xNXoiLz4NCiAgIDwvZz4NCiAgPC9nPg0KIDwvZz4NCjwvc3ZnPg0K" class="logo-svg" alt="NC Clinic">
+  <div class="tagline">Estética Integrativa</div>
+  <div class="campanha-badge">Agosto 2026 · A jornada continua</div>
+  <div class="hero-copy">"Se cuidar é amar." Em julho, abrimos uma história. Agosto é sobre dar o próximo passo — com programa, acompanhamento, e resultado que se mede.</div>
+</header>
+
+<div class="tab-nav-wrap">
+  <nav class="tab-nav" id="tabNav">
+    <button class="tab-btn active" data-tab="metodo">Método NC</button>
+    <button class="tab-btn" data-tab="facial">Harmonização Facial</button>
+    <button class="tab-btn" data-tab="skin">Skin &amp; Body</button>
+    <button class="tab-btn" data-tab="detox">Detox &amp; Bem-estar</button>
+  </nav>
+</div>
+
+<div class="container">
+
+  <!-- TAB: MÉTODO NC -->
+  <section class="tab-panel active" id="tab-metodo">
+    <div class="panel-intro">
+      <div class="panel-eyebrow">Protagonista de agosto · Dra. Nayara Cabral</div>
+      <div class="panel-title">Método NC — <em>Programa de Resultado</em></div>
+      <div class="panel-desc">Sessão única de criolipólise + acompanhamento de 3 meses, com retornos, reavaliações e medição real do seu progresso. Toque em qualquer card para ver os detalhes.</div>
+    </div>
+
+    <div class="section-label">Programa · por região</div>
+    <div class="card-grid" id="grid-metodo-regioes"></div>
+
+    <div class="section-label">Full Body · corpo completo</div>
+    <div class="card-grid" id="grid-metodo-fullbody"></div>
+
+    <div class="section-label">Upgrades opcionais</div>
+    <div class="card-grid" id="grid-metodo-upgrades"></div>
+
+    <div class="section-label">Complementar sazonal</div>
+    <div class="card-grid" id="grid-metodo-laser"></div>
+  </section>
+
+  <!-- TAB: HARMONIZAÇÃO FACIAL -->
+  <section class="tab-panel" id="tab-facial">
+    <div class="panel-intro">
+      <div class="panel-eyebrow">Dra. Nathiely Garbosa</div>
+      <div class="panel-title">Harmonização Facial</div>
+      <div class="panel-desc">Tecnologia de padrão avançado e bioestimulação, com o cuidado de um acompanhamento próximo.</div>
+    </div>
+    <div class="card-grid" id="grid-facial"></div>
+  </section>
+
+  <!-- TAB: SKIN & BODY -->
+  <section class="tab-panel" id="tab-skin">
+    <div class="panel-intro">
+      <div class="panel-eyebrow">Lohayne</div>
+      <div class="panel-title">Skin &amp; Body</div>
+      <div class="panel-desc">Cuidado de pele e corpo com protocolos premium e tecnologia própria da casa.</div>
+    </div>
+    <div class="card-grid" id="grid-skin"></div>
+  </section>
+
+  <!-- TAB: DETOX & BEM-ESTAR -->
+  <section class="tab-panel" id="tab-detox">
+    <div class="panel-intro">
+      <div class="panel-eyebrow">Thalita</div>
+      <div class="panel-title">Detox &amp; Bem-estar</div>
+      <div class="panel-desc">Protocolos desenhados pra cada necessidade — lipedema, celulite, inchaço ou um momento de leveza.</div>
+    </div>
+    <div class="card-grid" id="grid-detox"></div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="footer-brand">NC CLINIC</div>
+  <div class="footer-sub">Estética Integrativa · Capítulo II · Agosto 2026</div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose" aria-label="Fechar">✕</button>
+    <div class="modal-photo">
+      <img id="modalPhotoImg" alt="" style="display:none;" onerror="this.style.display='none'; document.getElementById('modalPhotoPlaceholder').style.display='flex';">
+      <div class="placeholder" id="modalPhotoPlaceholder">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
+        Registro fotográfico em breve
+      </div>
+    </div>
+    <div class="modal-eyebrow" id="modalEyebrow"></div>
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-sub" id="modalSub"></div>
+
+    <div class="modal-price-block">
+      <div class="modal-price-main" id="modalPrice"></div>
+      <div class="modal-price-installments" id="modalInstallments"></div>
+      <div class="modal-before" id="modalBefore"></div>
+    </div>
+
+    <div class="modal-desc" id="modalDesc"></div>
+    <div class="modal-conversion" id="modalConversion"></div>
+    <div class="modal-includes" id="modalIncludes"></div>
+    <div id="modalBonusWrap">
+      <div class="modal-bonus-label">Bônus incluso</div>
+      <div class="modal-bonus-list" id="modalBonus"></div>
+    </div>
+    <div id="modalOptionalWrap">
+      <div class="modal-bonus-label">Opcional (à parte)</div>
+      <div class="modal-bonus-list" id="modalOptional"></div>
+    </div>
+
+    <a href="#" class="modal-cta" id="modalCta" target="_blank" rel="noopener">Falar com a clínica</a>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  "metodo-abdomen": {
+    tab: "metodo-regioes", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC — Abdômen Completo", sub: "Programa de 3 meses",
+    price: "R$ 1.850", installments: "", before: "",
+    desc: "Sessão única de criolipólise no abdômen completo, seguida de acompanhamento de 3 meses com retornos, reavaliações, bioimpedância e medidas.",
+    conversion: "Resultado não é sobre pressa — é sobre processo acompanhado de perto, do início ao fim.",
+    includes: ["Sessão única de criolipólise — abdômen completo", "Acompanhamento de 3 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
+    bonus: ["Exame de Bioimpedância · valor R$150"],
+    optional: ["Cinta Modeladora · R$215"]
+  },
+  "metodo-abdomen-costas": {
+    tab: "metodo-regioes", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC — Abdômen Completo + Costelas", sub: "Programa de 3 meses",
+    price: "R$ 2.850", installments: "", before: "",
+    desc: "Sessão única de criolipólise tratando abdômen completo e costelas na mesma sessão, com acompanhamento de 3 meses.",
+    conversion: "Duas regiões, um programa só — pensado pra quem quer resultado mais amplo sem multiplicar consultas.",
+    includes: ["Sessão única de criolipólise — abdômen completo + costelas", "Acompanhamento de 3 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
+    bonus: ["Exame de Bioimpedância · valor R$150"],
+    optional: ["Cinta Modeladora · R$215"]
+  },
+  "metodo-lipedema": {
+    tab: "metodo-regioes", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC — Pernas / Lipedema", sub: "Programa de 3 meses",
+    price: "R$ 1.850", installments: "", before: "",
+    desc: "Sessão única de criolipólise nas pernas, com protocolo adaptado para quadros de lipedema, e acompanhamento de 3 meses.",
+    conversion: "Um olhar técnico pra uma queixa que muita mulher carrega em silêncio — com acompanhamento de verdade.",
+    includes: ["Sessão única de criolipólise — pernas / lipedema", "Acompanhamento de 3 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
+    bonus: ["Exame de Bioimpedância · valor R$150"],
+    optional: ["Cinta Modeladora · R$215"]
+  },
+  "metodo-bracos": {
+    tab: "metodo-regioes", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC — Braços", sub: "Programa de 3 meses",
+    price: "R$ 1.400", installments: "", before: "",
+    desc: "Sessão única de criolipólise nos braços, com acompanhamento de 3 meses.",
+    conversion: "A região que menos perdoa em fotos — tratada com o mesmo rigor de qualquer programa NC.",
+    includes: ["Sessão única de criolipólise — braços", "Acompanhamento de 3 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
+    bonus: ["Exame de Bioimpedância · valor R$150"],
+    optional: ["Cinta Modeladora · R$215"]
+  },
+  "metodo-fullbody": {
+    tab: "metodo-fullbody", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC Full Body", sub: "Corpo completo · programa de 3 meses",
+    price: "R$ 4.999", installments: "à vista · até 10x R$5.549 · até 18x R$5.999", before: "",
+    desc: "O programa completo: Braços, Abdômen Completo, Flancos, Costas, Interno de Coxas e Pernas — tratados dentro de um único programa de acompanhamento de 3 meses.",
+    conversion: "Quando o objetivo é o corpo todo, faz sentido que o cuidado também seja. Um programa, seis regiões, um resultado que se acompanha de verdade.",
+    includes: ["Sessão única de criolipólise — Braços, Abdômen Completo, Flancos, Costas, Interno de Coxas e Pernas", "Acompanhamento de 3 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
+    bonus: ["Exame de Bioimpedância · valor R$150"]
+  },
+  "metodo-upgrade-detox": {
+    tab: "metodo-upgrades", eyebrow: "Upgrade · Método NC", name: "+ Detox Life 3 dias", sub: "Executado pela Thalita",
+    price: "+ R$ 399", installments: "qualquer forma de pagamento", before: "",
+    desc: "Protocolo de detox de 3 dias, pensado para reduzir inflamação e apoiar o corpo durante o programa Método NC.",
+    conversion: "Potencializa o processo por dentro, enquanto o Método NC trabalha por fora.",
+    includes: ["Protocolo Detox Life · 3 dias", "Conduzido pela Thalita"],
+    bonus: []
+  },
+  "metodo-upgrade-drenagem": {
+    tab: "metodo-upgrades", eyebrow: "Upgrade · Método NC", name: "+ Drenagem Linfática · 8 sessões", sub: "Executado pela Thalita",
+    price: "+ R$ 999", installments: "qualquer forma de pagamento", before: "",
+    desc: "8 sessões de drenagem linfática, ajudando o corpo a eliminar com mais eficiência o que foi tratado no programa.",
+    conversion: "Quem já está no programa, sente a diferença de somar isso ao processo.",
+    includes: ["8 sessões de drenagem linfática", "Conduzido pela Thalita"],
+    bonus: []
+  },
+  "laser": {
+    tab: "metodo-laser", eyebrow: "Complementar · Dra. Nayara Cabral", name: "Depilação a Laser", sub: "Qualquer combinação de áreas",
+    price: "Compre 5, a 6ª é grátis", installments: "", before: "",
+    desc: "O inverno é a janela ideal pra começar: a pele precisa de baixa exposição solar entre as sessões, algo natural nessa época do ano.",
+    conversion: "Quem começa agora, chega no verão com a pele pronta — sem correria de última hora.",
+    includes: ["Sessões de depilação a laser — qualquer combinação de áreas"],
+    bonus: []
+  },
+  "toxina": {
+    tab: "facial", eyebrow: "Ação exclusiva · Dra. Nathiely Garbosa", name: "Toxina Botulínica", sub: "Ação exclusiva — vagas limitadas",
+    price: "R$ 999", installments: "à vista · ou R$1.099 parcelado", before: "De R$1.499",
+    desc: "Aplicação de toxina botulínica para suavização de linhas de expressão, com a técnica da Dra. Nathiely Garbosa.",
+    conversion: "Fazia tempo que não trazíamos essa ação — e ela volta no seu melhor formato: direta, sem complicação.",
+    includes: ["Aplicação de Toxina Botulínica", "Avaliação individual com a Dra. Nathiely Garbosa"],
+    bonus: []
+  },
+  "bioestimulador": {
+    tab: "facial", eyebrow: "Dra. Nathiely Garbosa", name: "Bioestimulador de Colágeno + Ultrassom Microfocado", sub: "Combo com bônus",
+    price: "R$ 1.499", installments: "à vista · ou R$1.699 parcelado", before: "De R$2.499",
+    desc: "Aplicação de bioestimulador de colágeno associada a 1 sessão de ultrassom microfocado facial, incluída como bônus.",
+    conversion: "Dois mecanismos, uma direção só: estímulo de colágeno que se constrói com o tempo, e um efeito visível que começa já na primeira sessão.",
+    includes: ["Aplicação de Bioestimulador de Colágeno", "1 sessão de Ultrassom Microfocado — bônus incluso"],
+    bonus: ["1 Sessão de Ultrassom Microfocado · bônus"]
+  },
+  "ultrassom": {
+    tab: "facial", eyebrow: "Dra. Nathiely Garbosa", name: "Ultrassom Microfocado", sub: "Protocolo · 2 sessões",
+    price: "R$ 999", installments: "", before: "De R$1.400",
+    desc: "Tecnologia de padrão avançado, usada pelos consultórios mais renomados do país pra lifting facial não cirúrgico.",
+    conversion: "O mecanismo é o mesmo das clínicas mais caras do mundo: energia focada que estimula colágeno em profundidade controlada. O resultado aparece já na primeira sessão, e continua evoluindo nos meses seguintes.",
+    includes: ["2 sessões de Ultrassom Microfocado facial", "Avaliação individual com a Dra. Nathiely Garbosa"],
+    bonus: []
+  },
+  "skin-glow": {
+    tab: "skin", eyebrow: "Lohayne", name: "NC Skin Glow", sub: "Limpeza premium",
+    price: "R$ 199", installments: "", before: "",
+    desc: "Limpeza de pele premium com tratamento à escolha entre Exossomos ou Peeling Ácido Glicólico, com produtos Bioage.",
+    conversion: "Pele limpa é a base de qualquer outro cuidado — esse é o primeiro passo bem feito.",
+    includes: ["Limpeza de pele premium", "Tratamento à escolha: Exossomos ou Peeling Ácido Glicólico", "Produtos exclusivos Bioage"],
+    bonus: []
+  },
+  "pele-seda": {
+    tab: "skin", eyebrow: "Lohayne", name: "NC Pele de Seda", sub: "Hidrata por fora, estimula por dentro",
+    price: "R$ 199", installments: "", before: "De R$249",
+    desc: "Protocolo que une tecnologia de fios de seda e ácido hialurônico com fototerapia a laser — duas camadas de ação num só atendimento.",
+    conversion: "Uma camada hidrata e preenche por fora. A outra estimula colágeno por dentro. Juntas, entregam mais do que qualquer uma faria sozinha.",
+    includes: ["Protocolo Pele de Seda (fios de seda + ácido hialurônico)", "Fototerapia — estímulo de colágeno e microcirculação"],
+    bonus: []
+  },
+  "body-activate": {
+    tab: "skin", eyebrow: "Lohayne", name: "NC Body Activate", sub: "4 sessões",
+    price: "R$ 750", installments: "à vista · ou R$799,99 parcelado", before: "De R$1.200",
+    desc: "Protocolo intensivo de ativação e modelagem corporal com carboxiterapia, lipocavitação e drenagem.",
+    conversion: "Um protocolo redondo pra quem quer entrar num ritmo de cuidado contínuo, sem depender de um procedimento só.",
+    includes: ["4 sessões completas — Carboxiterapia + Lipocavitação + Drenagem"],
+    bonus: ["Detox Slim · valor R$149", "Sessão de Drenagem · valor R$200"]
+  },
+  "lipebalance": {
+    tab: "detox", eyebrow: "Thalita Roxo", name: "LipeBalance", sub: "2 meses · lipedema",
+    price: "R$ 1.500", installments: "ou 4x R$400", before: "De R$2.950",
+    desc: "Protocolo de 2 meses pensado pra aliviar sintomas de lipedema e reduzir inflamação — dor, peso nas pernas, sensibilidade e edema.",
+    conversion: "Pra quem sente na pele o peso do lipedema — um protocolo pensado pra devolver leveza, não só estética.",
+    includes: ["Detox Life · 3 dias", "8 drenagens linfáticas", "Radiofrequência", "Sessões com Manthus"],
+    bonus: []
+  },
+  "cellufree": {
+    tab: "detox", eyebrow: "Thalita Roxo", name: "CelluFree Revolution", sub: "2 meses · celulite",
+    price: "R$ 1.490", installments: "ou 4x R$400", before: "De R$2.400",
+    desc: "Protocolo de 2 meses pra reduzir celulite e recuperar firmeza da pele, com estímulo de colágeno e remodelação do contorno corporal.",
+    conversion: "Firmeza não acontece da noite pro dia — mas acontece, com o protocolo certo e constância.",
+    includes: ["8 drenagens linfáticas", "Radiofrequência em todas as sessões", "Manthus nas áreas de maior celulite"],
+    bonus: []
+  },
+  "detox-start": {
+    tab: "detox", eyebrow: "Thalita Roxo", name: "Detox Life Start", sub: "2 meses · inchaço e intestino",
+    price: "R$ 1.500", installments: "ou 4x R$400", before: "De R$2.950",
+    desc: "Protocolo de 2 meses pra quem sente inchaço, retenção de líquidos, intestino preso e dificuldade pra emagrecer.",
+    conversion: "O primeiro passo de muita gente não é estético — é se sentir bem por dentro de novo.",
+    includes: ["Detox Life · 3 dias", "8 drenagens linfáticas", "Radiofrequência quando indicado"],
+    bonus: []
+  },
+  "body-pure": {
+    tab: "detox", eyebrow: "Thalita Roxo", name: "Body Pure", sub: "Sessão única",
+    price: "R$ 180", installments: "", before: "De R$250",
+    desc: "Protocolo integrativo que une drenagem linfática, argila, sal termal e manta térmica — desintoxicação, circulação e leveza numa sessão só.",
+    conversion: "Às vezes o corpo só precisa de uma pausa bem cuidada. Essa é a sessão pra isso.",
+    includes: ["Drenagem linfática", "Argila", "Sal termal", "Manta térmica"],
+    bonus: []
+  }
+};
+
+const GRID_MAP = {
+  "metodo-regioes": "grid-metodo-regioes",
+  "metodo-fullbody": "grid-metodo-fullbody",
+  "metodo-upgrades": "grid-metodo-upgrades",
+  "metodo-laser": "grid-metodo-laser",
+  "facial": "grid-facial",
+  "skin": "grid-skin",
+  "detox": "grid-detox"
+};
+
+function buildCard(id, item) {
+  const el = document.createElement('div');
+  el.className = 'p-card' + (item.tab === 'metodo-fullbody' ? ' featured' : '');
+  el.innerHTML = `
+    <div class="p-name">${item.name}</div>
+    <div class="p-sub">${item.sub}</div>
+    <div class="p-price-row"><span class="p-price">${item.price}</span></div>
+    ${item.before ? `<div class="p-before">${item.before}</div>` : ''}
+    <div class="p-teaser">${item.desc}</div>
+  `;
+  el.addEventListener('click', () => openModal(id));
+  return el;
+}
+
+Object.keys(DATA).forEach(id => {
+  const item = DATA[id];
+  const gridId = GRID_MAP[item.tab];
+  if (gridId) document.getElementById(gridId).appendChild(buildCard(id, item));
+});
+
+function openModal(id) {
+  const item = DATA[id];
+
+  // ── Foto do protocolo: tenta carregar img/{id}.jpg, se falhar mostra placeholder ──
+  const imgEl = document.getElementById('modalPhotoImg');
+  const placeholderEl = document.getElementById('modalPhotoPlaceholder');
+  imgEl.style.display = 'none';
+  placeholderEl.style.display = 'flex';
+  imgEl.onload = function() {
+    imgEl.style.display = 'block';
+    placeholderEl.style.display = 'none';
+  };
+  imgEl.src = 'img/' + id + '.jpg';
+
+  document.getElementById('modalEyebrow').textContent = item.eyebrow;
+  document.getElementById('modalTitle').textContent = item.name;
+  document.getElementById('modalSub').textContent = item.sub;
+  document.getElementById('modalPrice').textContent = item.price;
+  document.getElementById('modalInstallments').textContent = item.installments;
+  document.getElementById('modalBefore').textContent = item.before;
+  document.getElementById('modalDesc').textContent = item.desc;
+  document.getElementById('modalConversion').textContent = item.conversion;
+
+  const inc = document.getElementById('modalIncludes');
+  inc.innerHTML = '';
+  item.includes.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'include-item';
+    d.textContent = t;
+    inc.appendChild(d);
+  });
+
+  const bonusWrap = document.getElementById('modalBonusWrap');
+  const bonus = document.getElementById('modalBonus');
+  bonus.innerHTML = '';
+  if (item.bonus.length) {
+    bonusWrap.style.display = 'block';
+    item.bonus.forEach(t => {
+      const d = document.createElement('div');
+      d.className = 'modal-bonus-tag';
+      d.textContent = t;
+      bonus.appendChild(d);
+    });
+  } else {
+    bonusWrap.style.display = 'none';
+  }
+
+  const optionalWrap = document.getElementById('modalOptionalWrap');
+  const optionalEl = document.getElementById('modalOptional');
+  optionalEl.innerHTML = '';
+  const optionalList = item.optional || [];
+  if (optionalList.length) {
+    optionalWrap.style.display = 'block';
+    optionalList.forEach(t => {
+      const d = document.createElement('div');
+      d.className = 'modal-optional-tag';
+      d.textContent = t;
+      optionalEl.appendChild(d);
+    });
+  } else {
+    optionalWrap.style.display = 'none';
+  }
+
+  const waMsg = encodeURIComponent(`Olá! Vi o material da campanha de agosto e quero saber mais sobre: ${item.name}`);
+  document.getElementById('modalCta').href = `https://wa.me/5544991073606?text=${waMsg}`;
+
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+
+document.getElementById('modalClose').addEventListener('click', () => {
+  document.getElementById('modalBackdrop').classList.remove('open');
+});
+document.getElementById('modalBackdrop').addEventListener('click', (e) => {
+  if (e.target.id === 'modalBackdrop') e.target.classList.remove('open');
+});
+
+const tabBtns = document.querySelectorAll('.tab-btn');
+const panels = document.querySelectorAll('.tab-panel');
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabBtns.forEach(b => b.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    document.querySelector('.tab-nav-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+
+</body>
+</html>
