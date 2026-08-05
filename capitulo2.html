@@ -273,7 +273,7 @@
     <div class="panel-intro">
       <div class="panel-eyebrow">Protagonista de agosto · Dra. Nayara Cabral</div>
       <div class="panel-title">Método NC — <em>Programa de Resultado</em></div>
-      <div class="panel-desc">Sessão única de criolipólise + acompanhamento de 3 meses, com retornos, reavaliações e medição real do seu progresso. Toque em qualquer card para ver os detalhes.</div>
+      <div class="panel-desc">Sessão única de criolipólise + acompanhamento de 4 meses, com retornos, reavaliações e medição real do seu progresso. Toque em qualquer card para ver os detalhes.</div>
     </div>
 
     <div class="section-label">Programa · por região</div>
@@ -366,48 +366,56 @@
 <script>
 const DATA = {
   "metodo-abdomen": {
-    tab: "metodo-regioes", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC — Abdômen Completo", sub: "Programa de 3 meses",
+    tab: "metodo-regioes", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC — Abdômen Completo", sub: "Programa de 4 meses",
     price: "R$ 1.850", installments: "", before: "",
-    desc: "Sessão única de criolipólise no abdômen completo, seguida de acompanhamento de 3 meses com retornos, reavaliações, bioimpedância e medidas.",
+    desc: "Sessão única de criolipólise no abdômen completo, seguida de acompanhamento de 4 meses com retornos, reavaliações, bioimpedância e medidas.",
     conversion: "Resultado não é sobre pressa — é sobre processo acompanhado de perto, do início ao fim.",
-    includes: ["Sessão única de criolipólise — abdômen completo", "Acompanhamento de 3 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
+    includes: ["Sessão única de criolipólise — abdômen completo", "Acompanhamento de 4 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
     bonus: ["Exame de Bioimpedância · valor R$150"],
     optional: ["Cinta Modeladora · R$215"]
   },
   "metodo-abdomen-costas": {
-    tab: "metodo-regioes", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC — Abdômen Completo + Costas", sub: "Programa de 3 meses",
+    tab: "metodo-regioes", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC — Abdômen Completo + Costas", sub: "Programa de 4 meses",
     price: "R$ 2.850", installments: "", before: "",
-    desc: "Sessão única de criolipólise tratando abdômen completo e costas na mesma sessão, com acompanhamento de 3 meses.",
+    desc: "Sessão única de criolipólise tratando abdômen completo e costas na mesma sessão, com acompanhamento de 4 meses.",
     conversion: "Duas regiões, um programa só — pensado pra quem quer resultado mais amplo sem multiplicar consultas.",
-    includes: ["Sessão única de criolipólise — abdômen completo + costas", "Acompanhamento de 3 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
+    includes: ["Sessão única de criolipólise — abdômen completo + costas", "Acompanhamento de 4 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
     bonus: ["Exame de Bioimpedância · valor R$150"],
     optional: ["Cinta Modeladora · R$215"]
   },
   "metodo-lipedema": {
-    tab: "metodo-regioes", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC — Pernas / Lipedema", sub: "Programa de 3 meses",
+    tab: "metodo-regioes", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC — Pernas / Lipedema", sub: "Programa de 4 meses",
     price: "R$ 1.850", installments: "", before: "",
-    desc: "Sessão única de criolipólise nas pernas, com protocolo adaptado para quadros de lipedema, e acompanhamento de 3 meses.",
+    desc: "Sessão única de criolipólise nas pernas, com protocolo adaptado para quadros de lipedema, e acompanhamento de 4 meses.",
     conversion: "Um olhar técnico pra uma queixa que muita mulher carrega em silêncio — com acompanhamento de verdade.",
-    includes: ["Sessão única de criolipólise — pernas / lipedema", "Acompanhamento de 3 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
+    includes: ["Sessão única de criolipólise — pernas / lipedema", "Acompanhamento de 4 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
     bonus: ["Exame de Bioimpedância · valor R$150"],
     optional: ["Cinta Modeladora · R$215"]
   },
   "metodo-bracos": {
-    tab: "metodo-regioes", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC — Braços", sub: "Programa de 3 meses",
+    tab: "metodo-regioes", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC — Braços", sub: "Programa de 4 meses",
     price: "R$ 1.400", installments: "", before: "",
-    desc: "Sessão única de criolipólise nos braços, com acompanhamento de 3 meses.",
+    desc: "Sessão única de criolipólise nos braços, com acompanhamento de 4 meses.",
     conversion: "A região que menos perdoa em fotos — tratada com o mesmo rigor de qualquer programa NC.",
-    includes: ["Sessão única de criolipólise — braços", "Acompanhamento de 3 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
+    includes: ["Sessão única de criolipólise — braços", "Acompanhamento de 4 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
     bonus: ["Exame de Bioimpedância · valor R$150"],
     optional: ["Cinta Modeladora · R$215"]
   },
   "metodo-fullbody": {
-    tab: "metodo-fullbody", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC Full Body", sub: "Corpo completo · programa de 3 meses",
+    tab: "metodo-fullbody", eyebrow: "Método NC · Dra. Nayara Cabral", name: "Método NC Full Body", sub: "Corpo completo · programa de 4 meses",
     price: "R$ 4.999", installments: "à vista · até 10x R$5.549 · até 18x R$5.999", before: "",
-    desc: "O programa completo: Braços, Abdômen Completo, Flancos, Costas, Interno de Coxas e Pernas — tratados dentro de um único programa de acompanhamento de 3 meses.",
+    desc: "O programa completo: Braços, Abdômen Completo, Flancos, Costas, Interno de Coxas e Pernas — tratados dentro de um único programa de acompanhamento de 4 meses.",
     conversion: "Quando o objetivo é o corpo todo, faz sentido que o cuidado também seja. Um programa, seis regiões, um resultado que se acompanha de verdade.",
-    includes: ["Sessão única de criolipólise — Braços, Abdômen Completo, Flancos, Costas, Interno de Coxas e Pernas", "Acompanhamento de 3 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
+    includes: ["Sessão única de criolipólise — Braços, Abdômen Completo, Flancos, Costas, Interno de Coxas e Pernas", "Acompanhamento de 4 meses — retornos e reavaliações", "Avaliação por bioimpedância e medidas corporais"],
     bonus: ["Exame de Bioimpedância · valor R$150"]
+  },
+  "metodo-upgrade-fullbody": {
+    tab: "metodo-upgrades", eyebrow: "Upgrade · Método NC Full Body", name: "+ Kit de Potencialização Full Body", sub: "Exclusivo para o programa Full Body",
+    price: "+ R$ 1.000", installments: "qualquer forma de pagamento", before: "",
+    desc: "Kit completo pensado para potencializar o resultado de quem faz o Método NC Full Body: cintas modeladoras para as três regiões, drenagens linfáticas de corpo inteiro e suplementação detox.",
+    conversion: "Quando o programa trata o corpo todo, o suporte também precisa acompanhar. Esse kit cuida do que acontece entre uma reavaliação e outra.",
+    includes: ["Kit com 3 cintas modeladoras — braços, pernas e abdômen", "4 sessões de drenagem linfática full body", "Detox Slim cápsulas"],
+    bonus: []
   },
   "metodo-upgrade-detox": {
     tab: "metodo-upgrades", eyebrow: "Upgrade · Método NC", name: "+ Detox Life 3 dias", sub: "Executado pela Thalita",
@@ -450,11 +458,11 @@ const DATA = {
     bonus: ["1 Sessão de Ultrassom Microfocado · bônus"]
   },
   "ultrassom": {
-    tab: "facial", eyebrow: "Dra. Nathiely Garbosa", name: "Ultrassom Microfocado", sub: "Protocolo · 2 sessões",
-    price: "R$ 999", installments: "", before: "De R$1.400",
+    tab: "facial", eyebrow: "Dra. Nathiely Garbosa", name: "Ultrassom Microfocado", sub: "Protocolo · 3 sessões",
+    price: "R$ 1.499", installments: "", before: "De R$2.000",
     desc: "Tecnologia de padrão avançado, usada pelos consultórios mais renomados do país pra lifting facial não cirúrgico.",
     conversion: "O mecanismo é o mesmo das clínicas mais caras do mundo: energia focada que estimula colágeno em profundidade controlada. O resultado aparece já na primeira sessão, e continua evoluindo nos meses seguintes.",
-    includes: ["2 sessões de Ultrassom Microfocado facial", "Avaliação individual com a Dra. Nathiely Garbosa"],
+    includes: ["3 sessões de Ultrassom Microfocado facial", "Avaliação individual com a Dra. Nathiely Garbosa"],
     bonus: []
   },
   "skin-glow": {
@@ -486,7 +494,7 @@ const DATA = {
     price: "R$ 1.500", installments: "ou 4x R$400", before: "De R$2.950",
     desc: "Protocolo de 2 meses pensado pra aliviar sintomas de lipedema e reduzir inflamação — dor, peso nas pernas, sensibilidade e edema.",
     conversion: "Pra quem sente na pele o peso do lipedema — um protocolo pensado pra devolver leveza, não só estética.",
-    includes: ["Detox Life · 3 dias", "8 drenagens linfáticas", "Radiofrequência", "Sessões com Manthus"],
+    includes: ["Detox Life · 3 dias", "8 drenagens linfáticas", "Radiofrequência", "Sessões com ultrassom de alta potência"],
     bonus: []
   },
   "cellufree": {
@@ -494,7 +502,7 @@ const DATA = {
     price: "R$ 1.490", installments: "ou 4x R$400", before: "De R$2.400",
     desc: "Protocolo de 2 meses pra reduzir celulite e recuperar firmeza da pele, com estímulo de colágeno e remodelação do contorno corporal.",
     conversion: "Firmeza não acontece da noite pro dia — mas acontece, com o protocolo certo e constância.",
-    includes: ["8 drenagens linfáticas", "Radiofrequência em todas as sessões", "Manthus nas áreas de maior celulite"],
+    includes: ["8 drenagens linfáticas", "Radiofrequência em todas as sessões", "Ultrassom de alta potência nas áreas de maior celulite"],
     bonus: []
   },
   "detox-start": {
