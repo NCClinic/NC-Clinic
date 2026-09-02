@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NC Clinic — Follow Toxina & Preenchimento</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100;200;300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #bca366;
+    --gold-light: #d4b97a;
+    --gold-pale: #e8d5a8;
+    --gold-dim: #8a7548;
+    --black: #0a0a0a;
+    --black-soft: #111111;
+    --black-card: #161616;
+    --black-border: #222222;
+    --white: #f5f0e8;
+    --white-dim: #c8c0b0;
+    --red: #c0605a;
+    --red-bg: rgba(192,96,90,0.12);
+    --amber: #c9a24b;
+    --amber-bg: rgba(201,162,75,0.12);
+    --green: #7fa876;
+    --green-bg: rgba(127,168,118,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Archivo', sans-serif;
+    font-weight: 200;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── LOGIN GATE ── */
+  #gate {
+    position: fixed;
+    inset: 0;
+    background: var(--black);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 24px;
+    text-align: center;
+    padding: 24px;
+  }
+  #gate .logo-text { font-size: 40px; }
+  #gate input {
+    background: var(--black-card);
+    border: 1px solid var(--gold-dim);
+    color: var(--white);
+    padding: 14px 18px;
+    font-size: 16px;
+    letter-spacing: 0.3em;
+    text-align: center;
+    width: 220px;
+    font-family: 'Archivo', sans-serif;
+  }
+  #gate input:focus { outline: none; border-color: var(--gold); }
+  #gate button {
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 14px 32px;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'Archivo', sans-serif;
+    font-weight: 400;
+    transition: background 0.2s;
+  }
+  #gate button:hover { background: var(--gold-light); }
+  #gate .err { color: var(--red); font-size: 12px; letter-spacing: 0.1em; height: 16px; }
+  #app { display: none; }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    padding: 48px 32px 32px;
+    border-bottom: 1px solid var(--black-border);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .logo-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 46px;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .tagline {
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    color: var(--white-dim);
+    text-transform: uppercase;
+    margin-bottom: 22px;
+  }
+  .doc-badge {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold-dim);
+    padding: 6px 20px;
+  }
+  .internal-flag {
+    margin-top: 14px;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #5a5347;
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 36px 24px 80px;
+  }
+
+  /* ── SUMMARY BAR ── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 640px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+  .summary-card {
+    background: var(--black-card);
+    border: 1px solid var(--black-border);
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .summary-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px;
+    font-weight: 400;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .summary-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+  }
+  .summary-card.sc-total .summary-num { color: var(--gold); }
+  .summary-card.sc-vencido .summary-num { color: var(--red); }
+  .summary-card.sc-proximo .summary-num { color: var(--amber); }
+  .summary-card.sc-emdia .summary-num { color: var(--green); }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--black-border);
+  }
+  .tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--white-dim);
+    font-family: 'Archivo', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 16px 8px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+  .tab-btn:hover { color: var(--gold-pale); }
+
+  /* ── CONTROLS ── */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+    align-items: center;
+  }
+  .search-input {
+    flex: 1;
+    min-width: 180px;
+    background: var(--black-card);
+    border: 1px solid var(--black-border);
+    color: var(--white);
+    padding: 11px 16px;
+    font-size: 13px;
+    font-family: 'Archivo', sans-serif;
+  }
+  .search-input:focus { outline: none; border-color: var(--gold-dim); }
+  .filter-chip {
+    background: var(--black-card);
+    border: 1px solid var(--black-border);
+    color: var(--white-dim);
+    padding: 10px 16px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'Archivo', sans-serif;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .filter-chip.active { color: var(--black); background: var(--gold); border-color: var(--gold); }
+  .filter-chip[data-f="VENCIDO"].active { background: var(--red); border-color: var(--red); color: var(--white); }
+  .filter-chip[data-f="Próximo do prazo"].active { background: var(--amber); border-color: var(--amber); color: var(--black); }
+  .filter-chip[data-f="Em dia"].active { background: var(--green); border-color: var(--green); color: var(--black); }
+  .sort-select {
+    background: var(--black-card);
+    border: 1px solid var(--black-border);
+    color: var(--white-dim);
+    padding: 10px 14px;
+    font-size: 11px;
+    font-family: 'Archivo', sans-serif;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── CARDS ── */
+  .patient-list { display: flex; flex-direction: column; gap: 10px; }
+  .p-card {
+    background: var(--black-card);
+    border: 1px solid var(--black-border);
+    border-left: 3px solid var(--black-border);
+    transition: border-color 0.2s;
+    cursor: pointer;
+  }
+  .p-card.st-vencido { border-left-color: var(--red); }
+  .p-card.st-proximo { border-left-color: var(--amber); }
+  .p-card.st-emdia { border-left-color: var(--green); }
+  .p-card:hover { border-color: #333; }
+  .p-card-top {
+    padding: 18px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .p-expand-hint {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #5a5347;
+    margin-top: 4px;
+  }
+
+  /* ── DETAIL PANEL ── */
+  .p-detail-panel {
+    display: none;
+    border-top: 1px solid var(--black-border);
+    padding: 18px 20px 20px;
+    background: rgba(255,255,255,0.015);
+  }
+  .p-card.expanded .p-detail-panel { display: block; }
+  .p-card.expanded { border-color: var(--gold-dim); }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  @media (max-width: 520px) { .stat-row { grid-template-columns: 1fr; } }
+  .stat-box {
+    background: var(--black-soft);
+    border: 1px solid var(--black-border);
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-lbl {
+    font-size: 8.5px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+  }
+
+  .history-label {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 10px;
+  }
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .history-list::-webkit-scrollbar { width: 5px; }
+  .history-list::-webkit-scrollbar-thumb { background: var(--black-border); }
+  .hist-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--black-soft);
+    border: 1px solid var(--black-border);
+    font-size: 12px;
+  }
+  .hist-proc { color: var(--white); flex: 1; }
+  .hist-meta { color: var(--white-dim); font-size: 10.5px; white-space: nowrap; }
+  .hist-valor { color: var(--gold-pale); font-family: 'Cormorant Garamond', serif; font-size: 15px; min-width: 70px; text-align: right; }
+
+  .p-main { flex: 1; min-width: 200px; }
+  .p-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+  .p-detail {
+    font-size: 12px;
+    color: var(--white-dim);
+    letter-spacing: 0.02em;
+  }
+  .p-detail strong { color: var(--gold-pale); font-weight: 300; }
+
+  .p-status {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  .badge {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .badge.vencido { background: var(--red-bg); color: var(--red); border: 1px solid var(--red); }
+  .badge.proximo { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber); }
+  .badge.emdia { background: var(--green-bg); color: var(--green); border: 1px solid var(--green); }
+  .p-days { font-size: 11px; color: var(--white-dim); }
+
+  .p-actions { display: flex; gap: 8px; }
+  .btn-wa {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold-pale);
+    padding: 8px 14px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-family: 'Archivo', sans-serif;
+    transition: all 0.2s;
+  }
+  .btn-wa:hover { background: var(--gold); color: var(--black); border-color: var(--gold); }
+
+  /* ── WHATSAPP MODAL ── */
+  .wa-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .wa-overlay.open { display: flex; }
+  .wa-modal {
+    background: var(--black-card);
+    border: 1px solid var(--gold-dim);
+    max-width: 480px;
+    width: 100%;
+    padding: 28px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .wa-modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .wa-modal-sub {
+    font-size: 11px;
+    color: var(--white-dim);
+    letter-spacing: 0.05em;
+    margin-bottom: 18px;
+  }
+  .wa-textarea {
+    width: 100%;
+    min-height: 200px;
+    background: var(--black-soft);
+    border: 1px solid var(--black-border);
+    color: var(--white);
+    font-family: 'Archivo', sans-serif;
+    font-size: 13.5px;
+    line-height: 1.6;
+    padding: 14px;
+    resize: vertical;
+  }
+  .wa-textarea:focus { outline: none; border-color: var(--gold-dim); }
+  .wa-modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    justify-content: flex-end;
+  }
+  .wa-btn-cancel {
+    background: transparent;
+    border: 1px solid var(--black-border);
+    color: var(--white-dim);
+    padding: 10px 18px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'Archivo', sans-serif;
+  }
+  .wa-btn-cancel:hover { border-color: #444; }
+  .wa-btn-send {
+    background: var(--gold);
+    border: none;
+    color: var(--black);
+    padding: 10px 20px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'Archivo', sans-serif;
+    font-weight: 400;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+  .wa-btn-send:hover { background: var(--gold-light); }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--white-dim);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+
+  .count-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #5a5347;
+    margin-bottom: 16px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 32px 24px 48px;
+    border-top: 1px solid var(--black-border);
+    position: relative;
+  }
+  footer::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 300px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  }
+  .footer-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    letter-spacing: 0.2em;
+    color: var(--gold-dim);
+    margin-bottom: 6px;
+  }
+  .footer-sub {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: #3a3530;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="logo-text">NC CLINIC</div>
+  <div class="tagline">Se cuidar é amar</div>
+  <div>
+    <input type="password" id="pw" placeholder="•••• senha" maxlength="10" autocomplete="off">
+  </div>
+  <button onclick="checkPw()">Entrar</button>
+  <div class="err" id="pwErr"></div>
+</div>
+
+<div id="app">
+
+<header>
+  <div class="logo-text">NC CLINIC</div>
+  <div class="tagline">Estética Integrativa</div>
+  <div class="doc-badge">Follow de Reativação · Toxina & Preenchimento</div>
+  <div class="internal-flag">Documento interno · Uso da equipe · Não compartilhar com pacientes</div>
+</header>
+
+<div class="container">
+
+  <div class="summary-grid" id="summaryGrid"></div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-cat="Toxina/Botox">Toxina / Botox</button>
+    <button class="tab-btn" data-cat="Preenchimento">Preenchimento</button>
+  </div>
+
+  <div class="controls">
+    <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nome...">
+    <button class="filter-chip active" data-f="all">Todas</button>
+    <button class="filter-chip" data-f="VENCIDO">Vencido</button>
+    <button class="filter-chip" data-f="Próximo do prazo">Próximo do prazo</button>
+    <button class="filter-chip" data-f="Em dia">Em dia</button>
+    <select class="sort-select" id="sortSelect">
+      <option value="prazo_asc">Mais vencido primeiro</option>
+      <option value="prazo_desc">Mais recente primeiro</option>
+      <option value="nome">Ordem alfabética</option>
+    </select>
+  </div>
+
+  <div class="count-label" id="countLabel"></div>
+  <div class="patient-list" id="patientList"></div>
+
+</div>
+
+<footer>
+  <div class="footer-brand">NC CLINIC</div>
+  <div class="footer-sub">Estética Integrativa · Follow de Reativação</div>
+</footer>
+
+</div>
+
+<div class="wa-overlay" id="waOverlay">
+  <div class="wa-modal">
+    <div class="wa-modal-title">Mensagem para <span id="waModalName"></span></div>
+    <div class="wa-modal-sub">Revise ou edite antes de enviar pelo WhatsApp</div>
+    <textarea class="wa-textarea" id="waTextarea"></textarea>
+    <div class="wa-modal-actions">
+      <button class="wa-btn-cancel" onclick="closeWaModal()">Cancelar</button>
+      <button class="wa-btn-send" onclick="sendWaMessage()">Enviar no WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = [{"nome": "Thayna Correia Lemes", "telefone": "+5544999663251", "wa": "5544999663251", "procedimento": "Botox - M\u00e3e Radiante", "data": "15/05/2025", "meses": 15.5, "prazo_dias": -293, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Elenice Maria Teodoro Da Silva", "telefone": "+5544999489993", "wa": "5544999489993", "procedimento": "Botox - M\u00e3e Radiante", "data": "04/06/2025", "meses": 14.9, "prazo_dias": -273, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Jaqueline Alves Da Silva", "telefone": "+5566996446099", "wa": "5566996446099", "procedimento": "Botox - M\u00e3e Radiante", "data": "04/06/2025", "meses": 14.9, "prazo_dias": -273, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Gisele Antunes", "telefone": "+5548996903044", "wa": "5548996903044", "procedimento": "Toxina botul\u00ednica", "data": "21/07/2025", "meses": 13.3, "prazo_dias": -226, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Ana Paula Silva", "telefone": "+5544984155405", "wa": "5544984155405", "procedimento": "Toxina botul\u00ednica", "data": "26/08/2025", "meses": 12.2, "prazo_dias": -190, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Eliane Pinheiro", "telefone": "+5544991314931", "wa": "5544991314931", "procedimento": "Toxina botul\u00ednica", "data": "28/08/2025", "meses": 12.1, "prazo_dias": -188, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Cristiane Alves Carvalho", "telefone": "+5544988133002", "wa": "5544988133002", "procedimento": "Toxina botul\u00ednica", "data": "28/08/2025", "meses": 12.1, "prazo_dias": -188, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Larissa De Souza Chagas", "telefone": "+5544997162695", "wa": "5544997162695", "procedimento": "Toxina botul\u00ednica", "data": "29/08/2025", "meses": 12.1, "prazo_dias": -187, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Maria Regina Pereira", "telefone": "+5513996561814", "wa": "5513996561814", "procedimento": "Toxina botul\u00ednica", "data": "29/08/2025", "meses": 12.1, "prazo_dias": -187, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Isabela Caetano Toesca", "telefone": "+5544999007901", "wa": "5544999007901", "procedimento": "Toxina botul\u00ednica", "data": "03/09/2025", "meses": 11.9, "prazo_dias": -182, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Camila Vetorato", "telefone": "+5513997157096", "wa": "5513997157096", "procedimento": "Toxina botul\u00ednica", "data": "17/09/2025", "meses": 11.4, "prazo_dias": -168, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Larissa Barroso Machado Ulian", "telefone": "+5544998501110", "wa": "5544998501110", "procedimento": "Toxina botul\u00ednica", "data": "25/09/2025", "meses": 11.2, "prazo_dias": -160, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Camilla Reggiani Nunes", "telefone": "+5544999066797", "wa": "5544999066797", "procedimento": "Toxina botul\u00ednica", "data": "03/11/2025", "meses": 9.9, "prazo_dias": -121, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Deninson", "telefone": "+5544999065250", "wa": "5544999065250", "procedimento": "Toxina botul\u00ednica", "data": "03/11/2025", "meses": 9.9, "prazo_dias": -121, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Laira Maestro Calderon Scripes", "telefone": "+5543999340837", "wa": "5543999340837", "procedimento": "Botox", "data": "25/11/2025", "meses": 9.2, "prazo_dias": -99, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Aparecida Lopes", "telefone": "+5544999838799", "wa": "5544999838799", "procedimento": "Botox", "data": "28/11/2025", "meses": 9.1, "prazo_dias": -96, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Daniel De Carvalho Lopes", "telefone": "+5544998550654", "wa": "5544998550654", "procedimento": "Botox", "data": "30/11/2025", "meses": 9.0, "prazo_dias": -94, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Mauriza Mortean", "telefone": "+5544999140456", "wa": "5544999140456", "procedimento": "Botox", "data": "30/11/2025", "meses": 9.0, "prazo_dias": -94, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Neusa Pedro Malvezzi", "telefone": "+5544999292994", "wa": "5544999292994", "procedimento": "Botox", "data": "30/11/2025", "meses": 9.0, "prazo_dias": -94, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Eliandra Mendon\u00e7a", "telefone": "+5544999975251", "wa": "5544999975251", "procedimento": "Botox", "data": "30/11/2025", "meses": 9.0, "prazo_dias": -94, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Laila Da Silva Rios", "telefone": "+5544998055585", "wa": "5544998055585", "procedimento": "Botox", "data": "04/12/2025", "meses": 8.9, "prazo_dias": -90, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Vanda Maria Da Silva Orlando", "telefone": "+5544999243791", "wa": "5544999243791", "procedimento": "Botox", "data": "08/12/2025", "meses": 8.7, "prazo_dias": -86, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Andrea Fernandes Marconcin", "telefone": "+5542988018959", "wa": "5542988018959", "procedimento": "Toxina botul\u00ednica", "data": "11/12/2025", "meses": 8.6, "prazo_dias": -83, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Maria Eug\u00eania Dachery", "telefone": "+5542988011238", "wa": "5542988011238", "procedimento": "Toxina botul\u00ednica", "data": "11/12/2025", "meses": 8.6, "prazo_dias": -83, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Andrea Angelita De Souza", "telefone": "+5544988086501", "wa": "5544988086501", "procedimento": "Toxina botul\u00ednica", "data": "09/01/2026", "meses": 7.7, "prazo_dias": -54, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Gisele Dos Santos Gasparetto", "telefone": "+5544999405695", "wa": "5544999405695", "procedimento": "Toxina botul\u00ednica", "data": "13/02/2026", "meses": 6.5, "prazo_dias": -19, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Erika Garcia", "telefone": "+554491374475", "wa": "554491374475", "procedimento": "Toxina botul\u00ednica", "data": "16/02/2026", "meses": 6.4, "prazo_dias": -16, "status": "VENCIDO", "categoria": "Toxina/Botox"}, {"nome": "Ana Carolina Caetano", "telefone": "+5544984521431", "wa": "5544984521431", "procedimento": "Toxina botul\u00ednica", "data": "18/04/2026", "meses": 4.4, "prazo_dias": 45, "status": "Em dia", "categoria": "Toxina/Botox"}, {"nome": "Val\u00e9ria Dos Santos Mazoni", "telefone": "+5544997349165", "wa": "5544997349165", "procedimento": "Toxina botul\u00ednica", "data": "29/04/2026", "meses": 4.1, "prazo_dias": 56, "status": "Em dia", "categoria": "Toxina/Botox"}, {"nome": "Sandra Cristina Rocha Queiroz", "telefone": "+5544998742393", "wa": "5544998742393", "procedimento": "Botox + Peeling de Ouro", "data": "14/05/2026", "meses": 3.6, "prazo_dias": 71, "status": "Em dia", "categoria": "Toxina/Botox"}, {"nome": "Eliene De Lima Novaes", "telefone": "+5544999320206", "wa": "5544999320206", "procedimento": "Retorno Toxina", "data": "15/05/2026", "meses": 3.5, "prazo_dias": 72, "status": "Em dia", "categoria": "Toxina/Botox"}, {"nome": "Rose Cabral", "telefone": "+5544999369317", "wa": "5544999369317", "procedimento": "Retorno Toxina", "data": "18/05/2026", "meses": 3.4, "prazo_dias": 75, "status": "Em dia", "categoria": "Toxina/Botox"}, {"nome": "Laissa Vieira", "telefone": "+5544999068555", "wa": "5544999068555", "procedimento": "Retorno Toxina", "data": "22/05/2026", "meses": 3.3, "prazo_dias": 79, "status": "Em dia", "categoria": "Toxina/Botox"}, {"nome": "Joselaine Mincheguerre Sitta", "telefone": "+5544991020012", "wa": "5544991020012", "procedimento": "Retorno Toxina", "data": "22/05/2026", "meses": 3.3, "prazo_dias": 79, "status": "Em dia", "categoria": "Toxina/Botox"}, {"nome": "Neuci Adair Guimar\u00e3es", "telefone": "+5544999366889", "wa": "5544999366889", "procedimento": "Retorno Toxina", "data": "01/06/2026", "meses": 3.0, "prazo_dias": 89, "status": "Em dia", "categoria": "Toxina/Botox"}, {"nome": "Sandra Maria De Souza Andrian", "telefone": "+5544984063375", "wa": "5544984063375", "procedimento": "Retorno Toxina", "data": "08/06/2026", "meses": 2.8, "prazo_dias": 96, "status": "Em dia", "categoria": "Toxina/Botox"}, {"nome": "Eloisa Amicci De Lima", "telefone": "+5544998191251", "wa": "5544998191251", "procedimento": "Retorno Toxina", "data": "09/06/2026", "meses": 2.7, "prazo_dias": 97, "status": "Em dia", "categoria": "Toxina/Botox"}, {"nome": "Thalita Sofia", "telefone": "+5544999189287", "wa": "5544999189287", "procedimento": "Retorno Toxina", "data": "30/06/2026", "meses": 2.0, "prazo_dias": 118, "status": "Em dia", "categoria": "Toxina/Botox"}, {"nome": "C\u00e9lis Aparecida Milani", "telefone": "+5544984052880", "wa": "5544984052880", "procedimento": "Retorno Toxina", "data": "31/07/2026", "meses": 1.0, "prazo_dias": 149, "status": "Em dia", "categoria": "Toxina/Botox"}, {"nome": "Thayara Cristina Da Silva Rocha", "telefone": "+5544988078328", "wa": "5544988078328", "procedimento": "Toxina Botul\u00ednica (Campanha Agosto)", "data": "21/08/2026", "meses": 0.3, "prazo_dias": 170, "status": "Em dia", "categoria": "Toxina/Botox"}, {"nome": "Edmeiry Cazelotto Camozzato", "telefone": "+5544984146332", "wa": "5544984146332", "procedimento": "Toxina Botul\u00ednica (Campanha Agosto)", "data": "27/08/2026", "meses": 0.1, "prazo_dias": 176, "status": "Em dia", "categoria": "Toxina/Botox"}, {"nome": "Cristiane Alves Carvalho", "telefone": "+5544988133002", "wa": "5544988133002", "procedimento": "Preenchimento Labial", "data": "10/05/2025", "meses": 15.7, "prazo_dias": -208, "status": "VENCIDO", "categoria": "Preenchimento"}, {"nome": "Jaqueline Alves Da Silva", "telefone": "+5566996446099", "wa": "5566996446099", "procedimento": "Preenchimento Labial", "data": "04/06/2025", "meses": 14.9, "prazo_dias": -183, "status": "VENCIDO", "categoria": "Preenchimento"}, {"nome": "Thayna Correia Lemes", "telefone": "+5544999663251", "wa": "5544999663251", "procedimento": "Preenchimento Labial", "data": "25/06/2025", "meses": 14.2, "prazo_dias": -162, "status": "VENCIDO", "categoria": "Preenchimento"}, {"nome": "Mariana Malvezzi", "telefone": "+5544999291881", "wa": "5544999291881", "procedimento": "Preenchimento Labial", "data": "24/07/2025", "meses": 13.2, "prazo_dias": -133, "status": "VENCIDO", "categoria": "Preenchimento"}, {"nome": "Eliane Pinheiro", "telefone": "+5544991314931", "wa": "5544991314931", "procedimento": "Preenchimento Labial", "data": "28/08/2025", "meses": 12.1, "prazo_dias": -98, "status": "VENCIDO", "categoria": "Preenchimento"}, {"nome": "Anna Carolina Domingos Rodrigues", "telefone": "+5545999078555", "wa": "5545999078555", "procedimento": "Preenchimento Mento", "data": "01/10/2025", "meses": 11.0, "prazo_dias": -64, "status": "VENCIDO", "categoria": "Preenchimento"}, {"nome": "Sandra Maria De Souza Andrian", "telefone": "+5544984063375", "wa": "5544984063375", "procedimento": "Preenchimento Labial", "data": "02/10/2025", "meses": 10.9, "prazo_dias": -63, "status": "VENCIDO", "categoria": "Preenchimento"}, {"nome": "Camilla Reggiani Nunes", "telefone": "+5544999066797", "wa": "5544999066797", "procedimento": "Preenchimento Olheira", "data": "10/11/2025", "meses": 9.7, "prazo_dias": -24, "status": "VENCIDO", "categoria": "Preenchimento"}, {"nome": "Aline Da Silva", "telefone": "+5544984474214", "wa": "5544984474214", "procedimento": "Preenchimento Mento 1 ml", "data": "24/11/2025", "meses": 9.2, "prazo_dias": -10, "status": "VENCIDO", "categoria": "Preenchimento"}, {"nome": "Gabriela Flor\u00eancio Da Silva", "telefone": "+5544998833483", "wa": "5544998833483", "procedimento": "Preenchimento Labial 1 ml", "data": "30/11/2025", "meses": 9.0, "prazo_dias": -4, "status": "VENCIDO", "categoria": "Preenchimento"}, {"nome": "Mauriza Mortean", "telefone": "+5544999140456", "wa": "5544999140456", "procedimento": "Preenchimento 1 ml", "data": "30/11/2025", "meses": 9.0, "prazo_dias": -4, "status": "VENCIDO", "categoria": "Preenchimento"}, {"nome": "Laila Da Silva Rios", "telefone": "+5544998055585", "wa": "5544998055585", "procedimento": "Preenchimento 1 ml", "data": "04/12/2025", "meses": 8.9, "prazo_dias": 0, "status": "Pr\u00f3ximo do prazo", "categoria": "Preenchimento"}, {"nome": "Ana Clara Barradas Bassi", "telefone": "+5544999078685", "wa": "5544999078685", "procedimento": "Preenchimento 1 ml", "data": "04/12/2025", "meses": 8.9, "prazo_dias": 0, "status": "Pr\u00f3ximo do prazo", "categoria": "Preenchimento"}, {"nome": "Vanda Maria Da Silva Orlando", "telefone": "+5544999243791", "wa": "5544999243791", "procedimento": "Preenchimento Labial 1 ml", "data": "08/12/2025", "meses": 8.7, "prazo_dias": 4, "status": "Pr\u00f3ximo do prazo", "categoria": "Preenchimento"}, {"nome": "Regina Munarim", "telefone": "+5544998605522", "wa": "5544998605522", "procedimento": "Preenchimento 1 ml", "data": "11/12/2025", "meses": 8.6, "prazo_dias": 7, "status": "Pr\u00f3ximo do prazo", "categoria": "Preenchimento"}, {"nome": "Andrea Angelita De Souza", "telefone": "+5544988086501", "wa": "5544988086501", "procedimento": "Preenchimento Labial", "data": "09/01/2026", "meses": 7.7, "prazo_dias": 36, "status": "Em dia", "categoria": "Preenchimento"}, {"nome": "Lais Minchguerre Da Silva Piffer", "telefone": "+5541078402691", "wa": "5541078402691", "procedimento": "Preenchimento Labial", "data": "06/02/2026", "meses": 6.8, "prazo_dias": 64, "status": "Em dia", "categoria": "Preenchimento"}, {"nome": "Gislaine Barreto Cordeiro", "telefone": "+5544984311706", "wa": "5544984311706", "procedimento": "Preenchimento Mento", "data": "16/03/2026", "meses": 5.5, "prazo_dias": 102, "status": "Em dia", "categoria": "Preenchimento"}, {"nome": "Adrielly Faccioli Oliveira De Lima", "telefone": "+5544988384387", "wa": "5544988384387", "procedimento": "Preenchimento Labial", "data": "18/03/2026", "meses": 5.5, "prazo_dias": 104, "status": "Em dia", "categoria": "Preenchimento"}, {"nome": "Ana Carolina Caetano", "telefone": "+5544984521431", "wa": "5544984521431", "procedimento": "Preenchimento Labial", "data": "18/04/2026", "meses": 4.4, "prazo_dias": 135, "status": "Em dia", "categoria": "Preenchimento"}, {"nome": "Joselaine Mincheguerre Sitta", "telefone": "+5544991020012", "wa": "5544991020012", "procedimento": "Preenchimento Labial", "data": "05/05/2026", "meses": 3.9, "prazo_dias": 152, "status": "Em dia", "categoria": "Preenchimento"}, {"nome": "Nicolli Gabrieli Marconi", "telefone": "+5544999634459", "wa": "5544999634459", "procedimento": "Preenchimento Labial", "data": "13/05/2026", "meses": 3.6, "prazo_dias": 160, "status": "Em dia", "categoria": "Preenchimento"}, {"nome": "Juliana Miguel Fernandes Da Silva", "telefone": "+5544997730183", "wa": "5544997730183", "procedimento": "Preenchimento Labial", "data": "14/05/2026", "meses": 3.6, "prazo_dias": 161, "status": "Em dia", "categoria": "Preenchimento"}, {"nome": "Fernanda Passarela", "telefone": "+5544999010642", "wa": "5544999010642", "procedimento": "Preenchimento Labial", "data": "25/05/2026", "meses": 3.2, "prazo_dias": 172, "status": "Em dia", "categoria": "Preenchimento"}, {"nome": "Andreia Martins", "telefone": "+5545991161800", "wa": "5545991161800", "procedimento": "Preenchimento Malar|Mand.", "data": "09/06/2026", "meses": 2.7, "prazo_dias": 187, "status": "Em dia", "categoria": "Preenchimento"}, {"nome": "Mariane Lissa Fernandes", "telefone": "+5567999326344", "wa": "5567999326344", "procedimento": "Preenchimento Labial", "data": "10/06/2026", "meses": 2.7, "prazo_dias": 188, "status": "Em dia", "categoria": "Preenchimento"}, {"nome": "Erika Garcia", "telefone": "+554491374475", "wa": "554491374475", "procedimento": "Preenchimento Malar|Mand.", "data": "12/06/2026", "meses": 2.6, "prazo_dias": 190, "status": "Em dia", "categoria": "Preenchimento"}, {"nome": "C\u00e9lis Aparecida Milani", "telefone": "+5544984052880", "wa": "5544984052880", "procedimento": "Preenchimento Labial", "data": "22/06/2026", "meses": 2.3, "prazo_dias": 200, "status": "Em dia", "categoria": "Preenchimento"}, {"nome": "Caroline Miguel Santos Janjao", "telefone": "+5544997405703", "wa": "5544997405703", "procedimento": "Preenchimento Mento", "data": "03/08/2026", "meses": 0.9, "prazo_dias": 242, "status": "Em dia", "categoria": "Preenchimento"}, {"nome": "Daniel San", "telefone": "+554499991019", "wa": "554499991019", "procedimento": "Preenchimento Malar|Mand.", "data": "06/08/2026", "meses": 0.8, "prazo_dias": 245, "status": "Em dia", "categoria": "Preenchimento"}]
+;
+
+const HIST = {"Elenice Maria Teodoro Da Silva": {"total_gasto": 1299.0, "n_visitas": 2, "n_procedimentos": 3, "cliente_desde": "06/2025", "procedimentos": [{"procedimento": "PDRN HA", "data": "06/05/2026", "valor": 200.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Botox - Mãe Radiante", "data": "04/06/2025", "valor": 949.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Limpeza - Mãe Radiante", "data": "04/06/2025", "valor": 150.0, "profissional": "Nathiely Garbosa"}]}, "Vanda Maria Da Silva Orlando": {"total_gasto": 3597.0, "n_visitas": 1, "n_procedimentos": 3, "cliente_desde": "12/2025", "procedimentos": [{"procedimento": "Bioestimulador de Colágeno", "data": "08/12/2025", "valor": 1699.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Botox", "data": "08/12/2025", "valor": 999.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial 1 ml", "data": "08/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}]}, "Larissa Barroso Machado Ulian": {"total_gasto": 10448.35, "n_visitas": 6, "n_procedimentos": 20, "cliente_desde": "09/2025", "procedimentos": [{"procedimento": "Microfocado - Time Reverse", "data": "01/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Microfocado - Time Reverse", "data": "01/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Ativos - Time Reverse", "data": "01/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Ativos - Time Reverse", "data": "01/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador - Time Reverse", "data": "01/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Ativos - Time Reverse", "data": "01/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Ativos - Time Reverse", "data": "31/07/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Microfocado - Time Reverse", "data": "31/07/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Microfocado - Time Reverse", "data": "31/07/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador - Time Reverse", "data": "31/07/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Ativos - Time Reverse", "data": "31/07/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Ativos - Time Reverse", "data": "31/07/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Time Reverse", "data": "13/07/2026", "valor": 2499.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Time Reverse", "data": "13/07/2026", "valor": 2499.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador de Colágeno", "data": "30/11/2025", "valor": 1699.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Rinomodelação", "data": "12/11/2025", "valor": 898.69, "profissional": "Nathiely Garbosa"}, {"procedimento": "Laser Pisom", "data": "12/11/2025", "valor": 499.83, "profissional": "Nathiely Garbosa"}, {"procedimento": "Laser Pisom", "data": "12/11/2025", "valor": 499.83, "profissional": "Nathiely Garbosa"}, {"procedimento": "Laser Pisom", "data": "25/09/2025", "valor": 599.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Toxina botulínica", "data": "25/09/2025", "valor": 1254.0, "profissional": "Nathiely Garbosa"}]}, "Laila Da Silva Rios": {"total_gasto": 5734.0, "n_visitas": 2, "n_procedimentos": 8, "cliente_desde": "12/2025", "procedimentos": [{"procedimento": "Depilação - Axilas", "data": "21/12/2025", "valor": 90.0, "profissional": "Carla Alcantara"}, {"procedimento": "Depilação - Virilha Parcial", "data": "21/12/2025", "valor": 150.0, "profissional": "Carla Alcantara"}, {"procedimento": "Preenchimento 1 ml", "data": "04/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento 1 ml", "data": "04/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento 1 ml", "data": "04/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento 1 ml", "data": "04/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Botox", "data": "04/12/2025", "valor": 999.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial 1 ml", "data": "04/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}]}, "Larissa De Souza Chagas": {"total_gasto": 1698.0, "n_visitas": 1, "n_procedimentos": 2, "cliente_desde": "08/2025", "procedimentos": [{"procedimento": "Toxina botulínica", "data": "29/08/2025", "valor": 799.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador Rennova", "data": "29/08/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}]}, "Regina Munarim": {"total_gasto": 1798.0, "n_visitas": 1, "n_procedimentos": 2, "cliente_desde": "12/2025", "procedimentos": [{"procedimento": "Preenchimento 1 ml", "data": "11/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial 1 ml", "data": "11/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}]}, "Gisele Antunes": {"total_gasto": 1499.0, "n_visitas": 1, "n_procedimentos": 1, "cliente_desde": "07/2025", "procedimentos": [{"procedimento": "Toxina botulínica", "data": "21/07/2025", "valor": 1499.0, "profissional": "Nathiely Garbosa"}]}, "Eloisa Amicci De Lima": {"total_gasto": 3349.0, "n_visitas": 3, "n_procedimentos": 3, "cliente_desde": "11/2025", "procedimentos": [{"procedimento": "Retorno Toxina", "data": "09/06/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Botox + Peeling de Ouro", "data": "26/05/2026", "valor": 999.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Criolipólise - Abdomem Completo + Costas", "data": "13/11/2025", "valor": 2350.0, "profissional": "Nayara Oliveira Cabral Trindade"}]}, "Rose Cabral": {"total_gasto": 3063.9, "n_visitas": 8, "n_procedimentos": 12, "cliente_desde": "12/2025", "procedimentos": [{"procedimento": "Ultrassom Microfocado", "data": "31/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Ultrassom Microfocado", "data": "31/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Ultrassom Microfocado", "data": "31/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Drenagem", "data": "07/08/2026", "valor": 180.0, "profissional": "Thalita Sofia"}, {"procedimento": "Drenagem", "data": "19/06/2026", "valor": 150.0, "profissional": "Thalita Sofia"}, {"procedimento": "NC Regenesis", "data": "28/05/2026", "valor": 350.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Regenera Glow", "data": "28/05/2026", "valor": 350.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "CUTE - MAHAVIS", "data": "28/05/2026", "valor": 49.9, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Retorno Toxina", "data": "18/05/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Regenesis", "data": "08/05/2026", "valor": 350.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Toxina botulínica", "data": "06/05/2026", "valor": 1499.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Nusonno", "data": "01/12/2025", "valor": 135.0, "profissional": "Nayara Oliveira Cabral Trindade"}]}, "Valéria Dos Santos Mazoni": {"total_gasto": 4048.0, "n_visitas": 2, "n_procedimentos": 3, "cliente_desde": "04/2026", "procedimentos": [{"procedimento": "Detox 1 dia (Consulta)", "data": "31/08/2026", "valor": 550.0, "profissional": "Thalita Sofia"}, {"procedimento": "Toxina botulínica", "data": "29/04/2026", "valor": 1499.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador Rennova", "data": "29/04/2026", "valor": 1999.0, "profissional": "Nathiely Garbosa"}]}, "Gabriela Florêncio Da Silva": {"total_gasto": 3746.0, "n_visitas": 2, "n_procedimentos": 4, "cliente_desde": "06/2025", "procedimentos": [{"procedimento": "Preenchimento Labial 1 ml", "data": "30/11/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Rinomodelação 1 ml", "data": "30/11/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial", "data": "02/06/2025", "valor": 949.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Rinomodelação", "data": "02/06/2025", "valor": 999.0, "profissional": "Nathiely Garbosa"}]}, "Isabela Caetano Toesca": {"total_gasto": 1698.0, "n_visitas": 1, "n_procedimentos": 2, "cliente_desde": "09/2025", "procedimentos": [{"procedimento": "Toxina botulínica", "data": "03/09/2025", "valor": 799.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador Nutriex", "data": "03/09/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}]}, "Neuci Adair Guimarães": {"total_gasto": 2325.17, "n_visitas": 2, "n_procedimentos": 3, "cliente_desde": "05/2026", "procedimentos": [{"procedimento": "Rinomodelação", "data": "01/06/2026", "valor": 1400.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Retorno Toxina", "data": "01/06/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Botox + Peeling de Ouro", "data": "15/05/2026", "valor": 925.17, "profissional": "Nathiely Garbosa"}]}, "Laira Maestro Calderon Scripes": {"total_gasto": 4248.0, "n_visitas": 2, "n_procedimentos": 3, "cliente_desde": "10/2025", "procedimentos": [{"procedimento": "Botox", "data": "25/11/2025", "valor": 999.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Rinomodelação 1 ml", "data": "25/11/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Criolipólise - Abdomem Completo + Costas", "data": "29/10/2025", "valor": 2350.0, "profissional": "Nayara Oliveira Cabral Trindade"}]}, "Ana Clara Barradas Bassi": {"total_gasto": 3686.0, "n_visitas": 2, "n_procedimentos": 5, "cliente_desde": "12/2025", "procedimentos": [{"procedimento": "Depilação - Axilas", "data": "21/12/2025", "valor": 90.0, "profissional": "Carla Alcantara"}, {"procedimento": "Preenchimento 1 ml", "data": "04/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento 1 ml", "data": "04/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento 1 ml", "data": "04/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento 1 ml", "data": "04/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}]}, "Gislaine Barreto Cordeiro": {"total_gasto": 4895.0, "n_visitas": 3, "n_procedimentos": 5, "cliente_desde": "11/2025", "procedimentos": [{"procedimento": "Preenchimento Mento", "data": "16/03/2026", "valor": 1299.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento 1 ml", "data": "04/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento 1 ml", "data": "30/11/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento 1 ml", "data": "30/11/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento 1 ml", "data": "30/11/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}]}, "Camila Vetorato": {"total_gasto": 799.0, "n_visitas": 1, "n_procedimentos": 1, "cliente_desde": "09/2025", "procedimentos": [{"procedimento": "Toxina botulínica", "data": "17/09/2025", "valor": 799.0, "profissional": "Nathiely Garbosa"}]}, "Eliandra Mendonça": {"total_gasto": 7279.0, "n_visitas": 14, "n_procedimentos": 48, "cliente_desde": "11/2025", "procedimentos": [{"procedimento": "Combo Drenagem - 4 Sessões", "data": "31/08/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "31/08/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "31/08/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "31/08/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Radiofrequência", "data": "31/08/2026", "valor": 150.0, "profissional": "Thalita Sofia"}, {"procedimento": "Radiofrequência", "data": "31/08/2026", "valor": 150.0, "profissional": "Thalita Sofia"}, {"procedimento": "Radiofrequência", "data": "07/08/2026", "valor": 150.0, "profissional": "Thalita Sofia"}, {"procedimento": "Radiofrequência", "data": "07/08/2026", "valor": 150.0, "profissional": "Thalita Sofia"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "25/07/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "25/07/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "25/07/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "25/07/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "25/07/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "25/07/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "25/07/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "25/07/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Depilação - Axilas", "data": "22/07/2026", "valor": 82.5, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Parcial", "data": "22/07/2026", "valor": 137.5, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "22/07/2026", "valor": 82.5, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Parcial", "data": "22/07/2026", "valor": 137.5, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Radiofrequência", "data": "25/06/2026", "valor": 150.0, "profissional": "Thalita Sofia"}, {"procedimento": "Radiofrequência", "data": "25/06/2026", "valor": 150.0, "profissional": "Thalita Sofia"}, {"procedimento": "Depilação - Buço", "data": "22/06/2026", "valor": 52.73, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "22/06/2026", "valor": 158.18, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "22/06/2026", "valor": 79.09, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "12/06/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "12/06/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "12/06/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Combo Drenagem - 4 Sessões", "data": "12/06/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Drenagem", "data": "08/06/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Drenagem", "data": "08/06/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Massagem Modeladora", "data": "08/05/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Massagem Modeladora", "data": "08/05/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Massagem Modeladora", "data": "08/05/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Massagem Modeladora", "data": "08/05/2026", "valor": 160.0, "profissional": "Thalita Sofia"}, {"procedimento": "Depilação - Axilas", "data": "27/04/2026", "valor": 79.09, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Buço", "data": "27/04/2026", "valor": 52.73, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "27/04/2026", "valor": 158.18, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "23/03/2026", "valor": 76.36, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Buço", "data": "23/03/2026", "valor": 50.91, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "23/03/2026", "valor": 152.73, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "23/02/2026", "valor": 76.36, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Buço", "data": "23/02/2026", "valor": 50.91, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "23/02/2026", "valor": 152.73, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "26/01/2026", "valor": 76.36, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "26/01/2026", "valor": 152.73, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Buço", "data": "26/01/2026", "valor": 50.91, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Botox", "data": "30/11/2025", "valor": 999.0, "profissional": "Nathiely Garbosa"}]}, "Camilla Reggiani Nunes": {"total_gasto": 4800.0, "n_visitas": 3, "n_procedimentos": 4, "cliente_desde": "10/2025", "procedimentos": [{"procedimento": "Preenchimento Olheira", "data": "10/11/2025", "valor": 1200.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Toxina botulínica", "data": "03/11/2025", "valor": 1200.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Toxina botulínica", "data": "08/10/2025", "valor": 1200.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Olheira", "data": "08/10/2025", "valor": 1200.0, "profissional": "Nathiely Garbosa"}]}, "Daniel De Carvalho Lopes": {"total_gasto": 999.0, "n_visitas": 1, "n_procedimentos": 1, "cliente_desde": "11/2025", "procedimentos": [{"procedimento": "Botox", "data": "30/11/2025", "valor": 999.0, "profissional": "Nathiely Garbosa"}]}, "Ana Carolina Caetano": {"total_gasto": 4838.99, "n_visitas": 2, "n_procedimentos": 6, "cliente_desde": "04/2026", "procedimentos": [{"procedimento": "Toxina botulínica", "data": "18/04/2026", "valor": 400.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial", "data": "18/04/2026", "valor": 999.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Mento", "data": "18/04/2026", "valor": 1063.33, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Malar|Mand.", "data": "18/04/2026", "valor": 1063.33, "profissional": "Nathiely Garbosa"}, {"procedimento": "Rinomodelação", "data": "18/04/2026", "valor": 1063.33, "profissional": "Nathiely Garbosa"}, {"procedimento": "Hialuronidase", "data": "13/04/2026", "valor": 250.0, "profissional": "Nathiely Garbosa"}]}, "Thalita Sofia": {"total_gasto": 700.0, "n_visitas": 2, "n_procedimentos": 3, "cliente_desde": "05/2026", "procedimentos": [{"procedimento": "Retorno Toxina", "data": "30/06/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Toxina botulínica", "data": "08/05/2026", "valor": 500.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Regenera Glow", "data": "08/05/2026", "valor": 200.0, "profissional": "Nathiely Garbosa"}]}, "Neusa Pedro Malvezzi": {"total_gasto": 999.0, "n_visitas": 1, "n_procedimentos": 1, "cliente_desde": "11/2025", "procedimentos": [{"procedimento": "Botox", "data": "30/11/2025", "valor": 999.0, "profissional": "Nathiely Garbosa"}]}, "Cristiane Alves Carvalho": {"total_gasto": 4197.0, "n_visitas": 3, "n_procedimentos": 5, "cliente_desde": "05/2025", "procedimentos": [{"procedimento": "Toxina botulínica", "data": "28/08/2025", "valor": 799.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Microagulhamento Facial", "data": "16/06/2025", "valor": 300.0, "profissional": "Fernanda Gamberini"}, {"procedimento": "Limpeza de pele c/ dermaplaning", "data": "16/06/2025", "valor": 250.0, "profissional": "Aline Brasil"}, {"procedimento": "Preenchimento Labial", "data": "10/05/2025", "valor": 949.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador Radiesse", "data": "10/05/2025", "valor": 1899.0, "profissional": "Nathiely Garbosa"}]}, "Edmeiry Cazelotto Camozzato": {"total_gasto": 3398.0, "n_visitas": 1, "n_procedimentos": 2, "cliente_desde": "08/2026", "procedimentos": [{"procedimento": "Bioestimulador Radiesse", "data": "27/08/2026", "valor": 2399.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Toxina Botulínica (Campanha Agosto)", "data": "27/08/2026", "valor": 999.0, "profissional": "Nathiely Garbosa"}]}, "Daniel San": {"total_gasto": 2694.0, "n_visitas": 3, "n_procedimentos": 4, "cliente_desde": "07/2026", "procedimentos": [{"procedimento": "NC Regenesis", "data": "20/08/2026", "valor": 420.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Malar|Mand.", "data": "06/08/2026", "valor": 1420.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Regenesis", "data": "31/07/2026", "valor": 427.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Regenesis", "data": "31/07/2026", "valor": 427.0, "profissional": "Nathiely Garbosa"}]}, "Juliana Miguel Fernandes Da Silva": {"total_gasto": 7119.0, "n_visitas": 8, "n_procedimentos": 12, "cliente_desde": "09/2025", "procedimentos": [{"procedimento": "Depilação - Virilha Completa", "data": "25/05/2026", "valor": 160.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "25/05/2026", "valor": 80.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Preenchimento Labial", "data": "14/05/2026", "valor": 1299.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador Sculptra", "data": "08/05/2026", "valor": 2200.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Depilação - Virilha Completa", "data": "27/04/2026", "valor": 160.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "27/04/2026", "valor": 80.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "23/03/2026", "valor": 160.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "23/03/2026", "valor": 80.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "23/02/2026", "valor": 160.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "23/02/2026", "valor": 80.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Preenchimento Malar|Mand.", "data": "21/10/2025", "valor": 1330.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Malar|Mand.", "data": "17/09/2025", "valor": 1330.0, "profissional": "Nathiely Garbosa"}]}, "Thayna Correia Lemes": {"total_gasto": 4599.0, "n_visitas": 2, "n_procedimentos": 6, "cliente_desde": "05/2025", "procedimentos": [{"procedimento": "Preenchimento Labial", "data": "25/06/2025", "valor": 900.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Malar|Mand.", "data": "25/06/2025", "valor": 900.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Malar|Mand.", "data": "25/06/2025", "valor": 900.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Mento", "data": "25/06/2025", "valor": 900.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Botox - Mãe Radiante", "data": "15/05/2025", "valor": 849.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Limpeza - Mãe Radiante", "data": "15/05/2025", "valor": 150.0, "profissional": "Nathiely Garbosa"}]}, "Célis Aparecida Milani": {"total_gasto": 11043.01, "n_visitas": 6, "n_procedimentos": 15, "cliente_desde": "05/2025", "procedimentos": [{"procedimento": "Retorno Toxina", "data": "31/07/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Retorno Toxina", "data": "31/07/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Toxina botulínica", "data": "22/06/2026", "valor": 1380.91, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial", "data": "22/06/2026", "valor": 1196.66, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Regenesis", "data": "22/06/2026", "valor": 322.43, "profissional": "Nathiely Garbosa"}, {"procedimento": "Botox", "data": "11/12/2025", "valor": 999.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento 1 ml", "data": "26/11/2025", "valor": 999.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador de Colágeno", "data": "26/11/2025", "valor": 1699.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial 1 ml", "data": "26/11/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Combo Laser Pisom (3 Sessões)", "data": "20/10/2025", "valor": 499.67, "profissional": "Nathiely Garbosa"}, {"procedimento": "Combo Laser Pisom (3 Sessões)", "data": "20/10/2025", "valor": 499.67, "profissional": "Nathiely Garbosa"}, {"procedimento": "Combo Laser Pisom (3 Sessões)", "data": "20/10/2025", "valor": 499.67, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial", "data": "14/05/2025", "valor": 949.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Botox - Mãe Radiante", "data": "14/05/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Limpeza - Mãe Radiante", "data": "14/05/2025", "valor": 200.0, "profissional": "Nathiely Garbosa"}]}, "Aparecida Lopes": {"total_gasto": 3697.0, "n_visitas": 1, "n_procedimentos": 3, "cliente_desde": "11/2025", "procedimentos": [{"procedimento": "Bioestimulador de Colágeno", "data": "28/11/2025", "valor": 1699.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Botox", "data": "28/11/2025", "valor": 999.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Botox", "data": "28/11/2025", "valor": 999.0, "profissional": "Nathiely Garbosa"}]}, "Mariana Malvezzi": {"total_gasto": 949.0, "n_visitas": 1, "n_procedimentos": 1, "cliente_desde": "07/2025", "procedimentos": [{"procedimento": "Preenchimento Labial", "data": "24/07/2025", "valor": 949.0, "profissional": "Nathiely Garbosa"}]}, "Deninson": {"total_gasto": 1200.0, "n_visitas": 1, "n_procedimentos": 1, "cliente_desde": "11/2025", "procedimentos": [{"procedimento": "Toxina botulínica", "data": "03/11/2025", "valor": 1200.0, "profissional": "Nathiely Garbosa"}]}, "Gisele Dos Santos Gasparetto": {"total_gasto": 16437.0, "n_visitas": 7, "n_procedimentos": 24, "cliente_desde": "12/2025", "procedimentos": [{"procedimento": "Ativos - Time Reverse", "data": "01/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Ativos - Time Reverse", "data": "01/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Ativos - Time Reverse", "data": "01/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador - Time Reverse", "data": "01/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Microfocado - Time Reverse", "data": "01/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Microfocado - Time Reverse", "data": "01/08/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Ativos - Time Reverse", "data": "31/07/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Microfocado - Time Reverse", "data": "31/07/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador - Time Reverse", "data": "31/07/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Microfocado - Time Reverse", "data": "31/07/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Ativos - Time Reverse", "data": "31/07/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Ativos - Time Reverse", "data": "31/07/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Rinomodelação", "data": "13/07/2026", "valor": 1000.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Rinomodelação", "data": "13/07/2026", "valor": 1000.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Criolipólise - Abdomem Completo", "data": "13/07/2026", "valor": 1850.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Time Reverse", "data": "13/07/2026", "valor": 2499.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Criolipólise - Pernas / Lipedema", "data": "13/07/2026", "valor": 1850.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Time Reverse", "data": "13/07/2026", "valor": 2499.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Criolipólise - Pernas / Lipedema", "data": "13/07/2026", "valor": 1850.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Criolipólise - Abdomem Completo", "data": "13/07/2026", "valor": 1850.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Depilação - Virilha Completa", "data": "24/05/2026", "valor": 180.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "23/02/2026", "valor": 180.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Toxina botulínica", "data": "13/02/2026", "valor": 1499.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Depilação - Virilha Completa", "data": "21/12/2025", "valor": 180.0, "profissional": "Nayara Oliveira Cabral Trindade"}]}, "Andrea Fernandes Marconcin": {"total_gasto": 3689.0, "n_visitas": 6, "n_procedimentos": 14, "cliente_desde": "12/2025", "procedimentos": [{"procedimento": "Depilação - Axilas", "data": "21/06/2026", "valor": 90.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Barba / Face", "data": "21/06/2026", "valor": 160.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "24/05/2026", "valor": 166.15, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "24/05/2026", "valor": 83.08, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Meia Perna", "data": "24/05/2026", "valor": 203.08, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Barba / Face", "data": "24/05/2026", "valor": 147.69, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Meia Perna", "data": "22/03/2026", "valor": 220.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Barba / Face", "data": "22/03/2026", "valor": 30.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "22/02/2026", "valor": 173.57, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Meia Perna", "data": "22/02/2026", "valor": 212.14, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Barba / Face", "data": "22/02/2026", "valor": 154.29, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "21/12/2025", "valor": 90.0, "profissional": "Carla Alcantara"}, {"procedimento": "Depilação - Barba / Face", "data": "21/12/2025", "valor": 160.0, "profissional": "Carla Alcantara"}, {"procedimento": "Toxina botulínica", "data": "11/12/2025", "valor": 1799.0, "profissional": "Nathiely Garbosa"}]}, "Jaqueline Alves Da Silva": {"total_gasto": 1945.6, "n_visitas": 1, "n_procedimentos": 3, "cliente_desde": "06/2025", "procedimentos": [{"procedimento": "Preenchimento Labial", "data": "04/06/2025", "valor": 846.6, "profissional": "Nathiely Garbosa"}, {"procedimento": "Botox - Mãe Radiante", "data": "04/06/2025", "valor": 949.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Limpeza - Mãe Radiante", "data": "04/06/2025", "valor": 150.0, "profissional": "Nathiely Garbosa"}]}, "Sandra Cristina Rocha Queiroz": {"total_gasto": 1379.0, "n_visitas": 1, "n_procedimentos": 2, "cliente_desde": "05/2026", "procedimentos": [{"procedimento": "Botox + Peeling de Ouro", "data": "14/05/2026", "valor": 999.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Regenera Glow", "data": "14/05/2026", "valor": 380.0, "profissional": "Nathiely Garbosa"}]}, "Eliene De Lima Novaes": {"total_gasto": 4500.01, "n_visitas": 2, "n_procedimentos": 6, "cliente_desde": "04/2026", "procedimentos": [{"procedimento": "Retorno Toxina", "data": "15/05/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Toxina botulínica", "data": "26/04/2026", "valor": 1285.35, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador Radiesse", "data": "26/04/2026", "valor": 1799.83, "profissional": "Nathiely Garbosa"}, {"procedimento": "PDRN HA", "data": "26/04/2026", "valor": 471.61, "profissional": "Nathiely Garbosa"}, {"procedimento": "PDRN HA", "data": "26/04/2026", "valor": 471.61, "profissional": "Nathiely Garbosa"}, {"procedimento": "PDRN HA", "data": "26/04/2026", "valor": 471.61, "profissional": "Nathiely Garbosa"}]}, "Adrielly Faccioli Oliveira De Lima": {"total_gasto": 1169.1, "n_visitas": 1, "n_procedimentos": 1, "cliente_desde": "03/2026", "procedimentos": [{"procedimento": "Preenchimento Labial", "data": "18/03/2026", "valor": 1169.1, "profissional": "Nathiely Garbosa"}]}, "Aline Da Silva": {"total_gasto": 6356.0, "n_visitas": 4, "n_procedimentos": 12, "cliente_desde": "09/2025", "procedimentos": [{"procedimento": "Massagem Modeladora", "data": "18/05/2026", "valor": 150.0, "profissional": "Thalita Sofia"}, {"procedimento": "Massagem Modeladora", "data": "18/05/2026", "valor": 150.0, "profissional": "Thalita Sofia"}, {"procedimento": "Massagem Modeladora", "data": "18/05/2026", "valor": 150.0, "profissional": "Thalita Sofia"}, {"procedimento": "Massagem Modeladora", "data": "18/05/2026", "valor": 150.0, "profissional": "Thalita Sofia"}, {"procedimento": "Preenchimento Mento 1 ml", "data": "24/11/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Criolipólise - Abdomem Completo + Costas", "data": "11/11/2025", "valor": 2350.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Criolipólise - Interno de Coxa", "data": "11/11/2025", "valor": 900.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Criolipólise - Braços", "data": "11/11/2025", "valor": 900.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Magnésio 500mg", "data": "11/11/2025", "valor": 107.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Lipo enzimática", "data": "19/09/2025", "valor": 200.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Lipo enzimática", "data": "19/09/2025", "valor": 200.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Lipo enzimática", "data": "19/09/2025", "valor": 200.0, "profissional": "Nathiely Garbosa"}]}, "Fernanda Passarela": {"total_gasto": 6397.0, "n_visitas": 3, "n_procedimentos": 5, "cliente_desde": "03/2026", "procedimentos": [{"procedimento": "Bioestimulador Radiesse", "data": "22/06/2026", "valor": 2099.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Detox Slim 60 Caps", "data": "22/06/2026", "valor": 149.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Preenchimento Labial", "data": "25/05/2026", "valor": 1299.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Mento", "data": "25/03/2026", "valor": 1500.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Mento", "data": "25/03/2026", "valor": 1350.0, "profissional": "Nathiely Garbosa"}]}, "Lais Minchguerre Da Silva Piffer": {"total_gasto": 2470.0, "n_visitas": 1, "n_procedimentos": 2, "cliente_desde": "02/2026", "procedimentos": [{"procedimento": "Preenchimento Labial", "data": "06/02/2026", "valor": 1235.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Mento", "data": "06/02/2026", "valor": 1235.0, "profissional": "Nathiely Garbosa"}]}, "Maria Eugênia Dachery": {"total_gasto": 6626.0, "n_visitas": 6, "n_procedimentos": 11, "cliente_desde": "09/2025", "procedimentos": [{"procedimento": "Depilação - Virilha Completa", "data": "22/06/2026", "valor": 157.5, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Meia Perna", "data": "22/06/2026", "valor": 192.5, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "26/04/2026", "valor": 88.39, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Meia Perna", "data": "26/04/2026", "valor": 216.07, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Barba / Face", "data": "26/04/2026", "valor": 245.54, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "22/03/2026", "valor": 157.5, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Meia Perna", "data": "22/03/2026", "valor": 192.5, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Toxina botulínica", "data": "11/12/2025", "valor": 1799.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Toxina botulínica", "data": "11/12/2025", "valor": 1799.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Limpeza de Pele", "data": "10/09/2025", "valor": 180.0, "profissional": "Aline Brasil"}, {"procedimento": "Toxina botulínica", "data": "01/09/2025", "valor": 1598.0, "profissional": "Nathiely Garbosa"}]}, "Mariane Lissa Fernandes": {"total_gasto": 3800.0, "n_visitas": 1, "n_procedimentos": 3, "cliente_desde": "06/2026", "procedimentos": [{"procedimento": "Preenchimento Labial", "data": "10/06/2026", "valor": 1350.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Mento", "data": "10/06/2026", "valor": 1350.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Malar|Mand.", "data": "10/06/2026", "valor": 1100.0, "profissional": "Nathiely Garbosa"}]}, "Nicolli Gabrieli Marconi": {"total_gasto": 6796.0, "n_visitas": 1, "n_procedimentos": 4, "cliente_desde": "05/2026", "procedimentos": [{"procedimento": "Bioestimulador Radiesse", "data": "13/05/2026", "valor": 2099.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial", "data": "13/05/2026", "valor": 1299.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial", "data": "13/05/2026", "valor": 1299.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador Radiesse", "data": "13/05/2026", "valor": 2099.0, "profissional": "Nathiely Garbosa"}]}, "Sandra Maria De Souza Andrian": {"total_gasto": 7620.05, "n_visitas": 4, "n_procedimentos": 9, "cliente_desde": "10/2025", "procedimentos": [{"procedimento": "Retorno Toxina", "data": "08/06/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador Rennova", "data": "12/05/2026", "valor": 1999.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Lift Advanced", "data": "12/05/2026", "valor": 400.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Lift Advanced", "data": "12/05/2026", "valor": 400.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Lift Advanced", "data": "12/05/2026", "valor": 400.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Toxina botulínica", "data": "11/05/2026", "valor": 1424.05, "profissional": "Nathiely Garbosa"}, {"procedimento": "Toxina botulínica", "data": "02/10/2025", "valor": 799.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial", "data": "02/10/2025", "valor": 1299.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador Nutriex", "data": "02/10/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}]}, "Andreia Martins": {"total_gasto": 6348.0, "n_visitas": 3, "n_procedimentos": 5, "cliente_desde": "05/2026", "procedimentos": [{"procedimento": "Bioestimulador Radiesse", "data": "09/06/2026", "valor": 2099.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Malar|Mand.", "data": "09/06/2026", "valor": 1300.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Malar|Mand.", "data": "09/06/2026", "valor": 1300.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial", "data": "26/05/2026", "valor": 1299.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Hialuronidase", "data": "21/05/2026", "valor": 350.0, "profissional": "Nathiely Garbosa"}]}, "Laissa Vieira": {"total_gasto": 4018.0, "n_visitas": 4, "n_procedimentos": 10, "cliente_desde": "04/2026", "procedimentos": [{"procedimento": "Depilação - Virilha Completa", "data": "24/05/2026", "valor": 157.96, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "24/05/2026", "valor": 78.98, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Meia Perna", "data": "24/05/2026", "valor": 193.06, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Retorno Toxina", "data": "22/05/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Retorno Toxina", "data": "14/05/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Depilação - Virilha Completa", "data": "26/04/2026", "valor": 143.27, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Toxina botulínica", "data": "26/04/2026", "valor": 1370.44, "profissional": "Nathiely Garbosa"}, {"procedimento": "Depilação - Axilas", "data": "26/04/2026", "valor": 71.63, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Meia Perna", "data": "26/04/2026", "valor": 175.1, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Bioestimulador Rennova", "data": "26/04/2026", "valor": 1827.56, "profissional": "Nathiely Garbosa"}]}, "Caroline Miguel Santos Janjao": {"total_gasto": 2979.0, "n_visitas": 1, "n_procedimentos": 3, "cliente_desde": "08/2026", "procedimentos": [{"procedimento": "Rinomodelação", "data": "03/08/2026", "valor": 1500.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "LIMPEZA DE PELE PREMIUM", "data": "03/08/2026", "valor": 180.0, "profissional": "Lohayne Formigoni Soares"}, {"procedimento": "Preenchimento Mento", "data": "03/08/2026", "valor": 1299.0, "profissional": "Nathiely Garbosa"}]}, "Thayara Cristina Da Silva Rocha": {"total_gasto": 8857.0, "n_visitas": 7, "n_procedimentos": 19, "cliente_desde": "12/2025", "procedimentos": [{"procedimento": "Bioestimulador + Microfocado (Campanha Agosto)", "data": "24/08/2026", "valor": 1699.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Toxina Botulínica (Campanha Agosto)", "data": "21/08/2026", "valor": 1099.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Detox Slim 60 Caps", "data": "17/08/2026", "valor": 149.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Drenagem", "data": "31/07/2026", "valor": 180.0, "profissional": "Thalita Sofia"}, {"procedimento": "Drenagem", "data": "31/07/2026", "valor": 180.0, "profissional": "Thalita Sofia"}, {"procedimento": "LIMPEZA DE PELE PREMIUM", "data": "20/07/2026", "valor": 200.0, "profissional": "Lohayne Formigoni Soares"}, {"procedimento": "LIMPEZA DE PELE PREMIUM", "data": "20/07/2026", "valor": 200.0, "profissional": "Lohayne Formigoni Soares"}, {"procedimento": "Radiofrequência", "data": "10/06/2026", "valor": 140.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Radiofrequência", "data": "10/06/2026", "valor": 140.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Radiofrequência", "data": "10/06/2026", "valor": 140.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Criolipólise - Pernas / Lipedema", "data": "10/06/2026", "valor": 900.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Radiofrequência", "data": "10/06/2026", "valor": 140.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Radiofrequência", "data": "10/06/2026", "valor": 140.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Radiofrequência", "data": "10/06/2026", "valor": 140.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Radiofrequência", "data": "10/06/2026", "valor": 140.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Radiofrequência", "data": "10/06/2026", "valor": 140.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Radiofrequência", "data": "10/06/2026", "valor": 140.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Radiofrequência", "data": "10/06/2026", "valor": 140.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Criolipólise - Abdomem Completo + Costas", "data": "04/12/2025", "valor": 2850.0, "profissional": "Nayara Oliveira Cabral Trindade"}]}, "Joselaine Mincheguerre Sitta": {"total_gasto": 3800.0, "n_visitas": 2, "n_procedimentos": 4, "cliente_desde": "05/2026", "procedimentos": [{"procedimento": "Retorno Toxina", "data": "22/05/2026", "valor": 0.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Toxina botulínica", "data": "05/05/2026", "valor": 1390.24, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial", "data": "05/05/2026", "valor": 1204.88, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Mento", "data": "05/05/2026", "valor": 1204.88, "profissional": "Nathiely Garbosa"}]}, "Erika Garcia": {"total_gasto": 9552.0, "n_visitas": 13, "n_procedimentos": 25, "cliente_desde": "11/2025", "procedimentos": [{"procedimento": "Depilação - Meia Perna", "data": "22/06/2026", "valor": 220.0, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Preenchimento Malar|Mand.", "data": "12/06/2026", "valor": 1300.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "NC Regenesis", "data": "12/06/2026", "valor": 350.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "LIMPEZA DE PELE PREMIUM", "data": "26/05/2026", "valor": 135.0, "profissional": "Lohayne Formigoni Soares"}, {"procedimento": "Depilação - Meia Perna", "data": "24/05/2026", "valor": 191.61, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "24/05/2026", "valor": 78.39, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Meia Perna", "data": "26/04/2026", "valor": 184.08, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "26/04/2026", "valor": 150.61, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "26/04/2026", "valor": 75.31, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Meia Perna", "data": "22/03/2026", "valor": 184.08, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "22/03/2026", "valor": 75.31, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "22/03/2026", "valor": 150.61, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Meia Perna", "data": "22/02/2026", "valor": 184.08, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "22/02/2026", "valor": 150.61, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "22/02/2026", "valor": 75.31, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Toxina botulínica", "data": "16/02/2026", "valor": 1620.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Depilação - Meia Perna", "data": "25/01/2026", "valor": 184.08, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Axilas", "data": "25/01/2026", "valor": 75.31, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Virilha Completa", "data": "25/01/2026", "valor": 150.61, "profissional": "Nayara Oliveira Cabral Trindade"}, {"procedimento": "Depilação - Meia Perna", "data": "21/12/2025", "valor": 191.61, "profissional": "Carla Alcantara"}, {"procedimento": "Depilação - Axilas", "data": "21/12/2025", "valor": 78.39, "profissional": "Carla Alcantara"}, {"procedimento": "Lipo enzimática", "data": "18/12/2025", "valor": 250.0, "profissional": "Aline Brasil"}, {"procedimento": "Preenchimento Labial 1 ml", "data": "03/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Rinomodelação 1 ml", "data": "03/12/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador de Colágeno", "data": "19/11/2025", "valor": 1699.0, "profissional": "Nathiely Garbosa"}]}, "Mauriza Mortean": {"total_gasto": 1898.0, "n_visitas": 1, "n_procedimentos": 2, "cliente_desde": "11/2025", "procedimentos": [{"procedimento": "Preenchimento 1 ml", "data": "30/11/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Botox", "data": "30/11/2025", "valor": 999.0, "profissional": "Nathiely Garbosa"}]}, "Andrea Angelita De Souza": {"total_gasto": 6099.0, "n_visitas": 1, "n_procedimentos": 4, "cliente_desde": "01/2026", "procedimentos": [{"procedimento": "Toxina botulínica", "data": "09/01/2026", "valor": 1500.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial", "data": "09/01/2026", "valor": 1200.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Malar|Mand.", "data": "09/01/2026", "valor": 1300.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador Sculptra", "data": "09/01/2026", "valor": 2099.0, "profissional": "Nathiely Garbosa"}]}, "Maria Regina Pereira": {"total_gasto": 799.0, "n_visitas": 1, "n_procedimentos": 1, "cliente_desde": "08/2025", "procedimentos": [{"procedimento": "Toxina botulínica", "data": "29/08/2025", "valor": 799.0, "profissional": "Nathiely Garbosa"}]}, "Anna Carolina Domingos Rodrigues": {"total_gasto": 4700.0, "n_visitas": 1, "n_procedimentos": 4, "cliente_desde": "10/2025", "procedimentos": [{"procedimento": "Preenchimento Mento", "data": "01/10/2025", "valor": 900.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Malar|Mand.", "data": "01/10/2025", "valor": 900.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Olheira", "data": "01/10/2025", "valor": 900.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador Radiesse", "data": "01/10/2025", "valor": 2000.0, "profissional": "Nathiely Garbosa"}]}, "Ana Paula Silva": {"total_gasto": 1698.0, "n_visitas": 2, "n_procedimentos": 2, "cliente_desde": "08/2025", "procedimentos": [{"procedimento": "Bioestimulador Nutriex", "data": "28/08/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Toxina botulínica", "data": "26/08/2025", "valor": 799.0, "profissional": "Nathiely Garbosa"}]}, "Eliane Pinheiro": {"total_gasto": 2750.0, "n_visitas": 1, "n_procedimentos": 3, "cliente_desde": "08/2025", "procedimentos": [{"procedimento": "Toxina botulínica", "data": "28/08/2025", "valor": 799.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Preenchimento Labial", "data": "28/08/2025", "valor": 1052.0, "profissional": "Nathiely Garbosa"}, {"procedimento": "Bioestimulador Rennova", "data": "28/08/2025", "valor": 899.0, "profissional": "Nathiely Garbosa"}]}};
+const state = { cat: 'Toxina/Botox', filter: 'all', search: '', sort: 'prazo_asc' };
+
+function statusClass(status) {
+  if (status === 'VENCIDO') return 'vencido';
+  if (status === 'Próximo do prazo') return 'proximo';
+  return 'emdia';
+}
+
+function renderSummary() {
+  const sub = DATA.filter(d => d.categoria === state.cat);
+  const vencido = sub.filter(d => d.status === 'VENCIDO').length;
+  const proximo = sub.filter(d => d.status === 'Próximo do prazo').length;
+  const emdia = sub.filter(d => d.status === 'Em dia').length;
+  const grid = document.getElementById('summaryGrid');
+  grid.innerHTML = `
+    <div class="summary-card sc-total"><div class="summary-num">${sub.length}</div><div class="summary-label">Total</div></div>
+    <div class="summary-card sc-vencido"><div class="summary-num">${vencido}</div><div class="summary-label">Vencidas</div></div>
+    <div class="summary-card sc-proximo"><div class="summary-num">${proximo}</div><div class="summary-label">Próx. do prazo</div></div>
+    <div class="summary-card sc-emdia"><div class="summary-num">${emdia}</div><div class="summary-label">Em dia</div></div>
+  `;
+}
+
+function diasDesde(dataStr) {
+  // dataStr no formato dd/mm/yyyy
+  const [d, m, y] = dataStr.split('/').map(Number);
+  const dataProc = new Date(y, m - 1, d);
+  const hoje = new Date();
+  const diffMs = hoje - dataProc;
+  return Math.max(0, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+}
+
+function waMessage(nome, procedimento, dataStr) {
+  const primeiroNome = nome.split(' ')[0];
+  const dias = diasDesde(dataStr);
+  return `Oi ${primeiroNome}! Aqui é a equipe da NC Clinic 💛
+
+Já faz ${dias} dias desde o seu último ${procedimento} com a gente. Sabemos como a correria do dia a dia pode acabar te impedindo de remarcar, mas passamos aqui pra te lembrar que esse cuidado com você não pode ficar esquecido 😊
+
+Esse mês estamos com uma campanha especial de Setembro — o Mês da Cliente NC — com condições incríveis pra você fazer seu retorno ou reaplicação.
+
+Bora agendar? Me conta qual o melhor dia pra você!`;
+}
+
+let currentWaData = null;
+
+function openWaModal(nome, wa, procedimento, dataStr) {
+  currentWaData = { wa };
+  document.getElementById('waModalName').textContent = nome;
+  document.getElementById('waTextarea').value = waMessage(nome, procedimento, dataStr);
+  document.getElementById('waOverlay').classList.add('open');
+}
+
+function closeWaModal() {
+  document.getElementById('waOverlay').classList.remove('open');
+  currentWaData = null;
+}
+
+function sendWaMessage() {
+  if (!currentWaData) return;
+  const text = document.getElementById('waTextarea').value;
+  const link = `https://wa.me/${currentWaData.wa}?text=${encodeURIComponent(text)}`;
+  window.open(link, '_blank', 'noopener');
+  closeWaModal();
+}
+
+function renderList() {
+  let sub = DATA.filter(d => d.categoria === state.cat);
+  if (state.filter !== 'all') sub = sub.filter(d => d.status === state.filter);
+  if (state.search.trim()) {
+    const q = state.search.trim().toLowerCase();
+    sub = sub.filter(d => d.nome.toLowerCase().includes(q));
+  }
+  if (state.sort === 'prazo_asc') sub.sort((a,b) => a.prazo_dias - b.prazo_dias);
+  else if (state.sort === 'prazo_desc') sub.sort((a,b) => b.prazo_dias - a.prazo_dias);
+  else sub.sort((a,b) => a.nome.localeCompare(b.nome));
+
+  document.getElementById('countLabel').textContent = `${sub.length} paciente${sub.length===1?'':'s'} encontrada${sub.length===1?'':'s'}`;
+
+  const list = document.getElementById('patientList');
+  if (sub.length === 0) {
+    list.innerHTML = `<div class="empty-state">Nenhuma paciente encontrada com esses filtros.</div>`;
+    return;
+  }
+
+  list.innerHTML = sub.map((d, i) => {
+    const sc = statusClass(d.status);
+    const diasTxt = d.prazo_dias < 0
+      ? `${Math.abs(d.prazo_dias)} dias vencido`
+      : (d.prazo_dias <= 30 ? `faltam ${d.prazo_dias} dias` : `em dia (${d.prazo_dias}d de folga)`);
+    const cardId = `card-${state.cat.replace(/[^a-zA-Z]/g,'')}-${i}`;
+    const hist = HIST[d.nome];
+    return `
+      <div class="p-card st-${sc}" id="${cardId}" onclick="toggleCard('${cardId}', event)">
+        <div class="p-card-top">
+          <div class="p-main">
+            <div class="p-name">${d.nome}</div>
+            <div class="p-detail"><strong>${d.procedimento}</strong> · última vez em ${d.data} · ${d.meses} meses atrás</div>
+            <div class="p-expand-hint">▸ clique para ver histórico completo</div>
+          </div>
+          <div class="p-status">
+            <span class="badge ${sc}">${d.status}</span>
+            <span class="p-days">${diasTxt}</span>
+            <div class="p-actions">
+              ${d.wa ? `<button class="btn-wa" onclick="event.stopPropagation(); openWaModal('${d.nome.replace(/'/g,"\\'")}', '${d.wa}', '${d.procedimento.replace(/'/g,"\\'")}', '${d.data}')">WhatsApp</button>` : `<span class="p-days">sem telefone</span>`}
+            </div>
+          </div>
+        </div>
+        <div class="p-detail-panel">
+          ${renderHistPanel(hist)}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderHistPanel(hist) {
+  if (!hist || !hist.procedimentos || hist.procedimentos.length === 0) {
+    return `<div class="p-days">Sem histórico adicional encontrado na base de faturamento.</div>`;
+  }
+  const totalFmt = hist.total_gasto.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  const rows = hist.procedimentos.map(p => {
+    const valorFmt = p.valor.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+    return `
+      <div class="hist-row">
+        <span class="hist-proc">${p.procedimento}</span>
+        <span class="hist-meta">${p.data} · ${p.profissional}</span>
+        <span class="hist-valor">R$ ${valorFmt}</span>
+      </div>
+    `;
+  }).join('');
+  return `
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-num">R$ ${totalFmt}</div><div class="stat-lbl">Total gasto no período</div></div>
+      <div class="stat-box"><div class="stat-num">${hist.n_visitas}</div><div class="stat-lbl">Visitas à clínica</div></div>
+      <div class="stat-box"><div class="stat-num">${hist.cliente_desde || '—'}</div><div class="stat-lbl">Cliente desde</div></div>
+    </div>
+    <div class="history-label">Histórico completo de procedimentos</div>
+    <div class="history-list">${rows}</div>
+  `;
+}
+
+function toggleCard(cardId, evt) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  card.classList.toggle('expanded');
+}
+
+function renderAll() { renderSummary(); renderList(); }
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.cat = btn.dataset.cat;
+    renderAll();
+  });
+});
+
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    state.filter = chip.dataset.f;
+    renderList();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  state.search = e.target.value;
+  renderList();
+});
+
+document.getElementById('sortSelect').addEventListener('change', (e) => {
+  state.sort = e.target.value;
+  renderList();
+});
+
+renderAll();
+
+// ── password gate (conveniência, não segurança real) ──
+function checkPw() {
+  const val = document.getElementById('pw').value;
+  if (val === '3606') {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    try { sessionStorage.setItem('nc_follow_ok','1'); } catch(e) {}
+  } else {
+    document.getElementById('pwErr').textContent = 'Senha incorreta';
+  }
+}
+document.getElementById('pw').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') checkPw();
+});
+try {
+  if (sessionStorage.getItem('nc_follow_ok') === '1') {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  }
+} catch(e) {}
+</script>
+
+</body>
+</html>
